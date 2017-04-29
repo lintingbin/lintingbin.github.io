@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2017-04-29T10:07:38.052Z</updated>
+  <updated>2017-04-29T10:20:51.228Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://yoursite.com/2017/04/29/%E4%BD%BF%E7%94%A8HEXO%E5%9C%A8github%E4%B8%8A%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/"/>
     <id>http://yoursite.com/2017/04/29/使用HEXO在github上搭建个人博客/</id>
     <published>2017-04-29T07:40:51.000Z</published>
-    <updated>2017-04-29T10:07:38.052Z</updated>
+    <updated>2017-04-29T10:20:51.228Z</updated>
     
     <content type="html"><![CDATA[<p>在平时的工作中经常会遇到一些问题，在解决问题的时候如果能够及时记录下来是最好不过的，所以一直想维护一个自己的博客。虽然国内有各种技术博客（比如：CSDN，博客园）之类的第三方博客平台，但是作为一个程序员，不搭建一个自己的博客感觉不够酷。所以我就选择使用HEXO在Github上面搭建自己的个人博客。</p>
 <p>下面的安装教程都是在Window x64的环境下进行的</p>
@@ -35,7 +35,7 @@
 <blockquote>
 <p>安装NodeJs</p>
 </blockquote>
-<p>由于Hexo是基于NodeJs的框架，所有实用Hexo前要先安装NodeJs，安装NodeJs也非常简单，只需要下载软件，点下一步就行了。现在新的版本的NodeJs，会同时安装npm（Node包管理软件），所以安装起来非常简单。</p>
+<p>由于Hexo是基于NodeJs的框架，所以使用Hexo前要先安装NodeJs，安装NodeJs也非常简单，只需要下载软件，点下一步就行了。现在新的版本的NodeJs，会同时安装npm（Node包管理软件），所以安装起来非常简单。</p>
 <blockquote>
 <p>安装Hexo</p>
 </blockquote>
@@ -50,7 +50,7 @@
 <blockquote>
 <p>生成静态页面</p>
 </blockquote>
-<p>继续再Blog目录下执行如下命令，生成静态页面</p>
+<p>继续在MyBlog目录下执行如下命令，生成静态页面</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hexo generate // 简写 hexo g</div></pre></td></tr></table></figure>
 <blockquote>
 <p>本地启动</p>
@@ -59,7 +59,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hexo server   // 动态启动，有修改发生会自动检测，简写 hexo s</div></pre></td></tr></table></figure>
 <p>然后在浏览器输入 <a href="http://localhost:4000" target="_blank" rel="external">http://localhost:4000</a> 就可以看到博客的页面，当然也在服务器启动的时候加上-p来指定自己想要的端口</p>
 <h4 id="部署步骤"><a href="#部署步骤" class="headerlink" title="部署步骤"></a>部署步骤</h4><blockquote>
-<p>安装hexo-deployer-git</p>
+<p>安装 hexo-deployer-git</p>
 </blockquote>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm install hexo-deployer-git --save</div></pre></td></tr></table></figure>
 <blockquote>
@@ -71,8 +71,9 @@
 <p>开始部署</p>
 </blockquote>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hexo deploy</div></pre></td></tr></table></figure>
-<p>部署完成之后就可以使用your_username.github.io来访问你的个人博客了</p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>总的来说用Hexo在Github上搭建个人博客还是比较简单的，当然这边只是涉及到最简单的搭建，还没有涉及到主题的更换、评论系统，统计系统。更多关于Hexo的使用文档可以浏览Hexo的中文官网，里面有详细的使用教程和主题。</p>
+<p>部署完成之后就可以使用your_username.github.io来访问你的个人博客了, 之后的部署命令应该是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">hexo clean</div><div class="line">hexo generate</div><div class="line">hexo deploy</div></pre></td></tr></table></figure>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>总的来说用Hexo在Github上搭建个人博客还是比较简单的，当然这边只是涉及到最简单的搭建，还没有涉及到主题的更换、评论系统，统计系统。更多关于Hexo的使用文档可以浏览Hexo的中文官网，里面有详细的使用教程和很多可选的精美主题。</p>
 ]]></content>
     
     <summary type="html">
