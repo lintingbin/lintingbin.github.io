@@ -4,9 +4,9 @@
   <subtitle>不如烂笔头</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://yoursite.com/"/>
+  <link href="https://lintingbin2009.github.io/"/>
   <updated>2017-04-29T10:20:51.228Z</updated>
-  <id>http://yoursite.com/</id>
+  <id>https://lintingbin2009.github.io/</id>
   
   <author>
     <name>lintingbin2009</name>
@@ -17,8 +17,8 @@
   
   <entry>
     <title>使用HEXO在Github上搭建个人博客</title>
-    <link href="http://yoursite.com/2017/04/29/%E4%BD%BF%E7%94%A8HEXO%E5%9C%A8github%E4%B8%8A%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/"/>
-    <id>http://yoursite.com/2017/04/29/使用HEXO在github上搭建个人博客/</id>
+    <link href="https://lintingbin2009.github.io/2017/04/29/%E4%BD%BF%E7%94%A8HEXO%E5%9C%A8github%E4%B8%8A%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/"/>
+    <id>https://lintingbin2009.github.io/2017/04/29/使用HEXO在github上搭建个人博客/</id>
     <published>2017-04-29T07:40:51.000Z</published>
     <updated>2017-04-29T10:20:51.228Z</updated>
     
@@ -82,12 +82,12 @@
     
     </summary>
     
-      <category term="教程" scheme="http://yoursite.com/categories/%E6%95%99%E7%A8%8B/"/>
+      <category term="教程" scheme="https://lintingbin2009.github.io/categories/%E6%95%99%E7%A8%8B/"/>
     
     
-      <category term="Hexo" scheme="http://yoursite.com/tags/Hexo/"/>
+      <category term="Hexo" scheme="https://lintingbin2009.github.io/tags/Hexo/"/>
     
-      <category term="Github" scheme="http://yoursite.com/tags/Github/"/>
+      <category term="Github" scheme="https://lintingbin2009.github.io/tags/Github/"/>
     
   </entry>
   
