@@ -3,6 +3,42 @@
   
     
     <entry>
+      <title><![CDATA[为什么使用Erlang?]]></title>
+      <url>/2017/04/29/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8Erlang/</url>
+      <content type="html"><![CDATA[<h3 id="主要特性"><a href="#主要特性" class="headerlink" title="主要特性"></a>主要特性</h3><p>如果问我觉得Erlang最重要的特性是什么的话，我觉得应该是并发。</p>
+<p>并发能够带来的好处是不言而喻的，比如：</p>
+<ul>
+<li>性能<br>现在的计算机由于主频的限制，都在往多核的方式发展，有些比较高端的机器甚至有几十个核心。如果编写的程序都是顺序运行的话将会严重浪费多核计算机的计算能力。Erlang本身是面向并发编程的，如果把之前在单核机器上面跑的Erlang程序放到多核机器上面跑的话，性能将会极大的提高。</li>
+<li>扩展性<br>如果在一台机器上面运行Erlang程序还不能满足性能的要求的话，可以简单的升级机器的CPU核心个数，甚至可以经过简单的改造把不同的进程分配到不同的机器上面运行，通过水平扩展方式来满足高并发的业务需求。</li>
+<li>容错性<br>Erlang内部实现的进程是相互独立的，一个进程的崩溃并不会影响到另外一个进程的运行，同时Erlang内部还OTP框架来保证系统的容错性。</li>
+<li>清晰性<br>Erlang世界观和现实的世界是一样的，在大多数的编程语言里面事情都是顺序发生的，但是在Erlang的世界里面所有的事件都是并发的，在编写程序的时候能够比较清晰的把现实世界事件的并行发生的的特性映射到Erlang的并发编程上面。</li>
+</ul>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>快速介绍下Erlang比较与众不认同的特性：</p>
+<ul>
+<li>Erlang Shell<br>在编写Erlang程序的过程中会有很多时间花费在Erlang Shell里面，Erlang Shell类似于Linux的Bash，开发者能在Erlang Shell里面运行表达式，通过这种交互方式，开发者能够在Erlang Shell里面调试正在运行的Erlang程序（包括远程的Erlang程序）。</li>
+<li>= 操作符<br>在一般的编程语言里面，=表示赋值操作，一个变量能够被多次赋值。但是在Erlang里面变量是不可变的，一旦通过=绑定之后，该变量的值就不能发生改变了，重复绑定会导致异常。</li>
+<li>变量和原子<br>所有Erlang的变量都是以大写字母开头的，比如：One、This和My_baby这些都是变量。以小写字母开头的则是符号常量（被称为原子：atom），比如：person、one和hello_world。</li>
+<li>进程<br>Erlang的进程是Erlang虚拟机内部自己实现的进程，非常轻量级，刚开始创建的时候每个进程的大小也就2KB左右，1GB的内存就可以创建50万个进程。同时进程间没有共享内存，进程间的通信通过消息转发实现。</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>Erlang的特性决定了它是一门比较另类的语言，相信第一次见到它的人会觉得很吃惊，世界上居然会有这样的一门语言。但正是由于这些看似奇怪的特性，让Erlang能够在当今多核的时代充分的发挥它的能力。</p>
+]]></content>
+      
+        <categories>
+            
+            <category> Erlang入门教程 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Erlang </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[使用HEXO在Github上搭建个人博客]]></title>
       <url>/2017/04/29/%E4%BD%BF%E7%94%A8HEXO%E5%9C%A8github%E4%B8%8A%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/</url>
       <content type="html"><![CDATA[<p>在平时的工作中经常会遇到一些问题，在解决问题的时候如果能够及时记录下来是最好不过的，所以一直想维护一个自己的博客。虽然国内有各种技术博客（比如：CSDN，博客园）之类的第三方博客平台，但是作为一个程序员，不搭建一个自己的博客感觉不够酷。所以我就选择使用HEXO在Github上面搭建自己的个人博客。</p>
