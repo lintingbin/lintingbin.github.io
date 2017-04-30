@@ -3,6 +3,106 @@
   
     
     <entry>
+      <title><![CDATA[Erlang数据类型]]></title>
+      <url>/2017/04/30/Erlang%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/</url>
+      <content type="html"><![CDATA[<p>Erlang提供的数据类型，包括以下几种：</p>
+<h4 id="基本类型"><a href="#基本类型" class="headerlink" title="基本类型"></a>基本类型</h4><ul>
+<li>数字(Number)<br>数字类型又包含整数(integers)和浮点数(floats)类型，其中整数是精确的而且是支持大数的，小数是满足IEEE754规则的64位浮点数。Erlang支持ASCII或者Unicode转换成整数值，同时支持整数不同进制的表示。（‘%’后的内容为注释）<blockquote>
+<p>1&gt; $a.　　%% ASCII表中的a是97<br>97<br>2&gt; $哈.<br>21704<br>3&gt; $\n.<br>10<br>4&gt; 2#100.　　%% 用100表示的二进制是4<br>4<br>5&gt; 4#100.<br>16<br>6&gt; 16#100.<br>256</p>
+</blockquote>
+</li>
+<li>原子(Atom)<br>原子可以理解为一个不可变的常量，必须以小写字母开头，如果要以大写、下划线或者其他的特殊字符开头，必须加上单引号。原子在Erlang里面是存在一张表上面的，原子的个数有上限，大概是在一百万个左右。<blockquote>
+<p>test<br>‘Myhome’<br>‘_hero’</p>
+</blockquote>
+</li>
+<li>位串和二进制(Bit Strings and Binaries)<br>在大多数情况下，二进制型里的位数都会是8的整数倍，因此对应一个字节串。如果位数不是8的整数倍，就称这段数据为位串（bitstring）。所以当我们说位串时，是在强调数据里的位数不是8的整数倍。位语法是一种表示法，用于从二进制数据里提取或加入单独的位或者位串。当你编写底层代码，以位为单位打包和解包二进制数据时，就会发现位语法是极其有用的。<blockquote>
+<p>1&gt; &lt;<257,1,2,3,5>&gt;. 　　%%二进制型的元素如果大于8位的会自动截断，257截断成1<br>&lt;<1,1,2,3,5>&gt;<br>2&gt; &lt;<0:7,1:2>&gt;. 　　%%二进制型位数如果不是8的整数倍就会产生位串，这边多了1位1<br>&lt;<0,1:1>&gt;<br>3&gt; &lt;<0:3,0:4,1:2>&gt;.<br>&lt;<0,1:1>&gt;</0,1:1></0:3,0:4,1:2></0,1:1></0:7,1:2></1,1,2,3,5></257,1,2,3,5></p>
+</blockquote>
+</li>
+<li>引用(Reference)<br>可以通过make_ref/0函数来创建一个引用，引用在Erlang程序运行时调用make_ref函数产生的是全局唯一的。比如timer模块在创建一个定时任务的时候通常会返回一个引用，可以通过这个引用来取消定时任务。</li>
+<li>函数(Fun)<br>函数在Erlang里面也算是一种数据类型，通过给变量绑定函数，可以通过变量名来执行函数。<blockquote>
+<p>1&gt; Fun = fun(X) -&gt; X * X end.<br>#Fun<erl_eval.6.50752066><br>2&gt; Fun(9).<br>81</erl_eval.6.50752066></p>
+</blockquote>
+</li>
+<li>端口标识符(Port Identifier)<br>端口用于与外界通信，由通过函数open_port/2来创建。消息可以通过端口进行收发，但是这些消息必须遵守所谓“端口协议”(port protocol)的规则。</li>
+<li>进程标识符(Pid)<br>当创建一个进程的时候会产生一个进程标识符，可以通过这个进程标识符和进程进行通讯。<blockquote>
+<p>1&gt; Process1 = spawn(fun() -&gt; receive X -&gt; io:format(“recv ~p, bye~n”, [X]) end end).<br><0.34.0>　　%% 创建一个进程等待接收消息<br>2&gt; Process1 ! my_test.　　%% 给进程发消息<br>recv my_test, bye<br>my_test</0.34.0></p>
+</blockquote>
+</li>
+</ul>
+<h4 id="复合类型"><a href="#复合类型" class="headerlink" title="复合类型"></a>复合类型</h4><p>为了方便定义以下的这些复合类型，我把上述的所有基本类型都称为Term。</p>
+<ul>
+<li><p>元组(Tuple)<br>元组类似于C语言里面的结构体(Struct)，是由固定数量的元素组成的复合数据类型，可以定义成如下结构：</p>
+<blockquote>
+<p>{Term1, Term2, …, TermN}</p>
+</blockquote>
+<p>可以通过模式匹配或者element/2函数来提取元组里面元素的值，通过setelement/3来设置元组里面元素的值，size可以取元组里面元素的个数。</p>
+<blockquote>
+<p>1&gt; P = {adam,24,{july,29}}.<br>{adam,24,{july,29}}<br>2&gt; element(1,P).<br>adam<br>3&gt; element(3,P).<br>{july,29}<br>4&gt; P2 = setelement(2,P,25).<br>{adam,25,{july,29}}<br>5&gt; size(P).<br>3<br>6&gt; {adam, Old, {Month, Day}} = P.<br>{adam,24,{july,29}}<br>7&gt; Old.<br>24</p>
+</blockquote>
+</li>
+<li><p>映射组(Map)<br>映射组是一个由多个Key-Vaule结构组成的符合数据类型，可以定义为如下结构：</p>
+<blockquote>
+<p>#{Key1=&gt;Value1, Key2=&gt;Value2, …, KeyN=&gt;ValueN}<br>其中Key、Value都是Term</p>
+</blockquote>
+<p>可以通过maps模块提供的一些函数对映射组进行操作</p>
+<blockquote>
+<p>1&gt; M1 = #{name=&gt;adam,age=&gt;24,date=&gt;{july,29}}.<br>#{age =&gt; 24,date =&gt; {july,29},name =&gt; adam}<br>2&gt; maps:get(name,M1).<br>adam<br>3&gt; maps:get(date,M1).<br>{july,29}<br>4&gt; M2 = maps:update(age,25,M1).<br>#{age =&gt; 25,date =&gt; {july,29},name =&gt; adam}<br>5&gt; map_size(M).<br>3<br>6&gt; map_size(#{}).<br>0</p>
+</blockquote>
+</li>
+<li><p>列表(List)<br>列表类似于其他语言里面的数组，是由可变数量的元素组成的复合数据结构，可以定义成如下结构：</p>
+<blockquote>
+<p>[Term1, Term2, …, TermN]</p>
+</blockquote>
+<p>在Erlang里面，列表由一个头和一个尾组成，空列表也是一个列表。所以列表也可以有一个递归的定义  </p>
+<blockquote>
+<p>List = [Term| List] | []<br>[] 是一个列表, 因此<br>[c|[]] 是一个列表, 因此<br>[b|[c|[]]] 是一个列表, 因此<br>[a|[b|[c|[]]]] 是一个列表, 或者简写为 [a,b,c]</p>
+</blockquote>
+<p>lists模块可以提供大量函数对列表进行操作：</p>
+<blockquote>
+<p>1&gt; L = [3,3,4,2,1,2,34].<br>[3,3,4,2,1,2,34]<br>2&gt; length(L).<br>7<br>3&gt; lists:sort(L).<br>[1,2,2,3,3,4,34]<br>4&gt; lists:reverse(L).<br>[34,2,1,2,4,3,3]</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="其他类型-不算数据类型"><a href="#其他类型-不算数据类型" class="headerlink" title="其他类型(不算数据类型)"></a>其他类型(不算数据类型)</h4><ul>
+<li>字符串(String)<br>字符串用一对双引号括起来，但不算是Erlang中的数据类型。字符串仅仅是列表的一个缩写，比如：字符串”hello”是列表[$h,$e,$l,$l,$o]的一个缩写。两个相邻的字符串在编译的时候连接成一个字符串，不会造成任何运行时开销。<blockquote>
+<p>1&gt; “hello” “ “ “world”.<br>“hello world”</p>
+</blockquote>
+</li>
+<li><p>记录(Record)<br>记录其实就是元组的另一种形式。通过使用记录，可以给元组里的各个元素关联一个名称。对记录的处理是在编译的时候完成的，在运行时是不会有记录的，可以把记录理解成是元组的一种语法糖。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(person)</span>.</div><div class="line"><span class="keyword">-export</span><span class="params">([new/<span class="number">2</span>])</span>.</div><div class="line"><span class="keyword">-record</span><span class="params">(person, &#123;name, age&#125;)</span>.</div><div class="line"><span class="function"><span class="title">new</span><span class="params">(Name, Age)</span> -&gt;</span></div><div class="line">    #person&#123;name=Name, age=Age&#125;.</div></pre></td></tr></table></figure>
+<blockquote>
+<p>1&gt; person:new(ernie, 44).<br>{person,ernie,44}</p>
+</blockquote>
+</li>
+<li><p>布尔类型(Boolean)<br>在Erlang中没有Boolean类型。而是用原子true和false来表示布尔值。</p>
+<blockquote>
+<p>1&gt; 2 =&lt; 3.<br>true<br>2&gt; true or false.<br>true</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="类型转换"><a href="#类型转换" class="headerlink" title="类型转换"></a>类型转换</h4><p>Erlang提供了一些内置的类型转换函数，可以方便地进行类型转换，下面是一些类型转换的例子：</p>
+<blockquote>
+<p>1&gt; atom_to_list(hello).<br>“hello”<br>2&gt; list_to_atom(“hello”).<br>hello<br>3&gt; binary_to_list(&lt;&lt;”hello”&gt;&gt;).<br>“hello”<br>4&gt; binary_to_list(&lt;<104,101,108,108,111>&gt;).<br>“hello”<br>5&gt; list_to_binary(“hello”).<br>&lt;<104,101,108,108,111>&gt;<br>6&gt; float_to_list(7.0).<br>“7.00000000000000000000e+00”<br>7&gt; list_to_float(“7.000e+00”).<br>7.0<br>8&gt; integer_to_list(77).<br>“77”<br>9&gt; list_to_integer(“77”).<br>77<br>10&gt; tuple_to_list({a,b,c}).<br>[a,b,c]<br>11&gt; list_to_tuple([a,b,c]).<br>{a,b,c}<br>12&gt; term_to_binary({a,b,c}).<br>&lt;<131,104,3,100,0,1,97,100,0,1,98,100,0,1,99>&gt;<br>13&gt; binary_to_term(&lt;<131,104,3,100,0,1,97,100,0,1,98,100,0,1,99>&gt;).<br>{a,b,c}<br>14&gt; binary_to_integer(&lt;&lt;”77”&gt;&gt;).<br>77<br>15&gt; integer_to_binary(77).<br>&lt;&lt;”77”&gt;&gt;<br>16&gt; float_to_binary(7.0).<br>&lt;&lt;”7.00000000000000000000e+00”&gt;&gt;<br>17&gt; binary_to_float(&lt;&lt;”7.000e+00&gt;&gt;”).<br>7.0</131,104,3,100,0,1,97,100,0,1,98,100,0,1,99></131,104,3,100,0,1,97,100,0,1,98,100,0,1,99></104,101,108,108,111></104,101,108,108,111></p>
+</blockquote>
+]]></content>
+      
+        <categories>
+            
+            <category> Erlang入门教程 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Erlang </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[为什么使用Erlang?]]></title>
       <url>/2017/04/29/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8Erlang/</url>
       <content type="html"><![CDATA[<h3 id="主要特性"><a href="#主要特性" class="headerlink" title="主要特性"></a>主要特性</h3><p>如果问我觉得Erlang最重要的特性是什么的话，我觉得应该是并发。</p>
