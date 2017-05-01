@@ -3,6 +3,29 @@
   
     
     <entry>
+      <title><![CDATA[剑指offer——C语言实现]]></title>
+      <url>/2017/05/01/%E5%89%91%E6%8C%87offer%E2%80%94%E2%80%94C%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0/</url>
+      <content type="html"><![CDATA[<p>之前实习的时候为了能够比较顺利的找到一个实习，特意练习了下代码能力，期间看了挺多的算法书籍，然后把剑指offer书本上的那些练习大部分都自己用C语言实现了一遍。<br>这些练习的代码都已经传到了Github上面了，地址是：<br><a href="https://github.com/lintingbin2009/C-language/tree/master/%E5%89%91%E6%8C%87offer" target="_blank" rel="external">https://github.com/lintingbin2009/C-language/tree/master/%E5%89%91%E6%8C%87offer</a><br>有需要的可以自取，如果觉得对你有帮助的话，记得给我个星星哈～</p>
+]]></content>
+      
+        <categories>
+            
+            <category> 代码 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> 剑指offer </tag>
+            
+            <tag> C语言 </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[Erlang数据类型]]></title>
       <url>/2017/04/30/Erlang%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/</url>
       <content type="html"><![CDATA[<p>Erlang提供的数据类型，包括以下几种：</p>
