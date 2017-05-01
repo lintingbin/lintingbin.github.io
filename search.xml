@@ -3,6 +3,33 @@
   
     
     <entry>
+      <title><![CDATA[吴恩达机器学习课程练习实现]]></title>
+      <url>/2017/05/01/%E5%90%B4%E6%81%A9%E8%BE%BE%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E8%AF%BE%E7%A8%8B%E7%BB%83%E4%B9%A0%E5%AE%9E%E7%8E%B0/</url>
+      <content type="html"><![CDATA[<p>由于当前机器学习大火，让我对机器学习产生浓厚的兴趣，所以我就上网查了下机器学习的入门教程，大多数的人还是比较推荐吴恩达老师的机器学习课程的。所以我就在Coursera上面学习了吴恩达的机器学习课程，现在已经顺利的毕业了。<br>在Coursera上面每学完一小节课程都会有相应的练习，系统会自动对你提交的练习进行打分，要达到指定的分数才能顺利通过，这点Coursera的体验还是做的比较好的，但是由于国内网络的原因，在Coursera上面看视频，如果不使用科学上网的话，有时候是看不了的。<br>我做练习用的是Octave，用Octave提交代码的时候会报错，需要在练习中进行以下的代码替换:</p>
+<blockquote>
+<p>lib/submitWithConfiguration.m 文件66行</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">responseBody = urlread(submissionUrl, &apos;post&apos;, params);</div></pre></td></tr></table></figure>
+<p>替换成：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[code, responseBody] = system(sprintf(&apos;echo jsonBody=%s | curl -k -X POST -d @- %s&apos;, body, submissionUrl));</div></pre></td></tr></table></figure></p>
+<p>最后附上我的练习代码，有需要的可以自取，如果对你有帮助的话，记得给我星星哈～<br>代码地址：<a href="https://github.com/lintingbin2009/machine-learning-ex" target="_blank" rel="external">https://github.com/lintingbin2009/machine-learning-ex</a></p>
+]]></content>
+      
+        <categories>
+            
+            <category> 代码 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> 机器学习 </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[剑指offer——C语言实现]]></title>
       <url>/2017/05/01/%E5%89%91%E6%8C%87offer%E2%80%94%E2%80%94C%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0/</url>
       <content type="html"><![CDATA[<p>之前实习的时候为了能够比较顺利的找到一个实习，特意练习了下代码能力，期间看了挺多的算法书籍，然后把剑指offer书本上的那些练习大部分都自己用C语言实现了一遍。<br>这些练习的代码都已经传到了Github上面了，地址是：<br><a href="https://github.com/lintingbin2009/C-language/tree/master/%E5%89%91%E6%8C%87offer" target="_blank" rel="external">https://github.com/lintingbin2009/C-language/tree/master/%E5%89%91%E6%8C%87offer</a><br>有需要的可以自取，如果觉得对你有帮助的话，记得给我个星星哈～</p>

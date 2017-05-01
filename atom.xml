@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://lintingbin2009.github.io/"/>
-  <updated>2017-05-01T04:18:07.601Z</updated>
+  <updated>2017-05-01T04:52:15.583Z</updated>
   <id>https://lintingbin2009.github.io/</id>
   
   <author>
@@ -14,6 +14,35 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>吴恩达机器学习课程练习实现</title>
+    <link href="https://lintingbin2009.github.io/2017/05/01/%E5%90%B4%E6%81%A9%E8%BE%BE%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E8%AF%BE%E7%A8%8B%E7%BB%83%E4%B9%A0%E5%AE%9E%E7%8E%B0/"/>
+    <id>https://lintingbin2009.github.io/2017/05/01/吴恩达机器学习课程练习实现/</id>
+    <published>2017-05-01T04:30:06.000Z</published>
+    <updated>2017-05-01T04:52:15.583Z</updated>
+    
+    <content type="html"><![CDATA[<p>由于当前机器学习大火，让我对机器学习产生浓厚的兴趣，所以我就上网查了下机器学习的入门教程，大多数的人还是比较推荐吴恩达老师的机器学习课程的。所以我就在Coursera上面学习了吴恩达的机器学习课程，现在已经顺利的毕业了。<br>在Coursera上面每学完一小节课程都会有相应的练习，系统会自动对你提交的练习进行打分，要达到指定的分数才能顺利通过，这点Coursera的体验还是做的比较好的，但是由于国内网络的原因，在Coursera上面看视频，如果不使用科学上网的话，有时候是看不了的。<br>我做练习用的是Octave，用Octave提交代码的时候会报错，需要在练习中进行以下的代码替换:</p>
+<blockquote>
+<p>lib/submitWithConfiguration.m 文件66行</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">responseBody = urlread(submissionUrl, &apos;post&apos;, params);</div></pre></td></tr></table></figure>
+<p>替换成：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[code, responseBody] = system(sprintf(&apos;echo jsonBody=%s | curl -k -X POST -d @- %s&apos;, body, submissionUrl));</div></pre></td></tr></table></figure></p>
+<p>最后附上我的练习代码，有需要的可以自取，如果对你有帮助的话，记得给我星星哈～<br>代码地址：<a href="https://github.com/lintingbin2009/machine-learning-ex" target="_blank" rel="external">https://github.com/lintingbin2009/machine-learning-ex</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;由于当前机器学习大火，让我对机器学习产生浓厚的兴趣，所以我就上网查了下机器学习的入门教程，大多数的人还是比较推荐吴恩达老师的机器学习课程的。所以我就在Coursera上面学习了吴恩达的机器学习课程，现在已经顺利的毕业了。&lt;br&gt;在Coursera上面每学完一小节课程都会有相
+    
+    </summary>
+    
+      <category term="代码" scheme="https://lintingbin2009.github.io/categories/%E4%BB%A3%E7%A0%81/"/>
+    
+    
+      <category term="机器学习" scheme="https://lintingbin2009.github.io/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+  </entry>
   
   <entry>
     <title>剑指offer——C语言实现</title>
