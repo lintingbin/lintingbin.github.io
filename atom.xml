@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://lintingbin2009.github.io/"/>
-  <updated>2017-05-01T04:52:15.583Z</updated>
+  <updated>2017-05-01T08:39:07.716Z</updated>
   <id>https://lintingbin2009.github.io/</id>
   
   <author>
@@ -14,6 +14,34 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Erlang中catch和try...catch的区别</title>
+    <link href="https://lintingbin2009.github.io/2017/05/01/Erlang%E4%B8%ADcatch%E5%92%8Ctry...catch%E7%9A%84%E5%8C%BA%E5%88%AB/"/>
+    <id>https://lintingbin2009.github.io/2017/05/01/Erlang中catch和try...catch的区别/</id>
+    <published>2017-05-01T08:06:51.000Z</published>
+    <updated>2017-05-01T08:39:07.716Z</updated>
+    
+    <content type="html"><![CDATA[<p>在Erlang的错误处理中，catch并不是try…catch的缩写，try…catch和catch是不同的。下面我将通过一个例子来区别出他们的不同，为以后的使用做一个参考。<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="comment">%% exception_test.erl 代码文件</span></div><div class="line"><span class="keyword">-module</span><span class="params">(exception_test)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-compile</span><span class="params">(export_all)</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">generate_exception</span><span class="params">(<span class="number">1</span>)</span> -&gt;</span> a;</div><div class="line"><span class="function"><span class="title">generate_exception</span><span class="params">(<span class="number">2</span>)</span> -&gt;</span> throw(a);</div><div class="line"><span class="function"><span class="title">generate_exception</span><span class="params">(<span class="number">3</span>)</span> -&gt;</span> error(a);</div><div class="line"><span class="function"><span class="title">generate_exception</span><span class="params">(<span class="number">4</span>)</span> -&gt;</span> exit(a);</div><div class="line"><span class="function"><span class="title">generate_exception</span><span class="params">(<span class="number">5</span>)</span> -&gt;</span> &#123;'EXIT', a&#125;.</div><div class="line"></div><div class="line"><span class="function"><span class="title">test_use_catch</span><span class="params">()</span> -&gt;</span></div><div class="line">    [&#123;I, catch generate_exception(I)&#125; || I &lt;- lists:seq(<span class="number">1</span>, <span class="number">5</span>)].</div><div class="line"></div><div class="line"><span class="function"><span class="title">test_user_try_catch</span><span class="params">()</span> -&gt;</span></div><div class="line">  [<span class="keyword">begin</span></div><div class="line">    <span class="keyword">try</span> generate_exception(I) <span class="keyword">of</span></div><div class="line">        NormalRes -&gt;</div><div class="line">            &#123;I, normal, NormalRes&#125;</div><div class="line">    <span class="keyword">catch</span></div><div class="line">        ErrorType : Error -&gt;</div><div class="line">            &#123;I, exception, ErrorType, Error&#125;</div><div class="line">    <span class="keyword">end</span></div><div class="line">  <span class="keyword">end</span> || I &lt;- lists:seq(<span class="number">1</span>, <span class="number">5</span>)].</div></pre></td></tr></table></figure></p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment">%% 执行exception_test:test_use_catch().函数的返回结果</span></div><div class="line">[&#123;<span class="number">1</span>,a&#125;,</div><div class="line"> &#123;<span class="number">2</span>,a&#125;,</div><div class="line"> &#123;<span class="number">3</span>,</div><div class="line">  &#123;'EXIT',&#123;a,[&#123;exception_test,generate_exception,<span class="number">1</span>,</div><div class="line">                              [&#123;file,<span class="string">"exception_test.erl"</span>&#125;,&#123;line,<span class="number">7</span>&#125;]&#125;,</div><div class="line">              &#123;exception_test,'-test_use_catch/<span class="number">0</span>-lc$^<span class="number">0</span>/<span class="number">1</span>-<span class="number">0</span>-',<span class="number">1</span>,</div><div class="line">                              [&#123;file,<span class="string">"exception_test.erl"</span>&#125;,&#123;line,<span class="number">12</span>&#125;]&#125;,</div><div class="line">              &#123;exception_test,'-test_use_catch/<span class="number">0</span>-lc$^<span class="number">0</span>/<span class="number">1</span>-<span class="number">0</span>-',<span class="number">1</span>,</div><div class="line">                              [&#123;file,<span class="string">"exception_test.erl"</span>&#125;,&#123;line,<span class="number">12</span>&#125;]&#125;,</div><div class="line">              &#123;erl_eval,do_apply,<span class="number">6</span>,[&#123;file,<span class="string">"erl_eval.erl"</span>&#125;,&#123;line,<span class="number">674</span>&#125;]&#125;,</div><div class="line">              &#123;shell,exprs,<span class="number">7</span>,[&#123;file,<span class="string">"shell.erl"</span>&#125;,&#123;line,<span class="number">686</span>&#125;]&#125;,</div><div class="line">              &#123;shell,eval_exprs,<span class="number">7</span>,[&#123;file,<span class="string">"shell.erl"</span>&#125;,&#123;line,<span class="number">641</span>&#125;]&#125;,</div><div class="line">              &#123;shell,eval_loop,<span class="number">3</span>,[&#123;file,<span class="string">"shell.erl"</span>&#125;,&#123;line,<span class="number">626</span>&#125;]&#125;]&#125;&#125;&#125;,</div><div class="line"> &#123;<span class="number">4</span>,&#123;'EXIT',a&#125;&#125;,</div><div class="line"> &#123;<span class="number">5</span>,&#123;'EXIT',a&#125;&#125;]</div></pre></td></tr></table></figure>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">%% 执行exception_test:test_user_try_catch().函数的返回结果</span></div><div class="line">[&#123;<span class="number">1</span>,normal,a&#125;,</div><div class="line"> &#123;<span class="number">2</span>,exception,throw,a&#125;,</div><div class="line"> &#123;<span class="number">3</span>,exception,error,a&#125;,</div><div class="line"> &#123;<span class="number">4</span>,exception,exit,a&#125;,</div><div class="line"> &#123;<span class="number">5</span>,normal,&#123;'EXIT',a&#125;&#125;]</div></pre></td></tr></table></figure>
+<p>通过上面的列子我们可以看到，如果使用标准的try…catch来处理错误的话，调用者是可以正确的识别出错误，然后对错误进行相应的处理的。</p>
+<p>但是如果用的是catch来处理错误的话，情况是不能乐观的，使用catch处理错误，exception(1)和exception(2)返回的结果是一样的，exception(4)和exception(5)返回的结果是一样的。catch在处理throw的时候只是简单的把throw的内容给返回，在处理exit的时候会返回一个tuple是带’EXIT’和exit里面的内容的结果，在处理error的时候会把堆栈给打印出来（这点比较人性化）。</p>
+<p>所以大家在使用catch的时候要注意catch的返回值，正常的情况下还是推荐使用try…catch来处理错误，不然很容易就会掉到坑里面的。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在Erlang的错误处理中，catch并不是try…catch的缩写，try…catch和catch是不同的。下面我将通过一个例子来区别出他们的不同，为以后的使用做一个参考。&lt;br&gt;&lt;figure class=&quot;highlight erlang&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;t
+    
+    </summary>
+    
+      <category term="Erlang入门教程" scheme="https://lintingbin2009.github.io/categories/Erlang%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/"/>
+    
+    
+      <category term="Erlang" scheme="https://lintingbin2009.github.io/tags/Erlang/"/>
+    
+  </entry>
   
   <entry>
     <title>吴恩达机器学习课程练习实现</title>
