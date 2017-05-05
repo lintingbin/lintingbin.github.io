@@ -13,6 +13,7 @@
 <li>为什么load_file之前要先soft_purge或者purge一下呢？<br>这个是load_file函数的问题，如果在load_file执行的时候，本身要热更的模块就有一个老的版本的代码存在的话，load_file就会返回一个not_purged的错误代码，导致新版本不能正常的载入。如果load_file执行自动删除最老版本的话，就不需要purge了（像在Erlang Shell里面执行c(ModName)一样）。当然如果一个模块从来都没有热更过的话（在系统里面只有一个版本），直接使用load_file是没有问题的，不过之后就要先purge再load_file了。</li>
 <li>soft_purge和purge有什么不同吗？<br>函数的功能上是有所不同的，但是在我们项目的使用中几乎是没有什么不同的。soft_purge和purge的函数的功能区别是如果清理的模块的老的版本中有进程在上面运行的话，purge就会杀掉进程，然后把老的版本给清理掉，soft_purge则会清理失败。热更的时候是先执行purge然后再loadfile，由于进程一般都是在当前的版本上面执行，这时候老的版本上面不会有进程在运行，所以执行purge和soft_purge是一样的，如果真的想要热更的时候把进程杀掉的话应该执行purge/soft_purge-&gt;loadfile-&gt;purge。</li>
 </ul>
+<p>以上就是我对Erlang代码热更的总结～</p>
 ]]></content>
       
         <categories>
