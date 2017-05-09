@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-98287189-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>编程语言的垃圾回收机制简介 | Darcy&#39;s Blog | 不如烂笔头</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="GC">
+    <meta name="description" content="现在的编程语言中大多都包括了垃圾回收（Garbage Collection）机制，垃圾回收机制是一种自动的内存管理机制，当计算机内存中的一个对象不再需要被使用时，就会自动的让出这块内存。在早期的C/C++编程语言中，程序员需要自己手动申请和释放内存，而因在编程的过程中往往会经常忘记释放那些不再使用的内存，进而造成内存泄漏。垃圾回收机制可以大大减轻程序员的负担，减少程序员犯错的机会。垃圾回收机制最早">
+<meta name="keywords" content="GC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编程语言的垃圾回收机制简介">
+<meta property="og:url" content="https://lintingbin2009.github.io/2017/05/09/编程语言的垃圾回收机制简介/index.html">
+<meta property="og:site_name" content="Darcy&#39;s Blog">
+<meta property="og:description" content="现在的编程语言中大多都包括了垃圾回收（Garbage Collection）机制，垃圾回收机制是一种自动的内存管理机制，当计算机内存中的一个对象不再需要被使用时，就会自动的让出这块内存。在早期的C/C++编程语言中，程序员需要自己手动申请和释放内存，而因在编程的过程中往往会经常忘记释放那些不再使用的内存，进而造成内存泄漏。垃圾回收机制可以大大减轻程序员的负担，减少程序员犯错的机会。垃圾回收机制最早">
+<meta property="og:updated_time" content="2017-05-09T03:29:49.512Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="编程语言的垃圾回收机制简介">
+<meta name="twitter:description" content="现在的编程语言中大多都包括了垃圾回收（Garbage Collection）机制，垃圾回收机制是一种自动的内存管理机制，当计算机内存中的一个对象不再需要被使用时，就会自动的让出这块内存。在早期的C/C++编程语言中，程序员需要自己手动申请和释放内存，而因在编程的过程中往往会经常忘记释放那些不再使用的内存，进而造成内存泄漏。垃圾回收机制可以大大减轻程序员的负担，减少程序员犯错的机会。垃圾回收机制最早">
+    
+        <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">lintingbin2009</h5>
+          <a href="mailto:lintingbin31@gmail.com" title="lintingbin31@gmail.com" class="mail">lintingbin31@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                类别
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/lintingbin2009" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">编程语言的垃圾回收机制简介</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">编程语言的垃圾回收机制简介</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-05-09T03:00:47.000Z" itemprop="datePublished" class="page-time">
+  2017-05-09
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/基本概念/">基本概念</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#垃圾回收算法的原理："><span class="post-toc-number">1.</span> <span class="post-toc-text">垃圾回收算法的原理：</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#回收算法"><span class="post-toc-number">2.</span> <span class="post-toc-text">回收算法</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#实现"><span class="post-toc-number">3.</span> <span class="post-toc-text">实现</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="posts-编程语言的垃圾回收机制简介"
+  class="post-article article-type-posts fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">编程语言的垃圾回收机制简介</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-05-09 11:00:47" datetime="2017-05-09T03:00:47.000Z"  itemprop="datePublished">2017-05-09</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/基本概念/">基本概念</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>现在的编程语言中大多都包括了垃圾回收（Garbage Collection）机制，垃圾回收机制是一种自动的内存管理机制，当计算机内存中的一个对象不再需要被使用时，就会自动的让出这块内存。在早期的C/C++编程语言中，程序员需要自己手动申请和释放内存，而因在编程的过程中往往会经常忘记释放那些不再使用的内存，进而造成内存泄漏。垃圾回收机制可以大大减轻程序员的负担，减少程序员犯错的机会。垃圾回收机制最早起源于LISP语言，目前的大多数高级语言都支持内存回收机制，比如：PHP、Java、C#、Erlang等等。</p>
+<h4 id="垃圾回收算法的原理："><a href="#垃圾回收算法的原理：" class="headerlink" title="垃圾回收算法的原理："></a>垃圾回收算法的原理：</h4><ul>
+<li>推算出某个对象在未来的程序运行中将不再会被访问。</li>
+<li>将这些对象占用的内存回收。</li>
+</ul>
+<h4 id="回收算法"><a href="#回收算法" class="headerlink" title="回收算法"></a>回收算法</h4><p>主要的回收算法可以分为以下几类：</p>
+<ul>
+<li>标记－清除<br>先暂停整个程序的全部运行线程，让回收线程以单线程进行扫描标记，并进行直接清除回收，然后回收完成，恢复运行线程。会导致大量零碎的空闲空间碎片，导致大容量对象不容易获得连续的内存空间，而造成空间浪费。</li>
+<li>标记－压缩<br>和“标记－清除”相似，不同的是，回收期间同时会将保留的存储对象搬运汇集到连续的内存空间。从而集成空闲空间。</li>
+<li>复制<br>需要程序将所拥有的内存空间分成两个部分。程序运行所需的存储对象先存储在其中一个分区（定义为“分区0”）。同样暂停整个程序的全部运行线程后，进行标记后，回收期间将保留的存储对象搬运汇集到另一个分区（定义为“分区1”），完成回收，程序在本次回收后将接下来产生的存储对象会存储到“分区1”。在下一次回收时，两个分区的角色对调。</li>
+<li>增量回收器<br>需要程序将所拥有的内存空间分成若干分区。程序运行所需的存储对象会分布在这些分区中，每次只对其中一个分区进行回收操作，从而避免程序全部运行线程暂停来进行回收，允许部分线程在不影响回收行为而保持运行，并且降低回收时间，增加程序响应速度。</li>
+<li>分代<br>由于“复制”算法对于存活时间长，大容量的储存对象需要耗费更多的移动时间，和存在储存对象的存活时间的差异。需要程序将所拥有的内存空间分成若干分区，并标记为年轻代空间和年老代空间。程序运行所需的存储对象会先存放在年轻代分区，年轻代分区会较为频密进行较为激进垃圾回收行为，每次回收完成幸存的存储对象内的寿命计数器加一。当年轻代分区存储对象的寿命计数器达到一定阈值或存储对象的占用空间超过一定阈值时，则被移动到年老代空间，年老代空间会较少运行垃圾回收行为。一般情况下，还有永久代的空间，用于涉及程序整个运行生命周期的对象存储，例如运行代码、数据常量等，该空间通常不进行垃圾回收的操作。<br>通过分代，存活在局限域，小容量，寿命短的存储对象会被快速回收；存活在全局域，大容量，寿命长的存储对象就较少被回收行为处理干扰。</li>
+</ul>
+<h4 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h4><p>上面是垃圾回收的基本算法，有些编程语言的垃圾回收机制会使用上面的算法然后再自己进行改造优化性能。比如Erlang就同时使用分代回收和标记清除的算法来实现垃圾回收机制。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2017-05-09T03:29:49.512Z" itemprop="dateUpdated">2017-05-09 11:29:49</time>
+</span><br>
+
+
+        
+        转载请注明出处，Darcy's Blog <br/><a href="/2017/05/09/编程语言的垃圾回收机制简介/" target="_blank" rel="external">https://lintingbin2009.github.io/2017/05/09/编程语言的垃圾回收机制简介/</a>
+        
+    </div>
+    <footer>
+        <a href="https://lintingbin2009.github.io">
+            <img src="/img/avatar.jpg" alt="lintingbin2009">
+            lintingbin2009
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/GC/">GC</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/05/09/编程语言的垃圾回收机制简介/&title=《编程语言的垃圾回收机制简介》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/05/09/编程语言的垃圾回收机制简介/&title=《编程语言的垃圾回收机制简介》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/05/09/编程语言的垃圾回收机制简介/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《编程语言的垃圾回收机制简介》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/05/09/编程语言的垃圾回收机制简介/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/05/09/编程语言的垃圾回收机制简介/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/05/04/Erlang代码热更新/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Erlang代码热更新</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'lintingbin2009';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢老板~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>lintingbin2009 &copy; 2016 - 2017</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/05/09/编程语言的垃圾回收机制简介/&title=《编程语言的垃圾回收机制简介》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/05/09/编程语言的垃圾回收机制简介/&title=《编程语言的垃圾回收机制简介》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/05/09/编程语言的垃圾回收机制简介/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《编程语言的垃圾回收机制简介》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/05/09/编程语言的垃圾回收机制简介/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/05/09/编程语言的垃圾回收机制简介/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACvElEQVR42u3awW7CMBAEUP7/p1up1yrJzNoGDi8nhErwSyWvmd3XK75+/q6r1/+v/5+9+tT9Pa/e2Xzh4eHhjZZ+v9D7Red/mdzhfoX5mvHw8PBO85JikDyCvAwk5SEpTg8WPDw8vI/yki07PwQnR+S8/ODh4eF9Jy+/aRsftEvHw8PD+wZee1wefllcWvJj+rasBQ8PDy/mrTfA3v/6rf09PDw8vLgk5AMBs9GB9vBdrxYPDw/vAC9pNe0KbZNmWNJ4Sz4VJSV4eHh4I95s3GqFnbyTDy48UPHw8PAO85If/wm+Xe6JBhgeHh7eOd5sXGAlsGiXm98naoPh4eHhbeXNIokkOMg/m7Tfho0xPDw8vE28dtCqfRyz7X42AVHEuHh4eHjLvDYsmLW1Vo7Ls2ACDw8P7xxvfeiqjXHbUHh4Hzw8PLxjvLwwrIxGrcfB9UPEw8PDO8BrFxFFAMuH5l0lBA8PD++dvLzhtB7vtlFv/aDx8PDwtvLyBn8ep66PUt0fyot/Bh4eHt5h3rkW1zqmHUdYqj94eHh48ckzP6omG/SJUarhiBgeHh7eVt5sc28LRt4Sm0W30WQEHh4e3ibe7KZ5kWjD35VhrzqxxsPDwxvx2i27DVXzu80O6w/fiIeHh3eMl9eQ2dE5HyDIH1BUwPDw8PCO8fLl5ltze3Ruo4oia8HDw8Pbymvj0WS/bcOFGTt/oHh4eHh7ebMDax4ubMiVF8YL8PDw8E7z8nB2tvQ2nmgDi2F3Dg8PD6/krWy+s5LQUvNwZImKh4eHV/Lyhv2s5b9roXmT7DKSwMPDw9vKy3/ktwUgj4xX6tjlCvHw8PA+yksCiPUH0cYWD4EIHh4e3hfw8q9pQ95Z8XiIRfDw8PCO8fKxp7YA7IoeZgNbeHh4eCd4bQNsNkCQB775Mfq168LDw8NLeb9eAWnOf57SkwAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
