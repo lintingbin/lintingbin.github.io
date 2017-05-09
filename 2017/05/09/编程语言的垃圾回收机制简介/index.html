@@ -36,7 +36,7 @@ ga('send', 'pageview');
 <meta property="og:url" content="https://lintingbin2009.github.io/2017/05/09/编程语言的垃圾回收机制简介/index.html">
 <meta property="og:site_name" content="Darcy&#39;s Blog">
 <meta property="og:description" content="现在的编程语言中大多都包括了垃圾回收（Garbage Collection）机制，垃圾回收机制是一种自动的内存管理机制，当计算机内存中的一个对象不再需要被使用时，就会自动的让出这块内存。在早期的C/C++编程语言中，程序员需要自己手动申请和释放内存，而因在编程的过程中往往会经常忘记释放那些不再使用的内存，进而造成内存泄漏。垃圾回收机制可以大大减轻程序员的负担，减少程序员犯错的机会。垃圾回收机制最早">
-<meta property="og:updated_time" content="2017-05-09T03:29:49.512Z">
+<meta property="og:updated_time" content="2017-05-09T03:52:38.940Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="编程语言的垃圾回收机制简介">
 <meta name="twitter:description" content="现在的编程语言中大多都包括了垃圾回收（Garbage Collection）机制，垃圾回收机制是一种自动的内存管理机制，当计算机内存中的一个对象不再需要被使用时，就会自动的让出这块内存。在早期的C/C++编程语言中，程序员需要自己手动申请和释放内存，而因在编程的过程中往往会经常忘记释放那些不再使用的内存，进而造成内存泄漏。垃圾回收机制可以大大减轻程序员的负担，减少程序员犯错的机会。垃圾回收机制最早">
@@ -163,7 +163,7 @@ ga('send', 'pageview');
     <aside class="post-widget">
         <nav class="post-toc-wrap" id="post-toc">
             <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#垃圾回收算法的原理："><span class="post-toc-number">1.</span> <span class="post-toc-text">垃圾回收算法的原理：</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#回收算法"><span class="post-toc-number">2.</span> <span class="post-toc-text">回收算法</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#实现"><span class="post-toc-number">3.</span> <span class="post-toc-text">实现</span></a></li></ol>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#垃圾回收算法的原理："><span class="post-toc-number">1.</span> <span class="post-toc-text">垃圾回收算法的原理：</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#收集器实现"><span class="post-toc-number">2.</span> <span class="post-toc-text">收集器实现</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#回收算法"><span class="post-toc-number">3.</span> <span class="post-toc-text">回收算法</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#实现"><span class="post-toc-number">4.</span> <span class="post-toc-text">实现</span></a></li></ol>
         </nav>
     </aside>
     
@@ -195,6 +195,10 @@ ga('send', 'pageview');
 <li>推算出某个对象在未来的程序运行中将不再会被访问。</li>
 <li>将这些对象占用的内存回收。</li>
 </ul>
+<h4 id="收集器实现"><a href="#收集器实现" class="headerlink" title="收集器实现"></a>收集器实现</h4><ul>
+<li>引用计数收集器<br>最早期的垃圾回收实现方法，通过对数据存储的物理空间附加多一个计数器空间，当有其他数据与其相关时则加一，反之相关解除时减一，定期检查各储存对象的计数器，为零的话则认为已经被抛弃而将其所占物理空间回收。是最简单的实现，但存在无法回收循环引用的存储对象的缺陷。</li>
+<li>跟踪收集器<br>近现代的垃圾回收实现方法，通过定期对若干根储存对象开始遍历，对整个程序所拥有的储存空间查找与之相关的存储对象和没相关的存储对象进行标记，然后将没相关的存储对象所占物理空间回收。</li>
+</ul>
 <h4 id="回收算法"><a href="#回收算法" class="headerlink" title="回收算法"></a>回收算法</h4><p>主要的回收算法可以分为以下几类：</p>
 <ul>
 <li>标记－清除<br>先暂停整个程序的全部运行线程，让回收线程以单线程进行扫描标记，并进行直接清除回收，然后回收完成，恢复运行线程。会导致大量零碎的空闲空间碎片，导致大容量对象不容易获得连续的内存空间，而造成空间浪费。</li>
@@ -211,7 +215,7 @@ ga('send', 'pageview');
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-05-09T03:29:49.512Z" itemprop="dateUpdated">2017-05-09 11:29:49</time>
+    最后更新时间：<time datetime="2017-05-09T03:52:38.940Z" itemprop="dateUpdated">2017-05-09 11:52:38</time>
 </span><br>
 
 
