@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-98287189-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>使用lager为什么要加入编译选项{parse_transform,lager_transform} | Darcy&#39;s Blog | 不如烂笔头</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="">
+    <meta name="description" content="在使用的lager的时候我们需要加入一行编译选项——{parse_transform,lager_transform}，或者是在每个使用lager的文件模块的头部加入一行-compile([{parse_transform, lager_transform}]).，这通常会让我们感觉非常的麻烦，但是大家有没有觉得好奇，为什么使用这个参数呢？ 首先我们看下Erlang文档，在compile模块中有p">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用lager为什么要加入编译选项{parse_transform,lager_transform}">
+<meta property="og:url" content="https://lintingbin2009.github.io/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/index.html">
+<meta property="og:site_name" content="Darcy&#39;s Blog">
+<meta property="og:description" content="在使用的lager的时候我们需要加入一行编译选项——{parse_transform,lager_transform}，或者是在每个使用lager的文件模块的头部加入一行-compile([{parse_transform, lager_transform}]).，这通常会让我们感觉非常的麻烦，但是大家有没有觉得好奇，为什么使用这个参数呢？ 首先我们看下Erlang文档，在compile模块中有p">
+<meta property="og:image" content="https://lintingbin2009.github.io/images/lager_issue.png">
+<meta property="og:updated_time" content="2017-05-30T13:33:16.030Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用lager为什么要加入编译选项{parse_transform,lager_transform}">
+<meta name="twitter:description" content="在使用的lager的时候我们需要加入一行编译选项——{parse_transform,lager_transform}，或者是在每个使用lager的文件模块的头部加入一行-compile([{parse_transform, lager_transform}]).，这通常会让我们感觉非常的麻烦，但是大家有没有觉得好奇，为什么使用这个参数呢？ 首先我们看下Erlang文档，在compile模块中有p">
+<meta name="twitter:image" content="https://lintingbin2009.github.io/images/lager_issue.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">lintingbin2009</h5>
+          <a href="mailto:lintingbin31@gmail.com" title="lintingbin31@gmail.com" class="mail">lintingbin31@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                类别
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/lintingbin2009" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">使用lager为什么要加入编译选项{parse_transform,lager_transform}</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">使用lager为什么要加入编译选项{parse_transform,lager_transform}</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-05-30T05:03:05.000Z" itemprop="datePublished" class="page-time">
+  2017-05-30
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+<article id="posts-使用lager为什么要加入编译选项-parse-transform-lager-transform"
+  class="post-article article-type-posts fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">使用lager为什么要加入编译选项{parse_transform,lager_transform}</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-05-30 13:03:05" datetime="2017-05-30T05:03:05.000Z"  itemprop="datePublished">2017-05-30</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>在使用的lager的时候我们需要加入一行编译选项——{parse_transform,lager_transform}，或者是在每个使用lager的文件模块的头部加入一行-compile([{parse_transform, lager_transform}]).，这通常会让我们感觉非常的麻烦，但是大家有没有觉得好奇，为什么使用这个参数呢？</p>
+<p>首先我们看下Erlang文档，在compile模块中有parse_transform参数的相关说明：</p>
+<blockquote>
+<p><strong>{parse_transform,Module}</strong><br>Causes the parse transformation function Module:parse_transform/2 to be applied to the parsed code before the code is checked for errors.</p>
+</blockquote>
+<p>通过上面的文档我们知道，在编译的时候使用{parse_transform,Module}参数，会使用Module:parse_transform/2函数对代码进行一次解析转换。接下来我们在lager的源代码目录下可以看到lager_transform.erl的代码文件，里面也有一个parse_transform/2的函数。<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">parse_transform</span><span class="params">(AST, Options)</span> -&gt;</span></div><div class="line">    TruncSize = proplists:get_value(lager_truncation_size, Options, ?DEFAULT_TRUNCATION),</div><div class="line">    Enable = proplists:get_value(lager_print_records_flag, Options, true),</div><div class="line">    Sinks = [lager] ++ proplists:get_value(lager_extra_sinks, Options, []),</div><div class="line">    put(print_records_flag, Enable),</div><div class="line">    put(truncation_size, TruncSize),</div><div class="line">    put(sinks, Sinks),</div><div class="line">    erlang:put(records, []),</div><div class="line">    <span class="comment">%% .app file should either be in the outdir, or the same dir as the source file</span></div><div class="line">    guess_application(proplists:get_value(outdir, Options), hd(AST)),</div><div class="line">    walk_ast([], AST).</div></pre></td></tr></table></figure></p>
+<p>parse_transform/2函数的第一个参数是AST，这个是代码在被编译成二进制前的一种格式<a href="http://erlang.org/doc/apps/erts/absform.html" target="_blank" rel="external">The Abstract Format</a>,第二个参数是在编译的时候传入的编译参数，比如要加入一个sink的话不单单要在配置文件里面加入配置，还要在编译参数里面加入{lager_extra_sinks, [audit]}，这样parse_transform/2函数才能在proplists:get_value(lager_extra_sinks, Options, [])的时候获得audit这个sink。</p>
+<p>顺着代码往下走，我们看到只有调用的函数的模块名是Sinks中之一的才会被解析转换（lists:member(Module, Sinks)），比如lager:info、lager:error、audit:info、audit:error等函数（audit为我们配置的sink）。<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">walk_body</span><span class="params">(Acc, [])</span> -&gt;</span></div><div class="line">    lists:reverse(Acc);</div><div class="line"><span class="function"><span class="title">walk_body</span><span class="params">(Acc, [H|T])</span> -&gt;</span></div><div class="line">    walk_body([transform_statement(H, get(sinks))|Acc], T).</div><div class="line"></div><div class="line"><span class="function"><span class="title">transform_statement</span><span class="params">(&#123;call, Line, &#123;remote, _Line1, &#123;atom, _Line2, Module&#125;,</span></span></div><div class="line">                                  &#123;atom, _Line3, Function&#125;&#125;, Arguments0&#125; = Stmt,</div><div class="line">                    Sinks) -&gt;</div><div class="line">    <span class="keyword">case</span> lists:member(Module, Sinks) <span class="keyword">of</span></div><div class="line">        <span class="literal">true</span> -&gt;</div><div class="line">            <span class="keyword">case</span> lists:member(Function, ?LEVELS) <span class="keyword">of</span></div><div class="line">                <span class="literal">true</span> -&gt;</div><div class="line">                    SinkName = lager_util:make_internal_sink_name(Module),</div><div class="line">                    do_transform(Line, SinkName, Function, Arguments0);</div><div class="line">                <span class="literal">false</span> -&gt;</div><div class="line">                    <span class="keyword">case</span> lists:keyfind(Function, <span class="number">1</span>, ?LEVELS_UNSAFE) <span class="keyword">of</span></div><div class="line">                        &#123;Function, Severity&#125; -&gt;</div><div class="line">                            SinkName = lager_util:make_internal_sink_name(Module),</div><div class="line">                            do_transform(Line, SinkName, Severity, Arguments0, unsafe);</div><div class="line">                        <span class="literal">false</span> -&gt;</div><div class="line">                            Stmt</div><div class="line">                    <span class="keyword">end</span></div><div class="line">            <span class="keyword">end</span>;</div><div class="line">        <span class="literal">false</span> -&gt;</div><div class="line">            list_to_tuple(transform_statement(tuple_to_list(Stmt), Sinks))</div><div class="line">    <span class="keyword">end</span>;</div></pre></td></tr></table></figure></p>
+<p>最后来到解析转换真正起作用的地方，这边的注释写的很清楚，下面的解析转换等于就是lager:dispatch_log/6里面的内容，如果直接调用lager:dispatch_log/6函数的话，是不需要这样的解析转换的，我对此特地问了下lager的开发者，这样做的话能够提高多少的性能，对方给的答复是能快一倍（图 1-1），因为在log不需要输出的情况下就不需要拷贝内容到外部的函数了，个人觉得一次外部函数调用应该费不了多少时间吧。<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">%% Wrap the call to lager:dispatch_log/6 in case that will avoid doing any work if this message is not elegible for logging</div><div class="line">%% See lager.erl (lines 89-100) for lager:dispatch_log/6</div><div class="line">%% case &#123;whereis(Sink), whereis(?DEFAULT_SINK), lager_config:get(&#123;Sink, loglevel&#125;, &#123;?LOG_NONE, []&#125;)&#125; of</div><div class="line">&#123;'case',Line,</div><div class="line">     &#123;tuple,Line,</div><div class="line">            [&#123;call,Line,&#123;atom,Line,whereis&#125;,[&#123;atom,Line,SinkName&#125;]&#125;,</div><div class="line">             &#123;call,Line,&#123;atom,Line,whereis&#125;,[&#123;atom,Line,?DEFAULT_SINK&#125;]&#125;, </div><div class="line">             &#123;call,Line,</div><div class="line">                   &#123;remote,Line,&#123;atom,Line,lager_config&#125;,&#123;atom,Line,get&#125;&#125;,</div><div class="line">                   [&#123;tuple,Line,[&#123;atom,Line,SinkName&#125;,&#123;atom,Line,loglevel&#125;]&#125;,</div><div class="line">                    &#123;tuple,Line,[&#123;integer,Line,0&#125;,&#123;nil,Line&#125;]&#125;]&#125;]&#125;,</div><div class="line">     %% &#123;undefined, undefined, _&#125; -&gt; &#123;error, lager_not_running&#125;;</div><div class="line">     [&#123;clause,Line,</div><div class="line">              [&#123;tuple,Line,</div><div class="line">                      [&#123;atom,Line,undefined&#125;,&#123;atom,Line,undefined&#125;,&#123;var,Line,'_'&#125;]&#125;],</div><div class="line">              [],</div><div class="line">              %% trick the linter into avoiding a 'term constructed but not used' error:</div><div class="line">              %% (fun() -&gt; &#123;error, lager_not_running&#125; end)()</div><div class="line">              [&#123;call, Line, &#123;'fun', Line, &#123;clauses, [&#123;clause, Line, [],[], [&#123;tuple, Line, [&#123;atom, Line, error&#125;,&#123;atom, Line, lager_not_running&#125;]&#125;]&#125;]&#125;&#125;, []&#125;]</div><div class="line">      &#125;,</div><div class="line">      %% &#123;undefined, _, _&#125; -&gt; &#123;error, &#123;sink_not_configured, Sink&#125;&#125;;</div><div class="line">      &#123;clause,Line,</div><div class="line">              [&#123;tuple,Line,</div><div class="line">                      [&#123;atom,Line,undefined&#125;,&#123;var,Line,'_'&#125;,&#123;var,Line,'_'&#125;]&#125;],</div><div class="line">              [],</div><div class="line">              %% same trick as above to avoid linter error</div><div class="line">              [&#123;call, Line, &#123;'fun', Line, &#123;clauses, [&#123;clause, Line, [],[], [&#123;tuple,Line, [&#123;atom,Line,error&#125;, &#123;tuple,Line,[&#123;atom,Line,sink_not_configured&#125;,&#123;atom,Line,SinkName&#125;]&#125;]&#125;]&#125;]&#125;&#125;, []&#125;] </div><div class="line">      &#125;,</div><div class="line">      %% &#123;SinkPid, _, &#123;Level, Traces&#125;&#125; when ... -&gt; lager:do_log/9;</div></pre></td></tr></table></figure></p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="/images/lager_issue.png" alt="图 1-1" title="">
+                </div>
+                <div class="image-caption">图 1-1</div>
+            </figure>
+<p>总结一下，我们平时在用Erlang编程的时候应该不会涉及到自己编写parse_transform函数的需求，这个函数的功能非常强大，可以理解成是一个功能非常强大的宏，但是我觉得编写这个函数的话也会非常容易出错的，看下lager_transform.erl文件里面的代码就知道了。其实不单单lager使用了parse_transform函数的功能，ets也使用了这个功能，由于ets的select和match匹配的可读性实在太差了，所以可以使用ets:fun2ms/1模拟函数的写法来写匹配规则（当然不是真正的函数了，写起来有很多限制的），然后在编译的时候转化成select和match的匹配格式。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2017-05-30T13:33:16.030Z" itemprop="dateUpdated">2017-05-30 21:33:16</time>
+</span><br>
+
+
+        
+        转载请注明出处，Darcy's Blog <br/><a href="/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/" target="_blank" rel="external">https://lintingbin2009.github.io/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/</a>
+        
+    </div>
+    <footer>
+        <a href="https://lintingbin2009.github.io">
+            <img src="/img/avatar.jpg" alt="lintingbin2009">
+            lintingbin2009
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/&title=《使用lager为什么要加入编译选项{parse_transform,lager_transform}》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/&title=《使用lager为什么要加入编译选项{parse_transform,lager_transform}》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《使用lager为什么要加入编译选项{parse_transform,lager_transform}》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/05/21/Erlang垃圾回收/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Erlang垃圾回收</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'lintingbin2009';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢老板~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>lintingbin2009 &copy; 2016 - 2017</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/&title=《使用lager为什么要加入编译选项{parse_transform,lager_transform}》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/&title=《使用lager为什么要加入编译选项{parse_transform,lager_transform}》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《使用lager为什么要加入编译选项{parse_transform,lager_transform}》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQ4AAAEOCAAAAABd2qZ5AAAD6ElEQVR42u3aS1LkQAwFwL7/pXvWRI/Ne1IZWKRXBNjlqvRC6PN6xdc7vj7vv/rN/cqf9yS/+Xzj64kLBw4cOHAsjpocb4+SHCwB3ewWBw4cOHCc5bjaVhLqZj8n4bONj23QxYEDBw4cf4cjSaVmB25DbPvBcODAgQPHX+NoD5mkbTOU+5Vx4MCBA8fvciRlvs1R25JfzpS0rx6pleLAgQMHjkm8O1YK/N2fH5nvwIEDBw4ct8EvH4NLVkiCcR4U2+TwPbpw4MCBA8eeo20FbVK7s8leTtC+CwcOHDhwbDjaQYF9+2dz4LaUWY9W4MCBAweONUdSCrxHmTWlNuEwSeo2JU4cOHDgwLHhSBKz+2Mnz+5LkGfD/+U9OHDgwIHjEMcsXLWp1FnER1bDgQMHDhyHODYtnH2I3ZcL8xW+KWXiwIEDB441Rx5i2wRvNoKQJIqnioPRUzhw4MCBY8SRp0DtFjcFx1kbbBa8ceDAgQPHcxz5mEJ7TwK3XzkP21GgxYEDBw4c88hVN3s2m8szy/b+5CrKgjhw4MCBo+TIlzsVLPPksN3DseQNBw4cOHA8UBacpUazJtAsuO7R//NXHDhw4MCx5kgeyA+cHGz2ljbtzJ+KBhpw4MCBA8eIY98uaguCs5QsD8xtcRMHDhw4cOw52kSobVMlQ3j5J8nHKfL1v/wGBw4cOHA8wJGEt9m4Q95Gmg1DzP5RwIEDBw4cT3C0BbsccVYQbNdsi4OHG044cODAgeN2VG62lTzxS8Lwpgh4v/43YRsHDhw4cKw52iZN/rK2QdU2n/I9tOVIHDhw4MCx4WiPPUvYZvfnYTgvTRZDcjhw4MCBY8HRtnPaAYLNRk+NwUUBGAcOHDhwrDlmRbdTYXhfWJwF+KIsiAMHDhw4So5kRKAttO2LdPuDtcN2l5ODOHDgwIGj5MgHC9p2UVvsywcdZojF58SBAwcOHA9w5C9oQfM0LE8I7z9PHm5x4MCBA8eeYz9e0KIkK+RBdDbKUDSccODAgQPHgmM2gvYeXbMAn++w/Qw4cODAgeMsR7vcLKBuEq18SKIdj/iyGg4cOHDgWHNs2jZnW0ptvMubT+2HwYEDBw4cG45N6tWOo+2bUkkCma9fFAdx4MCBA0cX+4ZlxH0wTgbX8o/UhuQVCg4cOHDguN1z2yKatana8l879NAG8stnceDAgQPHIY5jbZv42VOhfXZdroMDBw4cOH6cY9Zqmg3MtWXKA/krDhw4cOD4cY5ZCS9vL+WhtC0RRm/EgQMHDhyHODYhLS/PPTEYkf8rEL0FBw4cOHCsOValtOA1m9Jh+3lmDSccOHDgwHGI4x/wBeKVWEF3NAAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
