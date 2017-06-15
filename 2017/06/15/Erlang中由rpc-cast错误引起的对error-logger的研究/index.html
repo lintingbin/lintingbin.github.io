@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-98287189-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>Erlang中由rpc:cast错误引起的对error_logger的研究 | Darcy&#39;s Blog | 不如烂笔头</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Erlang">
+    <meta name="description" content="之所以会写这篇文章，是因为rpc:cast函数的使用超出了我的理解范围，本来我的理解是：如果rpc:cast执行失败的话，是不会有任何报错的。但是由于最近的线上存在两个版本的代码进行的互相调用引发了一些报警，让我好奇rpc:cast和error_logger是怎么工作的。  rpc:cast 是怎么工作的？我们在查阅rpc的源代码的时候可以发现以下代码：123456789101112131415">
+<meta name="keywords" content="Erlang">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Erlang中由rpc:cast错误引起的对error_logger的研究">
+<meta property="og:url" content="https://lintingbin2009.github.io/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/index.html">
+<meta property="og:site_name" content="Darcy&#39;s Blog">
+<meta property="og:description" content="之所以会写这篇文章，是因为rpc:cast函数的使用超出了我的理解范围，本来我的理解是：如果rpc:cast执行失败的话，是不会有任何报错的。但是由于最近的线上存在两个版本的代码进行的互相调用引发了一些报警，让我好奇rpc:cast和error_logger是怎么工作的。  rpc:cast 是怎么工作的？我们在查阅rpc的源代码的时候可以发现以下代码：123456789101112131415">
+<meta property="og:updated_time" content="2017-06-15T14:53:36.954Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Erlang中由rpc:cast错误引起的对error_logger的研究">
+<meta name="twitter:description" content="之所以会写这篇文章，是因为rpc:cast函数的使用超出了我的理解范围，本来我的理解是：如果rpc:cast执行失败的话，是不会有任何报错的。但是由于最近的线上存在两个版本的代码进行的互相调用引发了一些报警，让我好奇rpc:cast和error_logger是怎么工作的。  rpc:cast 是怎么工作的？我们在查阅rpc的源代码的时候可以发现以下代码：123456789101112131415">
+    
+        <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">lintingbin2009</h5>
+          <a href="mailto:lintingbin31@gmail.com" title="lintingbin31@gmail.com" class="mail">lintingbin31@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                类别
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/lintingbin2009" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Erlang中由rpc:cast错误引起的对error_logger的研究</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Erlang中由rpc:cast错误引起的对error_logger的研究</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-06-15T14:45:28.000Z" itemprop="datePublished" class="page-time">
+  2017-06-15
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#rpc-cast-是怎么工作的？"><span class="post-toc-number">1.</span> <span class="post-toc-text">rpc:cast 是怎么工作的？</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#spawn出来的进程执行遇到错误怎么处理？"><span class="post-toc-number">2.</span> <span class="post-toc-text">spawn出来的进程执行遇到错误怎么处理？</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#error-logger-是怎么工作的？"><span class="post-toc-number">3.</span> <span class="post-toc-text">error_logger 是怎么工作的？</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#error-logger-添加处理模块的注意事项"><span class="post-toc-number">4.</span> <span class="post-toc-text">error_logger 添加处理模块的注意事项</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#最后说两句"><span class="post-toc-number">5.</span> <span class="post-toc-text">最后说两句</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-Erlang中由rpc-cast错误引起的对error-logger的研究"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Erlang中由rpc:cast错误引起的对error_logger的研究</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-06-15 22:45:28" datetime="2017-06-15T14:45:28.000Z"  itemprop="datePublished">2017-06-15</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>之所以会写这篇文章，是因为rpc:cast函数的使用超出了我的理解范围，本来我的理解是：如果rpc:cast执行失败的话，是不会有任何报错的。但是由于最近的线上存在两个版本的代码进行的互相调用引发了一些报警，让我好奇rpc:cast和error_logger是怎么工作的。</p>
+</blockquote>
+<h4 id="rpc-cast-是怎么工作的？"><a href="#rpc-cast-是怎么工作的？" class="headerlink" title="rpc:cast 是怎么工作的？"></a>rpc:cast 是怎么工作的？</h4><p>我们在查阅rpc的源代码的时候可以发现以下代码：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">-define(NAME, rex).</div><div class="line">...</div><div class="line">handle_cast(&#123;cast, Mod, Fun, Args, Gleader&#125;, S) -&gt;</div><div class="line">    spawn(fun() -&gt;</div><div class="line">		  set_group_leader(Gleader),</div><div class="line">		  apply(Mod, Fun, Args)</div><div class="line">	  end),</div><div class="line">    &#123;noreply, S&#125;;</div><div class="line">...</div><div class="line">cast(Node, Mod, Fun, Args) when Node =:= node() -&gt;</div><div class="line">    catch spawn(Mod, Fun, Args),</div><div class="line">    true;</div><div class="line">cast(Node, Mod, Fun, Args) -&gt;</div><div class="line">    gen_server:cast(&#123;?NAME,Node&#125;, &#123;cast,Mod,Fun,Args,group_leader()&#125;),</div><div class="line">    true.</div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>从上面的代码我们可以看到，rpc:cast的时候如果目标node和本地node一样的话就会直接spawn一个进程处理，如果是远程的话，则会调用一个名字为rex的gen_server到远程的服务器上执行，远程的服务器同样也是spawn一个进程来处理。如果一个服务器是为其他服务器提供服务的（通过rpc模块），那么这个服务器的rex应该会是最繁忙的。通过上面的分析我们知道rpc:cast的错误是spawn函数通知error_logger的。</p>
+<h4 id="spawn出来的进程执行遇到错误怎么处理？"><a href="#spawn出来的进程执行遇到错误怎么处理？" class="headerlink" title="spawn出来的进程执行遇到错误怎么处理？"></a>spawn出来的进程执行遇到错误怎么处理？</h4><p>我自己试验了下，比如我自己在shell里面执行spawn(fun() -&gt; 1 = 2 end).语句的话，error_logger就会收到如下的一个错误事件：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&#123;error,&lt;<span class="number">113291.32</span>.<span class="number">0</span>&gt;,</div><div class="line">  &#123;emulator,<span class="string">"~s~n"</span>,</div><div class="line">  [<span class="string">"Error in process &lt;0.13313.2075&gt; on node 'all_in_one_33000@192.168.1.102' with exit value: &#123;&#123;badmatch,2&#125;,[&#123;erl_eval,expr,3,[]&#125;]&#125;\n"</span>]&#125;&#125;</div></pre></td></tr></table></figure></p>
+<p>为了明白上述的情况为什么会发生，我在Erlang邮件列表里面找到两个类似的问题，可以解答我的疑问：</p>
+<p><a href="http://erlang.org/pipermail/erlang-questions/2013-October/075867.html" target="_blank" rel="external">[erlang-questions] An answer: how does SASL know that a process    died?</a></p>
+<p><a href="http://erlang.org/pipermail/erlang-questions/2014-April/078792.html" target="_blank" rel="external">[erlang-questions] error_logger events sent by emulator</a></p>
+<p>简单的总结上面的两个问题，spawn执行的程序遇到异常的话，是由虚拟机的C语言代码向error_logger发送的错误事件。</p>
+<h4 id="error-logger-是怎么工作的？"><a href="#error-logger-是怎么工作的？" class="headerlink" title="error_logger 是怎么工作的？"></a>error_logger 是怎么工作的？</h4><p><a href="http://erlang.org/doc/man/error_logger.html" target="_blank" rel="external">error_logger</a>是Erlang的错误记录器，由<a href="http://erlang.org/doc/man/gen_event.html" target="_blank" rel="external">gen_event</a>实现，在Erlang系统中会有一个注册名为error_logger的事件管理器(event manager)，可以在事件管理器中加入各种处理模块来处理事件。默认的系统中会加入以下两个错误处理模块：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ erl</div><div class="line">Erlang R16B03 (erts-<span class="number">5.10</span>.<span class="number">4</span>) [source] [<span class="number">64</span>-bit] [smp:<span class="number">12</span>:<span class="number">12</span>] </div><div class="line">[async-threads:<span class="number">10</span>] [hipe] [kernel-poll:<span class="literal">false</span>]</div><div class="line"></div><div class="line">Eshell V5.<span class="number">10.4</span>  (abort with ^G)</div><div class="line"><span class="number">1</span>&gt; gen_event:which_handlers(error_logger).</div><div class="line">[error_logger,error_logger_tty_h]</div></pre></td></tr></table></figure></p>
+<p>简单的说下这两个错误处理模块，首先是error_logger模块，以下是该模块的处理事件的部分代码：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">handle_event</span><span class="params">(&#123;Type, GL, Msg&#125;, State)</span> <span class="title">when</span> <span class="title">node</span><span class="params">(GL)</span> =/= <span class="title">node</span><span class="params">()</span> -&gt;</span></div><div class="line">    gen_event:notify(&#123;error_logger, node(GL)&#125;,&#123;Type, GL, Msg&#125;),</div><div class="line">    <span class="comment">%% handle_event2(&#123;Type, GL, Msg&#125;, State);  %% Shall we do something</span></div><div class="line">    &#123;ok, State&#125;;                               <span class="comment">%% at this node too ???</span></div><div class="line"><span class="function"><span class="title">handle_event</span><span class="params">(&#123;info_report, _, &#123;_, Type, _&#125;&#125;, State)</span> <span class="title">when</span> T<span class="title">ype</span> =/= <span class="title">std_info</span> -&gt;</span></div><div class="line">    &#123;ok, State&#125;;   <span class="comment">%% Ignore other info reports here</span></div><div class="line"><span class="function"><span class="title">handle_event</span><span class="params">(Event, State)</span> -&gt;</span></div><div class="line">    handle_event2(Event, State).</div><div class="line">...</div><div class="line"><span class="function"><span class="title">handle_event2</span><span class="params">(Event, &#123;<span class="number">1</span>, Lost, Buff&#125;)</span> -&gt;</span></div><div class="line">    display(tag_event(Event)),</div><div class="line">    &#123;ok, &#123;<span class="number">1</span>, Lost+<span class="number">1</span>, Buff&#125;&#125;;</div><div class="line"><span class="function"><span class="title">handle_event2</span><span class="params">(Event, &#123;N, Lost, Buff&#125;)</span> -&gt;</span></div><div class="line">    Tagged = tag_event(Event),</div><div class="line">    display(Tagged),</div><div class="line">    &#123;ok, &#123;N-<span class="number">1</span>, Lost, [Tagged|Buff]&#125;&#125;;</div><div class="line"><span class="function"><span class="title">handle_event2</span><span class="params">(_, State)</span> -&gt;</span></div><div class="line">    &#123;ok, State&#125;.</div><div class="line">...</div><div class="line"><span class="function"><span class="title">display2</span><span class="params">(Tag,F,A)</span> -&gt;</span></div><div class="line">    erlang:display(&#123;error_logger,Tag,F,A&#125;).</div></pre></td></tr></table></figure></p>
+<p>该模块把是本node产生的事件调用erlang:display()输出，把不是本node产生的事件发送到目标node上面，由目标node的error_logger进行处理。</p>
+<p>接着是error_logger_tty_h模块，以下是该模块的处理事件的部分代码：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">handle_event</span><span class="params">(&#123;_Type, GL, _Msg&#125;, State)</span> <span class="title">when</span> <span class="title">node</span><span class="params">(GL)</span> =/= <span class="title">node</span><span class="params">()</span> -&gt;</span></div><div class="line">    &#123;ok, State&#125;;</div><div class="line"><span class="function"><span class="title">handle_event</span><span class="params">(Event, State)</span> -&gt;</span></div><div class="line">    write_event(tag_event(Event),io),</div><div class="line">    &#123;ok, State&#125;.</div><div class="line">...</div><div class="line"><span class="function"><span class="title">write_event</span><span class="params">(&#123;Time, &#123;error, _GL, &#123;Pid, Format, Args&#125;&#125;&#125;,IOMod)</span> -&gt;</span></div><div class="line">    T = write_time(maybe_utc(Time)),</div><div class="line">    <span class="keyword">case</span> <span class="keyword">catch</span> io_lib:format(add_node(Format,Pid), Args) <span class="keyword">of</span></div><div class="line">	S <span class="keyword">when</span> is_list(S) -&gt;</div><div class="line">	    format(IOMod, T ++ S);</div><div class="line">	_ -&gt;</div><div class="line">	    F = add_node(<span class="string">"ERROR: ~p - ~p~n"</span>, Pid),</div><div class="line">	    format(IOMod, T ++ F, [Format,Args])</div><div class="line">    <span class="keyword">end</span>;</div><div class="line">...</div><div class="line"><span class="function"><span class="title">format</span><span class="params">(IOMod, String)</span>       -&gt;</span> format(IOMod, String, []).</div><div class="line"><span class="function"><span class="title">format</span><span class="params">(io_lib, String, Args)</span> -&gt;</span> io_lib:format(String, Args);</div><div class="line"><span class="function"><span class="title">format</span><span class="params">(io, String, Args)</span> -&gt;</span> io:format(user, String, Args).</div></pre></td></tr></table></figure></p>
+<p>该模块把不是该node的事件直接忽略，然后把本node的事件调用io:foramt输出到终端上面。</p>
+<p>除了这两个处理模块，Erlang的<a href="http://erlang.org/doc/man/sasl_app.html" target="_blank" rel="external">sasl</a>应用还提供了三个模块：sasl_report_tty_h、sasl_report_file_h、log_mf_h。log_mf_h模块的功能最为强大，能够把错误写入指定个数的文件中，当文件用完后会自动删除最老的事件以腾出空间记录最新的事件。但是log_mf_h的缺点是记录的是二进制的格式，要查看记录的事件的话，还需要使用sasl提供的rb模块来解析，颇为繁琐。而且该模块没有对单事件的最大上限做保护，如果有超大的事件写入的话，就会导致文件错乱，看不了事件（这个可以自己写代码做保护，我们项目之前就是这样做的）。</p>
+<p>当然除了官方提供的处理模块，也可以使用第三方提供的模块。现在我们项目就把所有官方提供的模块都删除掉了，只使用lager提供的error_logger_lager_h模块来处理事件，然后自己编写了一个alarm_handle_error模块用来发送报警。error_logger_lager_h使用文本的方式来记录事件，查看起来比较方便，而且对Erlang内部一些比较难以理解的错误进行翻译，比较容易理解；但是由于使用文本的方式进行记录，没有对事件消息进行格式化，如果消息比较大的话，读起来比较费劲。</p>
+<h4 id="error-logger-添加处理模块的注意事项"><a href="#error-logger-添加处理模块的注意事项" class="headerlink" title="error_logger 添加处理模块的注意事项"></a>error_logger 添加处理模块的注意事项</h4><p>当使用sasl提供的log_mf_h处理模块的时候不能删除系统提供的error_logger模块，不然像rpc:cast通知的事件就不能正常的捕获了，原因如下：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">%% 当NodeA执行以下函数的时候，在NodeB会接收到一个错误，</span></div><div class="line"><span class="comment">%% 由于NodeB只有log_mf_h模块，log_mf_h模块会对接收的事件使用sasl:pred/1函数进行过滤</span></div><div class="line"><span class="comment">%% sasl:pred/1会过滤不是本node的产生的事件，因此该错误被过滤</span></div><div class="line"><span class="comment">%% 如果这时候NodeB有error_logger模块的话，error_logger模块就会将事件通知NodeA</span></div><div class="line"><span class="comment">%% 然后NodeA就能使用log_mf_h模块正确记录该错误，该错误记录在NodeA的机器上</span></div><div class="line">NodeA: rpc:cast(NodeB, M, ErrorFun, []).</div></pre></td></tr></table></figure></p>
+<p>lager的error_logger_lager_h模块默认会记录所有的事件，不管该事件是属于哪个Node的，如下：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">%% 当NodeA执行以下函数的时候，在NodeB会接收到一个错误，</span></div><div class="line"><span class="comment">%% error_logger_lager_h直接记录错误在NodeB的机器上</span></div><div class="line">NodeA: rpc:cast(NodeB, M, ErrorFun, []).</div></pre></td></tr></table></figure></p>
+<h4 id="最后说两句"><a href="#最后说两句" class="headerlink" title="最后说两句"></a>最后说两句</h4><p>之前项目使用log_mf_h模块处理事件的配置文件如下：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[&#123;sasl, [</div><div class="line">          &#123;sasl_error_logger, false&#125;,</div><div class="line">          &#123;errlog_type, error&#125;,</div><div class="line">          &#123;error_logger_mf_dir, <span class="string">"logs"</span>&#125;,</div><div class="line">          &#123;error_logger_mf_maxbytes, <span class="number">1073741824</span>&#125;, <span class="comment">% 1GB</span></div><div class="line">          &#123;error_logger_mf_maxfiles, <span class="number">10</span>&#125;</div><div class="line">    ]&#125;].</div></pre></td></tr></table></figure></p>
+<p>之前一直觉得errlog_type是控制log_mf_h模块的处理事件级别的参数，这边设置的参数是error，为什么info的信息还会记录下来呢？后面看了下sasl.erl模块的代码，errlog_type和log_mf_h模块根本没有关系，然后回头再看了一下sasl的文档:</p>
+<p>log_mf_h</p>
+<p>This error logger writes <strong>all</strong> events sent to the error logger to disk. Multiple files and log rotation are used. For efficiency reasons, each event is written as a binary. For more information about this handler, see the STDLIB Reference Manual.</p>
+<p>To activate this event handler, three SASL configuration parameters must be set, error_logger_mf_dir, error_logger_mf_maxbytes, and error_logger_mf_maxfiles. The next section provides more information about the configuration parameters.</p>
+<p>文档中<strong>all</strong>已经加黑了，我居然没看到，以后还得好好认真看文档！</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2017-06-15T14:53:36.954Z" itemprop="dateUpdated">2017-06-15 22:53:36</time>
+</span><br>
+
+
+        
+        转载请注明出处，Darcy's Blog <br/><a href="/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/" target="_blank" rel="external">https://lintingbin2009.github.io/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/</a>
+        
+    </div>
+    <footer>
+        <a href="https://lintingbin2009.github.io">
+            <img src="/img/avatar.jpg" alt="lintingbin2009">
+            lintingbin2009
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/&title=《Erlang中由rpc:cast错误引起的对error_logger的研究》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/&title=《Erlang中由rpc:cast错误引起的对error_logger的研究》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Erlang中由rpc:cast错误引起的对error_logger的研究》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">使用lager为什么要加入编译选项{parse_transform,lager_transform}</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'lintingbin2009';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢老板~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>lintingbin2009 &copy; 2016 - 2017</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/&title=《Erlang中由rpc:cast错误引起的对error_logger的研究》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/&title=《Erlang中由rpc:cast错误引起的对error_logger的研究》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Erlang中由rpc:cast错误引起的对error_logger的研究》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYAAAD2CAAAAADAeSUUAAADL0lEQVR42u3aQW7bUAwE0N7/0um2RSBlhlQA+/tpVTiOpMcspiT/nz/x9fXt+v751ffv7/DvT9tvXn3y2IWNjY39Juyv2+ued/XS99/JP0/Kcf+dyzfHxsbGPo6dY5LSJA9OCr0pwQ9GbGxs7A9mt7+VfHL/lM0dsLGxsbHzF0peK5nzJKOl9lnY2NjYn8DOG4P2pZPC5bx8+PXYLA0bGxv75dmzaHnNf//KfhsbGxv7hdlf5ZW3Ae2SuA3Rr8WFjY2NfRK7bTPaosxSox02te+PjY2NfRJ7drAmL82mQ9rf5/J3sbGxsY9jRyk3mtXso2uzeP5hH4KNjY39Aewcs28S8mNASYgOey9sbGzsN2Tn+DwqhpOt9XfaIRc2Njb2eex8TRvd9KEDN/nCuG2QsLGxsc9gtwP9YnAziqV9yxHFMDY2NvZx7GSQ1FLbcVK7AGjj9nKWho2NjX0Ee9YkzEY87bJh095cfoKNjY19NLttG2bR1a5mZyOtIsCwsbGx35bdBs/9jX6vOcmjrjhChI2NjX0Qe/aAWVwlCZJH0QNRh42Njf0B7GQF2w6SZgGZx2fxx8DGxsY+gt2C2xJsYmw22Irw2NjY2Eew22M6v72CzUNrtkL+b9GLjY2NfQQ7GcrPgmoWQu2z2rEXNjY29nns9oX2pE27kpQgeStsbGzs89j5EH9zRGYWVPs18+VyFxsbG/sgdn67PHLaFeymZHnpsbGxsc9m58vUdqwzG/Q/dVjnciuCjY2NfQR79t/6NvZmJ4k2sXePx8bGxj6Vnd8uf1gbKptweqBxwsbGxn5b9lML1/s2Iy9K+8eYFRQbGxv7bHZ7pGa/yp21N6sWBRsbG/tQdj6Cz5eys8H9vq8qAgwbGxv7bdmzgdFTQ6X8RdtjOtEmBBsbG/sIdruUncXMU4eB9iuEugTY2NjYb8LOQ6stxOyeeUS1LQ02Njb22ex2FpX/pz8vRItcBTA2NjY2dvzT/Cl5afJVxGWBsLGxsbEXDUwSV3mZ8uh6LMCwsbGxX5KdL3f37Uq+Nm4L8SuzNGxsbOyXZ+cxcD+myZH7ZXC7tV7tt7GxsbFfl/0XF3PEcEq2OPoAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

@@ -154,6 +154,56 @@ ga('send', 'pageview');
     <ul class="post-list">
     
         <li class="post-list-item fade">
+            <article id="post-Erlang中由rpc-cast错误引起的对error-logger的研究"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-06-15 22:45:28" datetime="2017-06-15T14:45:28.000Z"  itemprop="datePublished">2017-06-15</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/">Erlang中由rpc:cast错误引起的对error_logger的研究</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        
+之所以会写这篇文章，是因为rpc:cast函数的使用超出了我的理解范围，本来我的理解是：如果rpc:cast执行失败的话，是不会有任何报错的。但是由于最近的线上存在两个版本的代码进行的互相调用引发了一些报警，让我好奇rpc:cast和error_logger是怎么工作的。
+
+rpc:cast 是怎么工作的？我们在查阅rpc的源代码的时候可以发现以下代码：123456789101112131...
+    
+
+        <a href="/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
             <article id="posts-使用lager为什么要加入编译选项-parse-transform-lager-transform"
   class="article-card article-type-posts" itemprop="blogPost">
 
@@ -586,58 +636,6 @@ ga('send', 'pageview');
     
 
         <a href="/2017/04/30/Erlang数据类型/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="posts-为什么使用Erlang"
-  class="article-card article-type-posts" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-04-29 22:00:09" datetime="2017-04-29T14:00:09.000Z"  itemprop="datePublished">2017-04-29</time>
-
-        
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang入门教程/">Erlang入门教程</a></li></ul>
-
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/04/29/为什么使用Erlang/">为什么使用Erlang?</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        主要特性如果问我觉得Erlang最重要的特性是什么的话，我觉得应该是并发。
-并发能够带来的好处是不言而喻的，比如：
-
-性能现在的计算机由于主频的限制，都在往多核的方式发展，有些比较高端的机器甚至有几十个核心。如果编写的程序都是顺序运行的话将会严重浪费多核计算机的计算能力。Erlang本身是面向并发编程的，如果把之前在单核机器上面跑的Erlang程序放到多核机器上面跑的话，性能将会极大的提高。...
-    
-
-        <a href="/2017/04/29/为什么使用Erlang/" class="post-more waves-effect waves-button">
             阅读全文…
         </a>
     </div>
