@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://lintingbin2009.github.io/"/>
-  <updated>2017-06-17T04:16:01.605Z</updated>
+  <updated>2017-06-17T16:21:19.489Z</updated>
   <id>https://lintingbin2009.github.io/</id>
   
   <author>
@@ -14,6 +14,68 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Markdown语法速记</title>
+    <link href="https://lintingbin2009.github.io/2017/06/17/Markdown%E8%AF%AD%E6%B3%95%E9%80%9F%E8%AE%B0/"/>
+    <id>https://lintingbin2009.github.io/2017/06/17/Markdown语法速记/</id>
+    <published>2017-06-17T14:44:26.000Z</published>
+    <updated>2017-06-17T16:21:19.489Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote>
+<p>有时候自己也会忘记Markdown的语法，在这边做一个备忘，以后找起来比较方便，这边记录的是最基本的Markdown语法。</p>
+</blockquote>
+<h4 id="粗体和斜体"><a href="#粗体和斜体" class="headerlink" title="粗体和斜体"></a>粗体和斜体</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">_下划线是斜体_</div></pre></td></tr></table></figure>
+<p><em>下划线是斜体</em><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">**两个星是粗体**</div></pre></td></tr></table></figure></p>
+<p><strong>两个星是粗体</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">**_粗体斜体一起用_**</div></pre></td></tr></table></figure></p>
+<p><strong><em>粗体斜体一起用</em></strong></p>
+<h4 id="六种标题"><a href="#六种标题" class="headerlink" title="六种标题"></a>六种标题</h4><p>几个#号代表标题几,#号后面有空格<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"># 标题1</div><div class="line">## 标题2</div><div class="line">### 标题3</div><div class="line">#### 标题4</div><div class="line">##### 标题5</div><div class="line">###### 标题6</div></pre></td></tr></table></figure></p>
+<h4 id="链接"><a href="#链接" class="headerlink" title="链接"></a>链接</h4><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">这是一个 [普通的链接方式](https://www.github.com)</div><div class="line">这是一个 [引用的链接方式][another place].</div><div class="line">这还是一个 [引用的链接方式][another-link].</div><div class="line"></div><div class="line">[another place]: https://www.github.com</div><div class="line">[another-link]: https://www.google.com</div></pre></td></tr></table></figure>
+<p>这是一个 <a href="https://www.github.com" target="_blank" rel="external">普通的链接方式</a><br>这是一个 <a href="https://www.github.com" target="_blank" rel="external">引用的链接方式</a>.<br>这还是一个 <a href="https://www.google.com" target="_blank" rel="external">引用的链接方式</a>.</p>
+<h4 id="图片"><a href="#图片" class="headerlink" title="图片"></a>图片</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">![我的头像](https://lintingbin2009.github.io/img/avatar.jpg)</div><div class="line">![又是一个头像][other]</div><div class="line"></div><div class="line">[other]: https://lintingbin2009.github.io/img/avatar.jpg</div></pre></td></tr></table></figure>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://lintingbin2009.github.io/img/avatar.jpg" alt="我的头像" title="">
+                </div>
+                <div class="image-caption">我的头像</div>
+            </figure>
+<p><img src="https://lintingbin2009.github.io/img/avatar.jpg" alt="又是一个头像"></p>
+<h4 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&gt;在要被引用的段落或者行前面加大括号</div><div class="line">&gt;</div><div class="line">&gt;即使是空行也要加一下，保持一致</div></pre></td></tr></table></figure>
+<blockquote>
+<p>在要被引用的段落或者行前面加大括号</p>
+<p>即使是空行也要加一下，保持一致</p>
+</blockquote>
+<h4 id="列表"><a href="#列表" class="headerlink" title="列表"></a>列表</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">1. 有序用数字</div><div class="line"> 继续保持缩进,只需加空格</div><div class="line">2. 有序用数字</div><div class="line"> * 无序用星号</div><div class="line">    * 还可再缩进,只需再加空格</div></pre></td></tr></table></figure>
+<ol>
+<li>有序用数字<br>继续保持缩进,只需加空格</li>
+<li>有序用数字<ul>
+<li>无序用星号<ul>
+<li>还可再缩进,只需再加空格</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="段落"><a href="#段落" class="headerlink" title="段落"></a>段落</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">我在逗号后加了两个空格,  </div><div class="line">所以不在一行</div></pre></td></tr></table></figure>
+<p>我在逗号后加了两个空格,<br>所以不在一行</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;有时候自己也会忘记Markdown的语法，在这边做一个备忘，以后找起来比较方便，这边记录的是最基本的Markdown语法。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4 id=&quot;粗体和斜体&quot;&gt;&lt;a href=&quot;#粗体和斜体&quot; class=&quot;heade
+    
+    </summary>
+    
+      <category term="教程" scheme="https://lintingbin2009.github.io/categories/%E6%95%99%E7%A8%8B/"/>
+    
+    
+      <category term="Markdown" scheme="https://lintingbin2009.github.io/tags/Markdown/"/>
+    
+  </entry>
   
   <entry>
     <title>Erlang中由rpc:cast错误引起的对error_logger的研究</title>
