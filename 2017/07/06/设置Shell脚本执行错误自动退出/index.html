@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-98287189-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>设置Shell脚本执行错误自动退出 | Darcy&#39;s Blog | 不如烂笔头</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="">
+    <meta name="description" content="这是一篇备忘记录，以后再写Shell脚本的时候需要注意！  之前项目使用Jenkins打包的时候，有时候因为一些错误的提交，导致出包的时候编译失败，从而导致打包出来的包里面只有部分的代码，这是因为我们写的Shell脚本没有对每条Shell命令的结果进行检查，不管执行结果是否成功都会继续往下执行。所以即使我们在编译环节有错误产生，打包的脚本还是会继续执行后面的打包指令。所以必须让脚本在某条命令执行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设置Shell脚本执行错误自动退出">
+<meta property="og:url" content="https://lintingbin2009.github.io/2017/07/06/设置Shell脚本执行错误自动退出/index.html">
+<meta property="og:site_name" content="Darcy&#39;s Blog">
+<meta property="og:description" content="这是一篇备忘记录，以后再写Shell脚本的时候需要注意！  之前项目使用Jenkins打包的时候，有时候因为一些错误的提交，导致出包的时候编译失败，从而导致打包出来的包里面只有部分的代码，这是因为我们写的Shell脚本没有对每条Shell命令的结果进行检查，不管执行结果是否成功都会继续往下执行。所以即使我们在编译环节有错误产生，打包的脚本还是会继续执行后面的打包指令。所以必须让脚本在某条命令执行">
+<meta property="og:updated_time" content="2017-07-06T13:51:48.195Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="设置Shell脚本执行错误自动退出">
+<meta name="twitter:description" content="这是一篇备忘记录，以后再写Shell脚本的时候需要注意！  之前项目使用Jenkins打包的时候，有时候因为一些错误的提交，导致出包的时候编译失败，从而导致打包出来的包里面只有部分的代码，这是因为我们写的Shell脚本没有对每条Shell命令的结果进行检查，不管执行结果是否成功都会继续往下执行。所以即使我们在编译环节有错误产生，打包的脚本还是会继续执行后面的打包指令。所以必须让脚本在某条命令执行">
+    
+        <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">lintingbin2009</h5>
+          <a href="mailto:lintingbin31@gmail.com" title="lintingbin31@gmail.com" class="mail">lintingbin31@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                类别
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/lintingbin2009" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">设置Shell脚本执行错误自动退出</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">设置Shell脚本执行错误自动退出</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-07-06T13:44:10.000Z" itemprop="datePublished" class="page-time">
+  2017-07-06
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+<article id="post-设置Shell脚本执行错误自动退出"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">设置Shell脚本执行错误自动退出</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-07-06 21:44:10" datetime="2017-07-06T13:44:10.000Z"  itemprop="datePublished">2017-07-06</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>这是一篇备忘记录，以后再写Shell脚本的时候需要注意！</p>
+</blockquote>
+<p>之前项目使用Jenkins打包的时候，有时候因为一些错误的提交，导致出包的时候编译失败，从而导致打包出来的包里面只有部分的代码，这是因为我们写的Shell脚本没有对每条Shell命令的结果进行检查，不管执行结果是否成功都会继续往下执行。所以即使我们在编译环节有错误产生，打包的脚本还是会继续执行后面的打包指令。所以必须让脚本在某条命令执行失败的时候停止执行后续的指令。<br>在Shell脚本中加入：</p>
+<p>#!/bin/bash -e<br>或者<br>set -e</p>
+<p>就能够让脚本在有错误的时候退出。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2017-07-06T13:51:48.195Z" itemprop="dateUpdated">2017-07-06 21:51:48</time>
+</span><br>
+
+
+        
+        转载请注明出处，Darcy's Blog <br/><a href="/2017/07/06/设置Shell脚本执行错误自动退出/" target="_blank" rel="external">https://lintingbin2009.github.io/2017/07/06/设置Shell脚本执行错误自动退出/</a>
+        
+    </div>
+    <footer>
+        <a href="https://lintingbin2009.github.io">
+            <img src="/img/avatar.jpg" alt="lintingbin2009">
+            lintingbin2009
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/07/06/设置Shell脚本执行错误自动退出/&title=《设置Shell脚本执行错误自动退出》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/07/06/设置Shell脚本执行错误自动退出/&title=《设置Shell脚本执行错误自动退出》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/07/06/设置Shell脚本执行错误自动退出/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《设置Shell脚本执行错误自动退出》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/07/06/设置Shell脚本执行错误自动退出/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/07/06/设置Shell脚本执行错误自动退出/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/06/19/基于Erlang的全区服分数竞技场的设计/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">基于Erlang的全区服分数竞技场的设计</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'lintingbin2009';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢老板~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>lintingbin2009 &copy; 2016 - 2017</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/07/06/设置Shell脚本执行错误自动退出/&title=《设置Shell脚本执行错误自动退出》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/07/06/设置Shell脚本执行错误自动退出/&title=《设置Shell脚本执行错误自动退出》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/07/06/设置Shell脚本执行错误自动退出/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《设置Shell脚本执行错误自动退出》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/07/06/设置Shell脚本执行错误自动退出/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/07/06/设置Shell脚本执行错误自动退出/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYAAAD2CAAAAADAeSUUAAADI0lEQVR42u3aQXLbQAwEQP//08o1h0ieWdApEm6eXBZNbq8OMAb79RVfr7+u/P7PPyd/m/wmX1V9YWNjYz+E/fp4vbunXdC7O+fv+vy3b78wbGxs7HXspAh9vjPZguQJyRa0xQwbGxsbO29F8vLTlqK27cHGxsbGbtuDpAglpGsbHmxsbOzfw05CpTa4ubZonX09F2Rp2NjY2LdnXzW4vcPPPzLfxsbGxr4x+zW42vHtz52iqVeOjY2NvYh9FuLkcVL7/PYto2YJGxsbeyk7X3Ty4hzfBlXFGODdp9jY2Njr2Hk5ycF5K9Jua/KV1PNtbGxs7Iezz0rLvPi149u2dYnqNjY2NvY69ryonBWzyTih3SBsbGzsTezJyLYtY8kS57xi67GxsbEXsScHLotQPn5a/sx2RI2NjY29id3+Ez+JjSZPa8cY3zwNGxsbex27jfuviu8Pj9rkvGTEi42Njb2CPS88ScCUhz6TohhFXdjY2Njr2EmZSYKedojbxkaTMlZPtrGxsbEfwk4eMWk/2uFrvuizgTE2Njb2b2CfHb7Jw/o2Bjob+uYhFzY2NvbT2W2JOovs28FDG1G1LRA2Njb2bnYeAyXx/dmd+WYla/vHPdjY2NiL2C0m35qzoz9XxUbRZmFjY2OvYJ8F6+1g4Cyyz6OrOuTCxsbGXsRuC9L/KXJnjU0RKmFjY2OvY7cNQ95I5GOAs+0YNUXY2NjYS9ltKJ9g2oM1eWyUbxw2Njb2bvb8lW30c+3I9hVfhy/DxsbGvjE7+ed+UsA+A9phcF7wvlkzNjY29iL2WWlpt+NsnJBQR60UNjY29gp2XsAmA9dkQW0sNdpibGxs7EXsPLjJQ6X8CE57DCgvnEUfho2Njf1w9qu8zo7aTPqksyfXcRI2Njb2Y9n5NV9u3rSclcx2RI2NjY29iT0Pfc6O+LTNyVUDY2xsbOyt7LZs5Ad0zpqWebNxQZaGjY2NvY6dfJpsVg67dsuwsbGxsfNx7DzZagcV+UZgY2Njb2UnEU9OSspeUuSS3+fUwywNGxsb+/bsNqBphwGT0njB0rGxsbE3s/8A9I7echueumIAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

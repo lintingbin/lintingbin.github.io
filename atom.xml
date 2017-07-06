@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://lintingbin2009.github.io/"/>
-  <updated>2017-06-19T15:19:16.998Z</updated>
+  <updated>2017-07-06T13:51:48.195Z</updated>
   <id>https://lintingbin2009.github.io/</id>
   
   <author>
@@ -14,6 +14,33 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>设置Shell脚本执行错误自动退出</title>
+    <link href="https://lintingbin2009.github.io/2017/07/06/%E8%AE%BE%E7%BD%AEShell%E8%84%9A%E6%9C%AC%E6%89%A7%E8%A1%8C%E9%94%99%E8%AF%AF%E8%87%AA%E5%8A%A8%E9%80%80%E5%87%BA/"/>
+    <id>https://lintingbin2009.github.io/2017/07/06/设置Shell脚本执行错误自动退出/</id>
+    <published>2017-07-06T13:44:10.000Z</published>
+    <updated>2017-07-06T13:51:48.195Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote>
+<p>这是一篇备忘记录，以后再写Shell脚本的时候需要注意！</p>
+</blockquote>
+<p>之前项目使用Jenkins打包的时候，有时候因为一些错误的提交，导致出包的时候编译失败，从而导致打包出来的包里面只有部分的代码，这是因为我们写的Shell脚本没有对每条Shell命令的结果进行检查，不管执行结果是否成功都会继续往下执行。所以即使我们在编译环节有错误产生，打包的脚本还是会继续执行后面的打包指令。所以必须让脚本在某条命令执行失败的时候停止执行后续的指令。<br>在Shell脚本中加入：</p>
+<p>#!/bin/bash -e<br>或者<br>set -e</p>
+<p>就能够让脚本在有错误的时候退出。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;这是一篇备忘记录，以后再写Shell脚本的时候需要注意！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;之前项目使用Jenkins打包的时候，有时候因为一些错误的提交，导致出包的时候编译失败，从而导致打包出来的包里面只有部分的代码，这是因为我们写的Sh
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>基于Erlang的全区服分数竞技场的设计</title>
