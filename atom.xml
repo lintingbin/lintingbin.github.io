@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://lintingbin2009.github.io/"/>
-  <updated>2017-07-06T13:51:48.195Z</updated>
+  <updated>2017-07-06T13:55:10.920Z</updated>
   <id>https://lintingbin2009.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="https://lintingbin2009.github.io/2017/07/06/%E8%AE%BE%E7%BD%AEShell%E8%84%9A%E6%9C%AC%E6%89%A7%E8%A1%8C%E9%94%99%E8%AF%AF%E8%87%AA%E5%8A%A8%E9%80%80%E5%87%BA/"/>
     <id>https://lintingbin2009.github.io/2017/07/06/设置Shell脚本执行错误自动退出/</id>
     <published>2017-07-06T13:44:10.000Z</published>
-    <updated>2017-07-06T13:51:48.195Z</updated>
+    <updated>2017-07-06T13:55:10.920Z</updated>
     
     <content type="html"><![CDATA[<blockquote>
 <p>这是一篇备忘记录，以后再写Shell脚本的时候需要注意！</p>
@@ -39,6 +39,10 @@
     
     </summary>
     
+      <category term="备忘" scheme="https://lintingbin2009.github.io/categories/%E5%A4%87%E5%BF%98/"/>
+    
+    
+      <category term="Shell" scheme="https://lintingbin2009.github.io/tags/Shell/"/>
     
   </entry>
   
