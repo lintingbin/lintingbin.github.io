@@ -3,6 +3,38 @@
   
     
     <entry>
+      <title><![CDATA[基于Erlang的全区服分数竞技场的设计的优化]]></title>
+      <url>/2017/07/13/%E5%9F%BA%E4%BA%8EErlang%E7%9A%84%E5%85%A8%E5%8C%BA%E6%9C%8D%E5%88%86%E6%95%B0%E7%AB%9E%E6%8A%80%E5%9C%BA%E7%9A%84%E8%AE%BE%E8%AE%A1%E7%9A%84%E4%BC%98%E5%8C%96/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>在上一篇文章<a href="/2017/05/01/Erlang动态代码载入小实验/" title="Erlang动态代码载入小实验">Erlang动态代码载入小实验</a>中，我提到的竞技场设计中存在一些性能问题，这篇文章主要是针对上一篇文章提到的性能问题在整体设计方案不进行大改的情况下进行优化。</p>
+</blockquote>
+<h4 id="主要性能问题"><a href="#主要性能问题" class="headerlink" title="主要性能问题"></a>主要性能问题</h4><p>回顾上一篇文章，我们知道之前的设计方案的主要问题是：频繁的在分数ETS中拿取和更新新的玩家List，而且该List的大小有可能是几十万的级别的，主要的性能问题是ETS和排行榜进程之间的数据拷贝。</p>
+<p>在同一分数段的所有玩家都用List来存储的话，每次在一个分数中增加一个玩家的代价是，先从ets中lookup拿出所有这一分数的玩家，然后在这个列表中增加新的玩家，最后再把新的玩家列表更新回去，删除也是如此。如果每个分数的玩家列表都不是很大的话，这个应该问题也不会很大，但是由于同一分数段的玩家比较多，所以这个方案的性能就很差了。</p>
+<h4 id="优化一"><a href="#优化一" class="headerlink" title="优化一"></a>优化一</h4><p>既然主要的性能问题出在List的更新和删除的操作，所以这个优化方案的主要方法是把List替换成ETS，当List的长度大于N(N可以自己设置，比如100、200之类)时，同一分数的所有玩家都存储在ETS中，这样在一个分数的玩家列表中增加一个玩家也只是在ETS中增加一个玩家ID而已，删除一个玩家的话，也只是在ETS中删除一个玩家ID，这两个操作都非常的快。</p>
+<p>经过这一次的优化，竞技场玩家已经可以在正式环境中上线，但是在游戏最高峰的时间段，玩家还是会有点卡，此时游戏服务器（16核）的cpu几乎全部跑满，所以还需要进一步的优化。</p>
+<h4 id="优化二"><a href="#优化二" class="headerlink" title="优化二"></a>优化二</h4><p>通过上一次优化我们知道，服务器在高峰的时候几乎把cpu全部跑满。这时候我就开始怀疑寻找对手的算法是否有问题，之前寻找对手都是现算的，把玩家的对手的排名算出来，然后在分数的ETS里面开始从头到尾遍历所有分数，找出符合对手排名的玩家。这样子寻找一个玩家的三个对手，大概要遍历分数ETS一千多次，在平时的时候还是非常快的，下面是我用eprof测量的在平时寻找一次对手的一些关键操作的开销：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">legend_arena_global_rank:query_apprentice_rank/<span class="number">7</span>              <span class="number">389</span>   <span class="number">4.25</span>   <span class="number">290</span>  [      <span class="number">0.75</span>]</div><div class="line">legend_arena_global_rank:query_apprentice_key/<span class="number">3</span>              <span class="number">1076</span>   <span class="number">7.45</span>   <span class="number">508</span>  [      <span class="number">0.47</span>]</div><div class="line">ets:lookup_element/<span class="number">3</span>                                         <span class="number">1465</span>  <span class="number">34.31</span>  <span class="number">2340</span>  [      <span class="number">1.60</span>]</div><div class="line">ets:prev/<span class="number">2</span>                                                   <span class="number">1459</span>  <span class="number">45.52</span>  <span class="number">3105</span>  [      <span class="number">2.13</span>]</div></pre></td></tr></table></figure></p>
+<p>再下面的是我用eprof测试的在小高峰期寻找一次对手的一些关键操作的开销：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">legend_arena_global_rank:query_apprentice_rank/<span class="number">7</span>              <span class="number">386</span>   <span class="number">1.16</span>    <span class="number">216</span>  [      <span class="number">0.56</span>]</div><div class="line">legend_arena_global_rank:query_apprentice_key/<span class="number">3</span>              <span class="number">1029</span>   <span class="number">2.95</span>    <span class="number">551</span>  [      <span class="number">0.54</span>]</div><div class="line">ets:lookup_element/<span class="number">3</span>                                         <span class="number">1415</span>  <span class="number">39.47</span>   <span class="number">7371</span>  [      <span class="number">5.21</span>]</div><div class="line">ets:prev/<span class="number">2</span>                                                   <span class="number">1409</span>  <span class="number">54.38</span>  <span class="number">10157</span>  [      <span class="number">7.21</span>]</div></pre></td></tr></table></figure></p>
+<p>通过上面两次的测量可以看到：分数ETS在大量访问的时候出现了性能下降，本来ets:prev/2操作只需要2.13us，在高峰期居然需要7.21us；本来ets:lookup_element/3操作只需要1.6us，在高峰期居然需要5.21us。</p>
+<p>所以这次的主要优化方法是把对分数ETS的访问次数降下来，建立一些排名的缓存，当一个玩家寻找对手的时候直接在缓存中寻找，同时每秒钟刷新一次缓存（确保排名比较正确）。这样不管是在高峰期还是平时，分数ETS都不会有非常明显的访问量的提升。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>通过这次的优化，我认为不管用什么语言来实现一个系统，都要了解这个语言的优势和劣势，这样才能找出一个合理的解决方案来解决一些比较棘手的问题。</p>
+]]></content>
+      
+        <categories>
+            
+            <category> 算法设计 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Erlang </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[设置Shell脚本执行错误自动退出]]></title>
       <url>/2017/07/06/%E8%AE%BE%E7%BD%AEShell%E8%84%9A%E6%9C%AC%E6%89%A7%E8%A1%8C%E9%94%99%E8%AF%AF%E8%87%AA%E5%8A%A8%E9%80%80%E5%87%BA/</url>
       <content type="html"><![CDATA[<blockquote>
