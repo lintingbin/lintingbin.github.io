@@ -3,6 +3,40 @@
   
     
     <entry>
+      <title><![CDATA[mochiweb的x-forwarded-for实现引发的线上掉单]]></title>
+      <url>/2017/08/18/mochiweb%E7%9A%84x-forwarded-for%E5%AE%9E%E7%8E%B0%E5%BC%95%E5%8F%91%E7%9A%84%E7%BA%BF%E4%B8%8A%E6%8E%89%E5%8D%95/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>记录一次线上充值服的掉单问题，同时学习下什么是x-forwarded-for</p>
+</blockquote>
+<h4 id="掉单原因？"><a href="#掉单原因？" class="headerlink" title="掉单原因？"></a>掉单原因？</h4><p>因为充值服都设有白名单，如果充值请求的机器的IP不在白名单里面的话会被视为非法IP，在掉单期间，线上的充值服发现有大量的100.116.<em> .</em> 的非法IP的访问，之后在网上一查，原来100.64.0.0/10也是属于内网IP的。我们的充值服务器使用了负载均衡，所以100.116.<em>.</em>的IP应该是负载均衡机器的内网IP，同时由于我们充值服务器使用的是mochiweb的服务器，所以第一时间查看了下mochiweb获取IP的源代码：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">get</span><span class="params">(peer, &#123;?MODULE, [Socket, _Opts, _Method, _RawPath, _Version, _Headers]&#125;=THIS)</span> -&gt;</span></div><div class="line">    <span class="keyword">case</span> mochiweb_socket:peername(Socket) <span class="keyword">of</span></div><div class="line">        &#123;ok, &#123;Addr=&#123;<span class="number">10</span>, _, _, _&#125;, _Port&#125;&#125; -&gt;</div><div class="line">            <span class="keyword">case</span> get_header_value(<span class="string">"x-forwarded-for"</span>, THIS) <span class="keyword">of</span></div><div class="line">                undefined -&gt;</div><div class="line">                    inet_parse:ntoa(Addr);</div><div class="line">                Hosts -&gt;</div><div class="line">                    string:strip(lists:last(string:tokens(Hosts, <span class="string">","</span>)))</div><div class="line">            <span class="keyword">end</span>;</div><div class="line">        <span class="comment">%% Copied this syntax from webmachine contributor Steve Vinoski</span></div><div class="line">        &#123;ok, &#123;Addr=&#123;<span class="number">172</span>, Second, _, _&#125;, _Port&#125;&#125; <span class="keyword">when</span> (Second &gt; <span class="number">15</span>) <span class="keyword">andalso</span> (Second &lt; <span class="number">32</span>) -&gt;</div><div class="line">            <span class="keyword">case</span> get_header_value(<span class="string">"x-forwarded-for"</span>, THIS) <span class="keyword">of</span></div><div class="line">                undefined -&gt;</div><div class="line">                    inet_parse:ntoa(Addr);</div><div class="line">                Hosts -&gt;</div><div class="line">                    string:strip(lists:last(string:tokens(Hosts, <span class="string">","</span>)))</div><div class="line">            <span class="keyword">end</span>;</div><div class="line">        &#123;ok, &#123;Addr=&#123;<span class="number">192</span>, <span class="number">168</span>, _, _&#125;, _Port&#125;&#125; -&gt;</div><div class="line">            <span class="keyword">case</span> get_header_value(<span class="string">"x-forwarded-for"</span>, THIS) <span class="keyword">of</span></div><div class="line">                undefined -&gt;</div><div class="line">                    inet_parse:ntoa(Addr);</div><div class="line">                Hosts -&gt;</div><div class="line">                    string:strip(lists:last(string:tokens(Hosts, <span class="string">","</span>)))</div><div class="line">            <span class="keyword">end</span>;</div><div class="line">        &#123;ok, &#123;&#123;<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>&#125;, _Port&#125;&#125; -&gt;</div><div class="line">            <span class="keyword">case</span> get_header_value(<span class="string">"x-forwarded-for"</span>, THIS) <span class="keyword">of</span></div><div class="line">                undefined -&gt;</div><div class="line">                    <span class="string">"127.0.0.1"</span>;</div><div class="line">                Hosts -&gt;</div><div class="line">                    string:strip(lists:last(string:tokens(Hosts, <span class="string">","</span>)))</div><div class="line">            <span class="keyword">end</span>;</div><div class="line">        &#123;ok, &#123;Addr, _Port&#125;&#125; -&gt;</div><div class="line">            inet_parse:ntoa(Addr);</div><div class="line">        &#123;error, enotconn&#125; -&gt;</div><div class="line">            exit(normal)</div><div class="line">    <span class="keyword">end</span>;</div></pre></td></tr></table></figure></p>
+<p>从上面的代码可以看出，如果在服务器内网里面使用了代理服务器之后，mochiweb是能够自动获取原始的访问IP。但是仅限内网代理服务器的IP是一些常见的内网IP，100.64.0.0/10段的IP地址并不包括在里面，所以这时候获取的IP就不是原始IP，而是负载均衡机器的内网IP。</p>
+<h4 id="内网IP段有哪些？"><a href="#内网IP段有哪些？" class="headerlink" title="内网IP段有哪些？"></a>内网IP段有哪些？</h4><p>10.0.0.0/8<br>10.0.0.0 - 10.255.255.255 </p>
+<p>172.16.0.0/12<br>172.16.0.0 - 172.31.255.255  </p>
+<p>192.168.0.0/16<br>192.168.0.0 - 192.168.255.255  </p>
+<p>以上三个网段分别属于A、B、C三类IP地址</p>
+<p>100.64.0.0/10<br>100.64.0.0 - 100.127.255.255<br>由运营商使用的私网IP段，随着IPv4地址池的耗光，会有更多用户被分配到这个网段。我们的线上掉单问题就是因为阿里云把内网IP切换到这个网段造成的。</p>
+<h4 id="http协议头标：x-forwarded-for"><a href="#http协议头标：x-forwarded-for" class="headerlink" title="http协议头标：x-forwarded-for"></a>http协议头标：x-forwarded-for</h4><p>X-Forwarded-For(XFF)是用来识别通过HTTP代理或负载均衡方式连接到Web服务器的客户端最原始的IP地址的HTTP请求头字段。 Squid 缓存代理服务器的开发人员最早引入了这一HTTP头字段，并由IETF在Forwarded-For HTTP头字段标准化草案中正式提出。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>这次的掉单问题算起来应该算是一个不太能够发现的坑，主要是依赖第三方库的实现，我们这边相关的同事已经把修复代码提交pull request到mochiweb的github主页了，防止有更多的人碰到这个坑。</p>
+]]></content>
+      
+        <categories>
+            
+            <category> Erlang </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> mochiweb </tag>
+            
+            <tag> x-forwarded-for </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[基于Erlang的全区服分数竞技场的设计的优化]]></title>
       <url>/2017/07/13/%E5%9F%BA%E4%BA%8EErlang%E7%9A%84%E5%85%A8%E5%8C%BA%E6%9C%8D%E5%88%86%E6%95%B0%E7%AB%9E%E6%8A%80%E5%9C%BA%E7%9A%84%E8%AE%BE%E8%AE%A1%E7%9A%84%E4%BC%98%E5%8C%96/</url>
       <content type="html"><![CDATA[<blockquote>
