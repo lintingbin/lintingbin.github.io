@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-98287189-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>efficiency-guide:Binary的构建和匹配 | Darcy&#39;s Blog | 不如烂笔头</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Erlang">
+    <meta name="description" content="这篇文章非常详细的介绍了Binary是怎么样构造和匹配的，同时介绍了一些优化的技巧，没看过的一定要仔细看下。  以下代码可以高效的构建Binary(有点奇怪，和List不一样，下面构造Binary的段落会有解释):1234567my_list_to_binary(List) -&amp;gt;    my_list_to_binary(List, &amp;lt;&amp;lt;&amp;gt;&amp;gt;).my_list_to">
+<meta name="keywords" content="Erlang">
+<meta property="og:type" content="article">
+<meta property="og:title" content="efficiency-guide:Binary的构建和匹配">
+<meta property="og:url" content="https://lintingbin2009.github.io/2017/10/14/efficiency-guide-Binary的构建和匹配/index.html">
+<meta property="og:site_name" content="Darcy&#39;s Blog">
+<meta property="og:description" content="这篇文章非常详细的介绍了Binary是怎么样构造和匹配的，同时介绍了一些优化的技巧，没看过的一定要仔细看下。  以下代码可以高效的构建Binary(有点奇怪，和List不一样，下面构造Binary的段落会有解释):1234567my_list_to_binary(List) -&amp;gt;    my_list_to_binary(List, &amp;lt;&amp;lt;&amp;gt;&amp;gt;).my_list_to">
+<meta property="og:updated_time" content="2017-10-14T09:15:09.504Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="efficiency-guide:Binary的构建和匹配">
+<meta name="twitter:description" content="这篇文章非常详细的介绍了Binary是怎么样构造和匹配的，同时介绍了一些优化的技巧，没看过的一定要仔细看下。  以下代码可以高效的构建Binary(有点奇怪，和List不一样，下面构造Binary的段落会有解释):1234567my_list_to_binary(List) -&amp;gt;    my_list_to_binary(List, &amp;lt;&amp;lt;&amp;gt;&amp;gt;).my_list_to">
+    
+        <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">lintingbin2009</h5>
+          <a href="mailto:lintingbin31@gmail.com" title="lintingbin31@gmail.com" class="mail">lintingbin31@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                类别
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/lintingbin2009" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">efficiency-guide:Binary的构建和匹配</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">efficiency-guide:Binary的构建和匹配</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-10-14T05:11:44.000Z" itemprop="datePublished" class="page-time">
+  2017-10-14
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang-Efficiency-Guide/">Erlang Efficiency Guide</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#Binary类型是怎么实现的"><span class="post-toc-number">1.</span> <span class="post-toc-text">Binary类型是怎么实现的?</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#构建Binary"><span class="post-toc-number">2.</span> <span class="post-toc-text">构建Binary</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#强制拷贝的情况"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">强制拷贝的情况</span></a></li></ol></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#匹配Binary"><span class="post-toc-number">3.</span> <span class="post-toc-text">匹配Binary</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#bin-opt-info选项"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">bin_opt_info选项</span></a></li><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#未使用的变量"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">未使用的变量</span></a></li></ol></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#历史笔记"><span class="post-toc-number">4.</span> <span class="post-toc-text">历史笔记</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-efficiency-guide-Binary的构建和匹配"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">efficiency-guide:Binary的构建和匹配</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-10-14 13:11:44" datetime="2017-10-14T05:11:44.000Z"  itemprop="datePublished">2017-10-14</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang-Efficiency-Guide/">Erlang Efficiency Guide</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>这篇文章非常详细的介绍了Binary是怎么样构造和匹配的，同时介绍了一些优化的技巧，没看过的一定要仔细看下。</p>
+</blockquote>
+<p>以下代码可以高效的构建Binary(有点奇怪，和List不一样，下面构造Binary的段落会有解释):<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">my_list_to_binary</span><span class="params">(List)</span> -&gt;</span></div><div class="line">    my_list_to_binary(List, &lt;&lt;&gt;&gt;).</div><div class="line"></div><div class="line"><span class="function"><span class="title">my_list_to_binary</span><span class="params">([H|T], Acc)</span> -&gt;</span></div><div class="line">    my_list_to_binary(T, &lt;&lt;Acc/binary,H&gt;&gt;);</div><div class="line"><span class="function"><span class="title">my_list_to_binary</span><span class="params">([], Acc)</span> -&gt;</span></div><div class="line">    Acc.</div></pre></td></tr></table></figure></p>
+<p>以下代码可以高效的匹配Binary:<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">my_binary_to_list</span><span class="params">(&lt;&lt;H,T/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    [H|my_binary_to_list(T)];</div><div class="line"><span class="function"><span class="title">my_binary_to_list</span><span class="params">(&lt;&lt;&gt;&gt;)</span> -&gt;</span> [].</div></pre></td></tr></table></figure></p>
+<h4 id="Binary类型是怎么实现的"><a href="#Binary类型是怎么实现的" class="headerlink" title="Binary类型是怎么实现的?"></a>Binary类型是怎么实现的?</h4><p>Binary和Bitstring在虚拟机的内部实现是一样的。在虚拟机的源代码中都叫做Binary。Binary类型在虚拟机内部由四种Binary对象实现:</p>
+<ul>
+<li><p><strong>Refc Binaries</strong><br>Refc Binaries由两部分组成：</p>
+<ul>
+<li>存储在进程堆上的对象，称为ProcBin </li>
+<li>Binary对象本身,它存储在所有进程堆之外 </li>
+</ul>
+<p>Binary对象可以由任意数量的进程引用任何数量的ProcBin。该对象包含一个引用计数器，用于跟踪引用数量，以便在最后一个引用消失时可以将其删除。进程中的所有ProcBin对象都是链表的一部分，因此当ProcBin消失时，垃圾回收器可以跟踪它们并减少二进制中的引用计数器。当构建的Binary大于64Byte的时候就会使用这种类型，此时进程之间发送Binary只是发送一个ProcBin。</p>
+</li>
+<li><strong>Heap Binaries</strong><br>Heap binaries是小型Binary，最多64Byte，并直接存储在进程堆中。当Heap Binary被进程垃圾回收或者是作为消息发送时，都需要被复制。垃圾收集器不需要特殊处理。</li>
+<li><strong>Sub Binaries</strong><br>Sub Binaries和match contexts对象能引用refc binary和heap binary对象的部分内容。<br>Sub Binary是由split_binary/2创建的。一个Sub Binary引用另一个Binary的部分内容（只能引用Refc和Heap Binary，不能引用另一个Sub Binary）。因此，匹配一个Binary类型是比较高效的，因为实际的Binary数据是不会被复制的。</li>
+<li><strong>Match Context</strong><br>Match context和Sub binary比较类似，但是Match context专门为Binary匹配优化。（原文比较拗口，这里不做解释了，我也没太看懂）</li>
+</ul>
+<h4 id="构建Binary"><a href="#构建Binary" class="headerlink" title="构建Binary"></a>构建Binary</h4><p>Binary和Bitstring的append操作是被运行时系统特别优化的，只有在极少数的情况下优化是不起作用的。<br>如下代码可以解释优化是如何起作用的:<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Bin0 = &lt;&lt;<span class="number">0</span>&gt;&gt;,</div><div class="line">Bin1 = &lt;&lt;Bin0/binary,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&gt;&gt;,</div><div class="line">Bin2 = &lt;&lt;Bin1/binary,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>&gt;&gt;,</div><div class="line">Bin3 = &lt;&lt;Bin2/binary,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>&gt;&gt;,</div><div class="line">Bin4 = &lt;&lt;Bin1/binary,<span class="number">17</span>&gt;&gt;,</div><div class="line">&#123;Bin4,Bin3&#125;</div></pre></td></tr></table></figure></p>
+<ul>
+<li>第1行分配一个Heap Binary给Bin0变量</li>
+<li>第2行是append操作。由于Bin0没有涉及append操作，所以创建一个新的Refc Binary，并将Bin0的内容复制到其中。Refc Binary的ProcBin部分存有Binary对象的数据大小，而Binary对象还分配了额外的空间。Binary对象的大小是Bin1或256的大小的两倍，以较大者为准。在这个例子中是256。</li>
+<li>第3行更有意思。Bin1已被用于append操作，最后有252字节的未使用内存，因此3个新的字节会被存储在这些空闲的内存中。</li>
+<li>第4行。和第3行一样。剩下249个字节，所以存储另外3个新字节没有问题。</li>
+<li>第5行。有趣的事情发生。请注意，Bin4是用Bin1来append值17。Bin4将被赋值为&lt;<0,1,2,3,17>&gt;。Bin3将保留其价值&lt;<0,1,2,3,4,5,6,7,8,9>&gt;。显然，运行时系统不能将字节17写入上述的Refc Binary中，因为这会将Bin3的值更改为&lt;<0,1,2,3,4,17,6,7,8,9>&gt;。<br>运行时系统知道Bin1是先前append操作的结果，所以它将Bin1的内容复制到一个新的Binary，预留额外的存储空间等等类似上面的操作。（这里没有解释为什么运行时系统知道不能写入到Bin1中，如果有兴趣的话可以阅读erl_bits.c源代码）</0,1,2,3,4,17,6,7,8,9></0,1,2,3,4,5,6,7,8,9></0,1,2,3,17></li>
+</ul>
+<h5 id="强制拷贝的情况"><a href="#强制拷贝的情况" class="headerlink" title="强制拷贝的情况"></a>强制拷贝的情况</h5><p>Binary的append操作优化要求对于Binary:只有一个ProcBin指向一个Refc Binary的Binary对象。原因是优化需要在append操作期间移动（重新分配）Binary对象，并且同时更新ProcBin中的指针。如果有多个ProcBin指向Binary对象，则无法找到并更新它们。<br>因此，对Binary的某些操作会被做标记，以便在将来做append操作的时候知道是否要强制拷贝Binary。在大多数情况下，Binary额外分配的空间也会在这个时候也被回收掉。<br>如果将Binary作为消息发送到其他进程或端口，则binary对象会缩小，任何进一步的append操作都会将Binary数据复制到新的Binary中。例如，在下面的代码，第3行的Bin1将会被复制：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Bin1 = &lt;&lt;Bin0,...&gt;&gt;,</div><div class="line">PortOrPid ! Bin1,</div><div class="line">Bin = &lt;&lt;Bin1,...&gt;&gt;  <span class="comment">%% Bin1 will be COPIED</span></div></pre></td></tr></table></figure></p>
+<p>同样的情况一样会发生，如果将Binary插入到Ets表中、使用erlangport_command/2将其发送到端口、或者将其传递给NIF中的enif_inspect_binary。<br>匹配Binary也会导致其缩小，下一个append操作将会复制Binary数据：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Bin1 = &lt;&lt;Bin0,...&gt;&gt;,</div><div class="line">&lt;&lt;X,Y,Z,T/binary&gt;&gt; = Bin1,</div><div class="line">Bin = &lt;&lt;Bin1,...&gt;&gt;  <span class="comment">%% Bin1 will be COPIED</span></div></pre></td></tr></table></figure></p>
+<p>原因是match context包含直接指向二进制数据的指针。<br>如果一个进程简单地保留Binary（在“循环数据”或进程字典中），垃圾回收器最终可以收缩这个Binary。如果只保留一个这样的Binary，则不会收缩。如果该进程后续append到已收缩的Binary中，则Binary对象将被重新分配，以使数据被加上。</p>
+<h4 id="匹配Binary"><a href="#匹配Binary" class="headerlink" title="匹配Binary"></a>匹配Binary</h4><p>重新看下文章开头的匹配例子：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">my_binary_to_list</span><span class="params">(&lt;&lt;H,T/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    [H|my_binary_to_list(T)];</div><div class="line"><span class="function"><span class="title">my_binary_to_list</span><span class="params">(&lt;&lt;&gt;&gt;)</span> -&gt;</span> [].</div></pre></td></tr></table></figure></p>
+<p>第一次调用my_binary_to_list/1时，会创建match context。match context指向Binary的第一个字节。匹配1个字节，并更新match context以指向Binary的第二个字节。<br>在此时，创建一个sub binary似乎是有意义的，但是在这个特定的例子中编译器知道每次匹配后会马上调用一个函数（在这个例子中，是my_binary_to_list/1本身），这会导致要创建一个新的match context然后丢弃sub binary。<br>因此，my_binary_to_list/1使用match context而不是使用sub binary调用自身。初始化匹配操作的指令当它看到它被传递给match context而不是sub binary时基本上什么都不做。<br>当到达Binary的末尾并且第二个子句匹配时，match context将被简单地丢弃（在下一个垃圾回收中被移除，因为不再有任何引用）。<br>总而言之，my_binary_to_list/1只需要创建一个match context，而不需要sub binary。<br>注意，当遍历完整个Binary后，my_binary_to_list/1中的match context被丢弃。如果迭代在Binary结束之前停止，会发生什么？优化还会生效吗？<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;<span class="number">0</span>,T/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    T;</div><div class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;_,T/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    after_zero(T);</div><div class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;&gt;&gt;)</span> -&gt;</span></div><div class="line">    &lt;&lt;&gt;&gt;.</div></pre></td></tr></table></figure></p>
+<p>答案是依然生效，编译器将在第二个子句中删除sub binary的构建：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;_,T/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    after_zero(T);</div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>但是它会生成在第一个子句中构建sub binary的代码：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;<span class="number">0</span>,T/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    T;</div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>因此，after_zero/1将构建一个match context和一个sub binary（如果它传进一个包含0的binary）。<br>以下代码也将进行优化：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">all_but_zeroes_to_list</span><span class="params">(Buffer, Acc, <span class="number">0</span>)</span> -&gt;</span></div><div class="line">    &#123;lists:reverse(Acc),Buffer&#125;;</div><div class="line"><span class="function"><span class="title">all_but_zeroes_to_list</span><span class="params">(&lt;&lt;<span class="number">0</span>,T/binary&gt;&gt;, Acc, Remaining)</span> -&gt;</span></div><div class="line">    all_but_zeroes_to_list(T, Acc, Remaining-<span class="number">1</span>);</div><div class="line"><span class="function"><span class="title">all_but_zeroes_to_list</span><span class="params">(&lt;&lt;Byte,T/binary&gt;&gt;, Acc, Remaining)</span> -&gt;</span></div><div class="line">    all_but_zeroes_to_list(T, [Byte|Acc], Remaining-<span class="number">1</span>).</div></pre></td></tr></table></figure></p>
+<p>编译器将删除第二和第三个子句中的sub binary的构建，并向第一个子句添加一个指令，该指令将Buffer从match context转换成sub binary（如果Buffer已经是binary，则不执行任何操作）。<br>在开始认为编译器可以优化任何Binary模式匹配之前，以下函数不能由编译器进行优化（至少当前是这样的）：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([H|T1], &lt;&lt;H,T2/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    non_opt_eq(T1, T2);</div><div class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([_|_], &lt;&lt;_,_/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    <span class="literal">false</span>;</div><div class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([], &lt;&lt;&gt;&gt;)</span> -&gt;</span></div><div class="line">    <span class="literal">true</span>.</div></pre></td></tr></table></figure></p>
+<p>之前提到，如果编译器知道Binary不会被共享，则会延迟创建sub binary。在当前的这种情况下，编译器无法知道。<br>很快，下面的章节将解释如何重写non_opt_eq/2，以便可以应用延迟sub binary的优化，更重要的是，还能发现你的代码是否可以优化。</p>
+<h5 id="bin-opt-info选项"><a href="#bin-opt-info选项" class="headerlink" title="bin_opt_info选项"></a>bin_opt_info选项</h5><p>使用bin_opt_info选项可以让编译器打印大量有关二进制优化的信息。</p>
+<blockquote>
+<p>erlc +bin_opt_info Mod.erl</p>
+</blockquote>
+<p>请注意，bin_opt_info不能是能永久添加到Makefile中的选项，因为它生成的所有信息都不能被删除。因此，通过环境选择在大多数情况下是最实际的方法。<br>为了更准确地说明警告所引用的代码，以下示例中的警告将作为注释引用到它们所引用的子句之后插入，例如：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;<span class="number">0</span>,T/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">         <span class="comment">%% NOT OPTIMIZED: sub binary is used or returned</span></div><div class="line">    T;</div><div class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;_,T/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">         <span class="comment">%% OPTIMIZED: creation of sub binary delayed</span></div><div class="line">    after_zero(T);</div><div class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;&gt;&gt;)</span> -&gt;</span></div><div class="line">    &lt;&lt;&gt;&gt;.</div></pre></td></tr></table></figure></p>
+<p>上述代码说明第一个匹配没有优化，第二个匹配会被优化。<br>让我们重新回顾一下无法优化的代码的例子，并找出原因：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([H|T1], &lt;&lt;H,T2/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">        <span class="comment">%% INFO: matching anything else but a plain variable to</span></div><div class="line">    <span class="comment">%%    the left of binary pattern will prevent delayed </span></div><div class="line">    <span class="comment">%%    sub binary optimization;</span></div><div class="line">    <span class="comment">%%    SUGGEST changing argument order</span></div><div class="line">        <span class="comment">%% NOT OPTIMIZED: called function non_opt_eq/2 does not</span></div><div class="line">    <span class="comment">%%    begin with a suitable binary matching instruction</span></div><div class="line">    non_opt_eq(T1, T2);</div><div class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([_|_], &lt;&lt;_,_/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    <span class="literal">false</span>;</div><div class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([], &lt;&lt;&gt;&gt;)</span> -&gt;</span></div><div class="line">    <span class="literal">true</span>.</div></pre></td></tr></table></figure></p>
+<p>编译器发出两个警告。INFO警告指的是函数non_opt_eq/2作为被调用者，表示任何调用non_opt_eq/2的函数都不能进行延迟sub binary优化。还有一个建议来改变参数顺序。第二个警告（恰好是指同一行）是指sub binary本身的构造。<br>下面的另一个例子将显示INFO和NOT OPTIMIZED警告之间的区别，这些警告有些清晰，但是让我们先来试一下改变参数顺序的建议：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">opt_eq</span><span class="params">(&lt;&lt;H,T1/binary&gt;&gt;, [H|T2])</span> -&gt;</span></div><div class="line">        <span class="comment">%% OPTIMIZED: creation of sub binary delayed</span></div><div class="line">    opt_eq(T1, T2);</div><div class="line"><span class="function"><span class="title">opt_eq</span><span class="params">(&lt;&lt;_,_/binary&gt;&gt;, [_|_])</span> -&gt;</span></div><div class="line">    <span class="literal">false</span>;</div><div class="line"><span class="function"><span class="title">opt_eq</span><span class="params">(&lt;&lt;&gt;&gt;, [])</span> -&gt;</span></div><div class="line">    <span class="literal">true</span>.</div></pre></td></tr></table></figure></p>
+<p>编译器给出以下代码片段的警告：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">match_body</span><span class="params">([<span class="number">0</span>|_], &lt;&lt;H,_/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">        <span class="comment">%% INFO: matching anything else but a plain variable to</span></div><div class="line">    <span class="comment">%%    the left of binary pattern will prevent delayed </span></div><div class="line">    <span class="comment">%%    sub binary optimization;</span></div><div class="line">    <span class="comment">%%    SUGGEST changing argument order</span></div><div class="line">    done;</div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>这个警告意味着如果有一个对match_body/2的调用（来自match_body/2中的另一个子句或另一个函数），那么延迟的子二进制优化是不可能的。在二进制匹配结束处的任何地方将发生更多警告，并作为match_body/2的第二个参数传递，例如：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">match_head</span><span class="params">(List, &lt;&lt;_:<span class="number">10</span>,Data/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">        <span class="comment">%% NOT OPTIMIZED: called function match_body/2 does not</span></div><div class="line">    <span class="comment">%%     begin with a suitable binary matching instruction</span></div><div class="line">    match_body(List, Data).</div></pre></td></tr></table></figure></p>
+<h5 id="未使用的变量"><a href="#未使用的变量" class="headerlink" title="未使用的变量"></a>未使用的变量</h5><p>编译器能够算出一个变量是否未被使用。然后为以下每个功能生成相同的代码：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">count1</span><span class="params">(&lt;&lt;_,T/binary&gt;&gt;, Count)</span> -&gt;</span> count1(T, Count+<span class="number">1</span>);</div><div class="line"><span class="function"><span class="title">count1</span><span class="params">(&lt;&lt;&gt;&gt;, Count)</span> -&gt;</span> Count.</div><div class="line"></div><div class="line"><span class="function"><span class="title">count2</span><span class="params">(&lt;&lt;H,T/binary&gt;&gt;, Count)</span> -&gt;</span> count2(T, Count+<span class="number">1</span>);</div><div class="line"><span class="function"><span class="title">count2</span><span class="params">(&lt;&lt;&gt;&gt;, Count)</span> -&gt;</span> Count.</div><div class="line"></div><div class="line"><span class="function"><span class="title">count3</span><span class="params">(&lt;&lt;_H,T/binary&gt;&gt;, Count)</span> -&gt;</span> count3(T, Count+<span class="number">1</span>);</div><div class="line"><span class="function"><span class="title">count3</span><span class="params">(&lt;&lt;&gt;&gt;, Count)</span> -&gt;</span> Count.</div></pre></td></tr></table></figure></p>
+<p>在每次迭代中，二进制中的前8位将被跳过，不匹配。</p>
+<h4 id="历史笔记"><a href="#历史笔记" class="headerlink" title="历史笔记"></a>历史笔记</h4><p>R12的Binary处理显着改善。因此R11B中执行高效的代码在R12B中可能不是那么高效，反之亦然，此efficiency-guide的较早版本包含了有关R11B中二进制处理的一些信息。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2017-10-14T09:15:09.504Z" itemprop="dateUpdated">2017-10-14 17:15:09</time>
+</span><br>
+
+
+        
+        转载请注明出处，Darcy's Blog <br/><a href="/2017/10/14/efficiency-guide-Binary的构建和匹配/" target="_blank" rel="external">https://lintingbin2009.github.io/2017/10/14/efficiency-guide-Binary的构建和匹配/</a>
+        
+    </div>
+    <footer>
+        <a href="https://lintingbin2009.github.io">
+            <img src="/img/avatar.jpg" alt="lintingbin2009">
+            lintingbin2009
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-Binary的构建和匹配/&title=《efficiency-guide:Binary的构建和匹配》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-Binary的构建和匹配/&title=《efficiency-guide:Binary的构建和匹配》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-Binary的构建和匹配/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《efficiency-guide:Binary的构建和匹配》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-Binary的构建和匹配/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-Binary的构建和匹配/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2017/10/14/efficiency-guide-List处理/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">efficiency-guide:List处理</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/10/14/efficiency-guide-需要注意的模块和BIF/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">efficiency_guide:需要注意的模块和BIF</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'lintingbin2009';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢老板~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>lintingbin2009 &copy; 2016 - 2017</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-Binary的构建和匹配/&title=《efficiency-guide:Binary的构建和匹配》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-Binary的构建和匹配/&title=《efficiency-guide:Binary的构建和匹配》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-Binary的构建和匹配/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《efficiency-guide:Binary的构建和匹配》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-Binary的构建和匹配/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-Binary的构建和匹配/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYAAAD2CAAAAADAeSUUAAADNklEQVR42u3ay07kMBAFUP7/pxlpdiMI3FvOIFJ9vGrREPs4EqV6vL3F6/3vuvr8cX39hKufXP3VxycnO96wsLGxsR/Cfv9yJUe8OlDy7ckLyF/DJztiY2Njr2PPglYb3s5DWhLYksvCxsbGfk32LNlog9nXz58FWmxsbGzsJAFowW3ZaHZObGxs7NdhJ4GhTSfyo+fJSX7O22pp2NjY2L+efd7o/T2ff7S/jY2Njf0L2O+j1ZaH8m/bJ8wU2NjY2JvYszGak6QlTyFmobQIbNjY2Ngr2LPglIeZk7CUvJg8+P1zcmxsbOxF7LZdOmvTzuJq8m3eTq6rZdjY2NgPYd973CSczK4vv46o4IWNjY29jt2Oy+R/ez5e0zYkoidjY2Njr2a3jd48YThp8eYvI0qusLGxsRexW8BJUzZJdW6ojeUubGxs7HXsWVs3/502COVXM2seY2NjY+9g58eapSv5dScX2rIvz4ONjY29iH3vgM6sMXxyQScJFTY2NvZW9qz1e54ktI2Hdkjom+iNjY2N/Vh2sllS0M9L+bNSVLJj8gq/GdnBxsbGfiA7b5HOBmvyQk87+jNLb7CxsbG3svMQlSckbZthWBgqmxbY2NjY+9izAn07jtO2cu9qWlzui42Njb2O3Q7KtIlK3gyelY3akImNjY29id3CZu3b80vJL7cIt9jY2Ngvw26LTXmQmzUJTprKRQDDxsbGfgg7D1r5EdsnzFoLSWC7PAM2Njb2OnY7HHNX0WdWxpq1E+qbw8bGxn4Ue1amb4tHs7L+XYnKZSqCjY2N/XB2WwzKQ0sbKdpg2QbCT56PjY2NvYh9EhLOE5hZU/m8bYyNjY29j902aPPk5C1ebWqUB8JoS2xsbOxF7JNr+pkBnfZCsbGxsbeyzwtGeZs2582KTcngzjeTStjY2NgPZLf/8/MwM0s5kr1mI0TY2NjYu9l3jTnmRf8c1jZ0k6QIGxsbeyu7LeucpARtKf88TGJjY2Njz0Z28iHOljoLlp+kItjY2Ngvxv5/AzQtYzayOQxg2NjY2A9hz2Ang5LnhaE2ZGJjY2NvZd/b6M1HcNohm7Z1kZwEGxsb++HsP1polrracAFaAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

@@ -22,24 +22,24 @@ ga('send', 'pageview');
     
     
     
-    <title>怎么实现一个Sublime的自动补全插件 | Darcy&#39;s Blog | 不如烂笔头</title>
+    <title>Erlang文档的efficiency_guide总结 | Darcy&#39;s Blog | 不如烂笔头</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     
     <meta name="theme-color" content="#3F51B5">
     
     
-    <meta name="keywords" content="Sublime,插件">
-    <meta name="description" content="使用Erlang开发了快三年的游戏了，一直使用的是Sublime编辑器，也就这样没有自动补全的情况下使用了三年，本来打算切换到有Erlang自动补全的Ide的，但是在Sublime上面开发了那么久，切换到其他的编辑器觉得很不习惯，所以就自己写了一个Erlang的自动补全的插件，点这里可以看到我的插件  Sublime插件是用Python写的，所以打算开发Sublime插件的话要稍微去学习下Pyt">
-<meta name="keywords" content="Sublime,插件">
+    <meta name="keywords" content="Erlang">
+    <meta name="description" content="之前刚开始学习的Erlang的时候稍微看过这个教程，但是没有看全，发现这个教程还涵盖了挺多的信息的，今天把这个教程看完，顺便做一下总结，教程原版地址  本来是想把所有的总结写在一篇文章里面的，但是由于篇幅比较大，所以就把所有的总结分为以下几篇文章:  efficiency_guide:七个Erlang性能的误区 efficiency_guide:需要注意的模块和BIF efficiency-gu">
+<meta name="keywords" content="Erlang">
 <meta property="og:type" content="article">
-<meta property="og:title" content="怎么实现一个Sublime的自动补全插件">
-<meta property="og:url" content="https://lintingbin2009.github.io/2017/09/03/怎么实现一个Sublime的自动补全插件/index.html">
+<meta property="og:title" content="Erlang文档的efficiency_guide总结">
+<meta property="og:url" content="https://lintingbin2009.github.io/2017/10/13/Erlang文档的efficiency-guide总结/index.html">
 <meta property="og:site_name" content="Darcy&#39;s Blog">
-<meta property="og:description" content="使用Erlang开发了快三年的游戏了，一直使用的是Sublime编辑器，也就这样没有自动补全的情况下使用了三年，本来打算切换到有Erlang自动补全的Ide的，但是在Sublime上面开发了那么久，切换到其他的编辑器觉得很不习惯，所以就自己写了一个Erlang的自动补全的插件，点这里可以看到我的插件  Sublime插件是用Python写的，所以打算开发Sublime插件的话要稍微去学习下Pyt">
-<meta property="og:updated_time" content="2017-10-07T07:29:23.152Z">
+<meta property="og:description" content="之前刚开始学习的Erlang的时候稍微看过这个教程，但是没有看全，发现这个教程还涵盖了挺多的信息的，今天把这个教程看完，顺便做一下总结，教程原版地址  本来是想把所有的总结写在一篇文章里面的，但是由于篇幅比较大，所以就把所有的总结分为以下几篇文章:  efficiency_guide:七个Erlang性能的误区 efficiency_guide:需要注意的模块和BIF efficiency-gu">
+<meta property="og:updated_time" content="2017-10-14T09:21:34.785Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="怎么实现一个Sublime的自动补全插件">
-<meta name="twitter:description" content="使用Erlang开发了快三年的游戏了，一直使用的是Sublime编辑器，也就这样没有自动补全的情况下使用了三年，本来打算切换到有Erlang自动补全的Ide的，但是在Sublime上面开发了那么久，切换到其他的编辑器觉得很不习惯，所以就自己写了一个Erlang的自动补全的插件，点这里可以看到我的插件  Sublime插件是用Python写的，所以打算开发Sublime插件的话要稍微去学习下Pyt">
+<meta name="twitter:title" content="Erlang文档的efficiency_guide总结">
+<meta name="twitter:description" content="之前刚开始学习的Erlang的时候稍微看过这个教程，但是没有看全，发现这个教程还涵盖了挺多的信息的，今天把这个教程看完，顺便做一下总结，教程原版地址  本来是想把所有的总结写在一篇文章里面的，但是由于篇幅比较大，所以就把所有的总结分为以下几篇文章:  efficiency_guide:七个Erlang性能的误区 efficiency_guide:需要注意的模块和BIF efficiency-gu">
     
         <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
     
@@ -116,7 +116,7 @@ ga('send', 'pageview');
         <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
           <i class="icon icon-lg icon-navicon"></i>
         </a>
-        <div class="flex-col header-title ellipsis">怎么实现一个Sublime的自动补全插件</div>
+        <div class="flex-col header-title ellipsis">Erlang文档的efficiency_guide总结</div>
         
         <div class="search-wrap" id="search-wrap">
             <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
@@ -138,15 +138,15 @@ ga('send', 'pageview');
 <header class="content-header post-header">
 
     <div class="container fade-scale">
-        <h1 class="title">怎么实现一个Sublime的自动补全插件</h1>
+        <h1 class="title">Erlang文档的efficiency_guide总结</h1>
         <h5 class="subtitle">
             
-                <time datetime="2017-09-03T05:45:49.000Z" itemprop="datePublished" class="page-time">
-  2017-09-03
+                <time datetime="2017-10-13T15:07:04.000Z" itemprop="datePublished" class="page-time">
+  2017-10-13
 </time>
 
 
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/教程/">教程</a></li></ul>
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang-Efficiency-Guide/">Erlang Efficiency Guide</a></li></ul>
 
             
         </h5>
@@ -160,16 +160,16 @@ ga('send', 'pageview');
 
 <div class="container body-wrap">
     
-<article id="post-怎么实现一个Sublime的自动补全插件"
+<article id="post-Erlang文档的efficiency-guide总结"
   class="post-article article-type-post fade" itemprop="blogPost">
 
     <div class="post-card">
-        <h1 class="post-card-title">怎么实现一个Sublime的自动补全插件</h1>
+        <h1 class="post-card-title">Erlang文档的efficiency_guide总结</h1>
         <div class="post-meta">
-            <time class="post-time" title="2017-09-03 13:45:49" datetime="2017-09-03T05:45:49.000Z"  itemprop="datePublished">2017-09-03</time>
+            <time class="post-time" title="2017-10-13 23:07:04" datetime="2017-10-13T15:07:04.000Z"  itemprop="datePublished">2017-10-13</time>
 
             
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/教程/">教程</a></li></ul>
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang-Efficiency-Guide/">Erlang Efficiency Guide</a></li></ul>
 
 
 
@@ -184,11 +184,15 @@ ga('send', 'pageview');
         </div>
         <div class="post-content" id="post-content" itemprop="postContent">
             <blockquote>
-<p>使用Erlang开发了快三年的游戏了，一直使用的是Sublime编辑器，也就这样没有自动补全的情况下使用了三年，本来打算切换到有Erlang自动补全的Ide的，但是在Sublime上面开发了那么久，切换到其他的编辑器觉得很不习惯，所以就自己写了一个Erlang的自动补全的插件，<a href="https://github.com/lintingbin2009/Erl-AutoCompletion" target="_blank" rel="external">点这里可以看到我的插件</a></p>
+<p>之前刚开始学习的Erlang的时候稍微看过这个教程，但是没有看全，发现这个教程还涵盖了挺多的信息的，今天把这个教程看完，顺便做一下总结，<a href="http://erlang.org/doc/efficiency_guide/introduction.html" target="_blank" rel="external">教程原版地址</a></p>
 </blockquote>
-<p>Sublime插件是用Python写的，所以打算开发Sublime插件的话要稍微去学习下Python，不用学的很深入，懂得基本的语法就可以愉快的开始开发插件了。我之前的入门教程看的是<a href="https://cnpagency.com/blog/creating-sublime-text-3-plugins-part-1/" target="_blank" rel="external">creating-sublime-text-3-plugins-part-1</a>，如果打算开发Sublime插件的话，看这篇文章就可以写一个简单的Sublime插件的Demo。这个网址<a href="http://www.sublimetext.com/docs/3/api_reference.html" target="_blank" rel="external">api_reference</a>可以查看开发Sublime插件所提供的各种API。</p>
-<p>我写Erlang自动补全代码和自动跳转的原理是在打开Sublime的时候，扫描所有Erlang的源代码和Sublime中已经打开的所有的Erlang代码，然后利用正则表达式匹配来找出所有函数和模块所在的文件和位置，把这些信息都写入到Sqlite数据库中，然后在用户在编写Erlang源代码的时候提供补全的函数和模块。当用户把鼠标指向某个函数的时候，在Sqlite数据库中查询相应的函数所在的文件和位置，当用户选中的时候打开该文件并且定位到文件的相应的位置。具体的代码可以在<a href="https://github.com/lintingbin2009/Erl-AutoCompletion" target="_blank" rel="external">点这里可以看到我的插件</a>这里查看。当写好一个插件后我们最好能把插件放到Package Control中，这样用户安装和升级插件就会非常的方便，通过这个<a href="https://packagecontrol.io/docs/submitting_a_package" target="_blank" rel="external">submitting_a_package</a>教程能够顺利的提交自己的插件到Package Control中。</p>
-<p>自己写一个小插件有时候还是可以学到一点东西的，通过这次编写自动补全的插件，让我对正则表达式稍微熟悉了一点。</p>
+<p>本来是想把所有的总结写在一篇文章里面的，但是由于篇幅比较大，所以就把所有的总结分为以下几篇文章:</p>
+<ul>
+<li><a href="/2017/10/14/efficiency-guide-七个Erlang性能的误区/" title="efficiency_guide:七个Erlang性能的误区">efficiency_guide:七个Erlang性能的误区</a></li>
+<li><a href="/2017/10/14/efficiency-guide-需要注意的模块和BIF/" title="efficiency_guide:需要注意的模块和BIF">efficiency_guide:需要注意的模块和BIF</a></li>
+<li><a href="/2017/10/14/efficiency-guide-Binary的构建和匹配/" title="efficiency-guide:Binary的构建和匹配">efficiency-guide:Binary的构建和匹配</a></li>
+<li><a href="/2017/10/14/efficiency-guide-List处理/" title="efficiency-guide:List处理">efficiency-guide:List处理</a></li>
+</ul>
 
         </div>
 
@@ -196,12 +200,12 @@ ga('send', 'pageview');
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-10-07T07:29:23.152Z" itemprop="dateUpdated">2017-10-07 15:29:23</time>
+    最后更新时间：<time datetime="2017-10-14T09:21:34.785Z" itemprop="dateUpdated">2017-10-14 17:21:34</time>
 </span><br>
 
 
         
-        转载请注明出处，Darcy's Blog <br/><a href="/2017/09/03/怎么实现一个Sublime的自动补全插件/" target="_blank" rel="external">https://lintingbin2009.github.io/2017/09/03/怎么实现一个Sublime的自动补全插件/</a>
+        转载请注明出处，Darcy's Blog <br/><a href="/2017/10/13/Erlang文档的efficiency-guide总结/" target="_blank" rel="external">https://lintingbin2009.github.io/2017/10/13/Erlang文档的efficiency-guide总结/</a>
         
     </div>
     <footer>
@@ -221,7 +225,7 @@ ga('send', 'pageview');
 
         <div class="post-footer">
             
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Sublime/">Sublime</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/插件/">插件</a></li></ul>
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
 
 
             
@@ -231,7 +235,7 @@ ga('send', 'pageview');
 <div class="page-share" id="pageShare">
     <ul class="reset share-icons">
       <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/09/03/怎么实现一个Sublime的自动补全插件/&title=《怎么实现一个Sublime的自动补全插件》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/10/13/Erlang文档的efficiency-guide总结/&title=《Erlang文档的efficiency_guide总结》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
           <i class="icon icon-weibo"></i>
         </a>
       </li>
@@ -241,22 +245,22 @@ ga('send', 'pageview');
         </a>
       </li>
       <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/09/03/怎么实现一个Sublime的自动补全插件/&title=《怎么实现一个Sublime的自动补全插件》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/10/13/Erlang文档的efficiency-guide总结/&title=《Erlang文档的efficiency_guide总结》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
           <i class="icon icon-qq"></i>
         </a>
       </li>
       <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/09/03/怎么实现一个Sublime的自动补全插件/" data-title=" Facebook">
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/10/13/Erlang文档的efficiency-guide总结/" data-title=" Facebook">
           <i class="icon icon-facebook"></i>
         </a>
       </li>
       <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《怎么实现一个Sublime的自动补全插件》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/09/03/怎么实现一个Sublime的自动补全插件/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Erlang文档的efficiency_guide总结》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/10/13/Erlang文档的efficiency-guide总结/&via=https://lintingbin2009.github.io" data-title=" Twitter">
           <i class="icon icon-twitter"></i>
         </a>
       </li>
       <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/09/03/怎么实现一个Sublime的自动补全插件/" data-title=" Google+">
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/10/13/Erlang文档的efficiency-guide总结/" data-title=" Google+">
           <i class="icon icon-google-plus"></i>
         </a>
       </li>
@@ -279,18 +283,18 @@ ga('send', 'pageview');
 <nav class="post-nav flex-row flex-justify-between">
   
     <div class="waves-block waves-effect prev">
-      <a href="/2017/10/13/Erlang文档的efficiency-guide总结/" id="post-prev" class="post-nav-link">
+      <a href="/2017/10/14/efficiency-guide-七个Erlang性能的误区/" id="post-prev" class="post-nav-link">
         <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
-        <h4 class="title">Erlang文档的efficiency_guide总结</h4>
+        <h4 class="title">efficiency_guide:七个Erlang性能的误区</h4>
       </a>
     </div>
   
 
   
     <div class="waves-block waves-effect next">
-      <a href="/2017/08/18/mochiweb的x-forwarded-for实现引发的线上掉单/" id="post-next" class="post-nav-link">
+      <a href="/2017/09/03/怎么实现一个Sublime的自动补全插件/" id="post-next" class="post-nav-link">
         <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
-        <h4 class="title">mochiweb的x-forwarded-for实现引发的线上掉单</h4>
+        <h4 class="title">怎么实现一个Sublime的自动补全插件</h4>
       </a>
     </div>
   
@@ -385,7 +389,7 @@ ga('send', 'pageview');
 <div class="global-share" id="globalShare">
     <ul class="reset share-icons">
       <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/09/03/怎么实现一个Sublime的自动补全插件/&title=《怎么实现一个Sublime的自动补全插件》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/10/13/Erlang文档的efficiency-guide总结/&title=《Erlang文档的efficiency_guide总结》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
           <i class="icon icon-weibo"></i>
         </a>
       </li>
@@ -395,22 +399,22 @@ ga('send', 'pageview');
         </a>
       </li>
       <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/09/03/怎么实现一个Sublime的自动补全插件/&title=《怎么实现一个Sublime的自动补全插件》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/10/13/Erlang文档的efficiency-guide总结/&title=《Erlang文档的efficiency_guide总结》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
           <i class="icon icon-qq"></i>
         </a>
       </li>
       <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/09/03/怎么实现一个Sublime的自动补全插件/" data-title=" Facebook">
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/10/13/Erlang文档的efficiency-guide总结/" data-title=" Facebook">
           <i class="icon icon-facebook"></i>
         </a>
       </li>
       <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《怎么实现一个Sublime的自动补全插件》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/09/03/怎么实现一个Sublime的自动补全插件/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Erlang文档的efficiency_guide总结》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/10/13/Erlang文档的efficiency-guide总结/&via=https://lintingbin2009.github.io" data-title=" Twitter">
           <i class="icon icon-twitter"></i>
         </a>
       </li>
       <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/09/03/怎么实现一个Sublime的自动补全插件/" data-title=" Google+">
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/10/13/Erlang文档的efficiency-guide总结/" data-title=" Google+">
           <i class="icon icon-google-plus"></i>
         </a>
       </li>
@@ -421,7 +425,7 @@ ga('send', 'pageview');
 <div class="page-modal wx-share" id="wxShare">
     <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYAAAD2CAAAAADAeSUUAAADI0lEQVR42u3awW7jMAwE0P7/T2evBRZ1ZigXiNnnU1Ekkp96mJLU11f8vL49//8++eRP37r+OVn/eq+jBxsbG/sh7Nflc/2Z61fJeefvnFuwsbGxt7LzmGm3v1755JjyMMPGxsbGbuMnCbwcPCtssLGxsbGvl8tLkaTYuI60D8ptbGxs7A9mt5GTB9j16+ZNpZPmFzY2NvZudr7l5//8K/NtbGxs7A9mv8qnHbueNJjaUqdQYGNjYy9i5wFwsnHCS44sOcT8/bGxsbF3sNtXSQYGect+dtBtfRHVVdjY2NiPZUcD0bK1NLu+0w6D2wLmzfrY2NjY69i/1wbKy4y8adWWLtjY2Nj72D9tkwfbeckRdb9GBUzRS8PGxsZ+LHtWNsw2mI2TZ02uomTCxsbGXs1uW07X37orLGfsoqmEjY2N/RD2rImTj2CTlWdNpaTJ9ab2wsbGxl7ETjAnY4C8nMiD6giPjY2NvY6dFw9tM2i2QnvE9egCGxsbexF71k5qN2u7XPkY4OST2NjY2JvYs5bNyZPH53lBEqU3NjY29mPZeXPnvGWfh19e5Ay/hY2Njb2I3Q5ff3s80LaN8qjDxsbG3sqehUR+ZG00tm2m2XUfbGxs7H3sltSOEGZNq5PwexOr2NjY2IvYeQjddRCzBlDOK9bHxsbGXsQ+vyiZU9ugKubVZZMLGxsbex+7Hda2gXFXIXHvUBkbGxt7B3vWAMqjKN/rZM36Kg82Njb2H2C3txbvOqx2AJzfxsHGxsbeyj6/+HjXELdFzgIPGxsbex979s99Am6pye9n7a0fowsbGxt7EbstLdrrO8nx5UecR9rReAAbGxv7Uew8SGbj4XZIMCuQimPFxsbGXsF+lU9eZkQXH887YaM/FTY2NvYmdv60A9Q82GYFST4ebgskbGxs7Cey22s3bYHRjmzzcC1aSG1Bgo2Njf1A9iw22uPIrwrlh9UOpLGxsbGx87HByZWg2dggH3hgY2Nj/2V2+6LJocxi7GR4gI2Njb2PfT7cTS5KJmF210G82QsbGxt7Efu8QdNi8rZ+cijtsAEbGxt7EfsfMZSH88dn2TEAAAAASUVORK5CYII=" alt="微信分享二维码">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACsklEQVR42u3aUa7iMBAEQO5/6be/KyHY7hmbx0rlLwQhcSWS7bTn8Yjbz1/t+fvnz++PeW6vfn1/9WMNDw8Pb9H1/AKvjsyvmNy4/Ea87AkeHh7eNV7SiXwymA3oP0HL+4yHh4f3Pbz213YJ/h6Mh4eH9z/y9lHC+ysmJDw8PLxv4LWn3oQIdaCw+S8eHh7eBd4seP3dz1f29/Dw8PAOxabJgjhfNM/6M+wtHh4e3gXePk6d8Wa3o+0nHh4e3j3eLKjNg+A8JsgX03VMjIeHh3eINztdO8TPJp52EoqeGB4eHt5RXlsadSqk2JQLDGMIPDw8vAWv7dasmCBZZCf/ah8AHh4e3g1eG7YmsE3ZVr4Btpr38PDw8I7y8gv/IwhYT0KzOKO4GB4eHt565z258KYUYH+eVeECHh4e3iFeXV8QlwXcCy+KW4mHh4d3gdeerg1bN1tom6gXDw8P7x6vDWGTju6j2CQyToIPPDw8vM/z2jgg3yTLyxRmtxUPDw/vHq8NF/IhO8Fs3gDyZToeHh7eWd77CaAtscqPycOLWUkWHh4e3ud5+Yo0D17zxfFj1F6+MeDh4eEd5e1T0M2w3i7Q8+KwCImHh4d3lDfbiDqQiMTlBTkeDw8P7wYv317Kh+Y8tM2DjLYQAQ8PD+8zvD1jFhbMttCS8R8PDw/vHq8tiprFu7MbkfcwqizDw8PDO8pLpoR24buPGNptsEf+fPDw8PBK3qy7eXiRB7Wb3PXlywAeHh7eBd6mpKkOBcpoOA9K9tMJHh4eXsubTQbtN22p1iySeOTzFR4eHt6alw/KpyaPA/PVvugKDw8P7yO82UZXe4P20xIeHh7e9/CSTbJZQUC+uC8iYzw8PLxrvM1JZ0e2C/E2vMDDw8O7x5u98LdbX+2yOyn8epxqeHh4eCnvD21pc6hUJn1fAAAAAElFTkSuQmCC" alt="微信分享二维码">
 </div>
 
 

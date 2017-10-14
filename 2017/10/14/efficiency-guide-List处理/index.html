@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-98287189-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>efficiency-guide:List处理 | Darcy&#39;s Blog | 不如烂笔头</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Erlang">
+    <meta name="description" content="列表创建不能使用如下代码创建列表，因为每次迭代都会创建一个新的列表:1234567bad_fib(N) -&amp;gt;    bad_fib(N, 0, 1, []).bad_fib(0, _Current, _Next, Fibs) -&amp;gt;    Fibs;bad_fib(N, Current, Next, Fibs) -&amp;gt;     bad_fib(N - 1, Next, Current">
+<meta name="keywords" content="Erlang">
+<meta property="og:type" content="article">
+<meta property="og:title" content="efficiency-guide:List处理">
+<meta property="og:url" content="https://lintingbin2009.github.io/2017/10/14/efficiency-guide-List处理/index.html">
+<meta property="og:site_name" content="Darcy&#39;s Blog">
+<meta property="og:description" content="列表创建不能使用如下代码创建列表，因为每次迭代都会创建一个新的列表:1234567bad_fib(N) -&amp;gt;    bad_fib(N, 0, 1, []).bad_fib(0, _Current, _Next, Fibs) -&amp;gt;    Fibs;bad_fib(N, Current, Next, Fibs) -&amp;gt;     bad_fib(N - 1, Next, Current">
+<meta property="og:updated_time" content="2017-10-14T10:29:42.123Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="efficiency-guide:List处理">
+<meta name="twitter:description" content="列表创建不能使用如下代码创建列表，因为每次迭代都会创建一个新的列表:1234567bad_fib(N) -&amp;gt;    bad_fib(N, 0, 1, []).bad_fib(0, _Current, _Next, Fibs) -&amp;gt;    Fibs;bad_fib(N, Current, Next, Fibs) -&amp;gt;     bad_fib(N - 1, Next, Current">
+    
+        <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">lintingbin2009</h5>
+          <a href="mailto:lintingbin31@gmail.com" title="lintingbin31@gmail.com" class="mail">lintingbin31@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                类别
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/lintingbin2009" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">efficiency-guide:List处理</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">efficiency-guide:List处理</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-10-14T09:21:11.000Z" itemprop="datePublished" class="page-time">
+  2017-10-14
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang-Efficiency-Guide/">Erlang Efficiency Guide</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#列表创建"><span class="post-toc-number">1.</span> <span class="post-toc-text">列表创建</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#列表推导"><span class="post-toc-number">2.</span> <span class="post-toc-text">列表推导</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#嵌套和拉伸列表-Deep-and-Flat-Lists"><span class="post-toc-number">3.</span> <span class="post-toc-text">嵌套和拉伸列表(Deep and Flat Lists)</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#端口例子"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">端口例子</span></a></li><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#Append例子"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">Append例子</span></a></li></ol></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#递归列表函数"><span class="post-toc-number">4.</span> <span class="post-toc-text">递归列表函数</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-efficiency-guide-List处理"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">efficiency-guide:List处理</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-10-14 17:21:11" datetime="2017-10-14T09:21:11.000Z"  itemprop="datePublished">2017-10-14</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang-Efficiency-Guide/">Erlang Efficiency Guide</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h4 id="列表创建"><a href="#列表创建" class="headerlink" title="列表创建"></a>列表创建</h4><p>不能使用如下代码创建列表，因为每次迭代都会创建一个新的列表:<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(N)</span> -&gt;</span></div><div class="line">    bad_fib(N, <span class="number">0</span>, <span class="number">1</span>, []).</div><div class="line"></div><div class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(<span class="number">0</span>, _Current, _Next, Fibs)</span> -&gt;</span></div><div class="line">    Fibs;</div><div class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(N, Current, Next, Fibs)</span> -&gt;</span> </div><div class="line">    bad_fib(N - <span class="number">1</span>, Next, Current + Next, Fibs ++ [Current]).</div></pre></td></tr></table></figure></p>
+<p>应该使用如下的代码创建列表:<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">tail_recursive_fib</span><span class="params">(N)</span> -&gt;</span></div><div class="line">    tail_recursive_fib(N, <span class="number">0</span>, <span class="number">1</span>, []).</div><div class="line"></div><div class="line"><span class="function"><span class="title">tail_recursive_fib</span><span class="params">(<span class="number">0</span>, _Current, _Next, Fibs)</span> -&gt;</span></div><div class="line">    lists:reverse(Fibs);</div><div class="line"><span class="function"><span class="title">tail_recursive_fib</span><span class="params">(N, Current, Next, Fibs)</span> -&gt;</span> </div><div class="line">    tail_recursive_fib(N - <span class="number">1</span>, Next, Current + Next, [Current|Fibs]).</div></pre></td></tr></table></figure></p>
+<h4 id="列表推导"><a href="#列表推导" class="headerlink" title="列表推导"></a>列表推导</h4><p>列表推导现在仍然被认为是缓慢的。他们过去常常使用funs来实现，而funs过去很慢。<br>以下的列表推荐：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[Expr(E) || E &lt;- List]</div></pre></td></tr></table></figure></p>
+<p>会被转换成本地的函数实现：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">'lc^<span class="number">0</span>'([E|Tail], Expr) -&gt;</div><div class="line">    [Expr(E)|'lc^<span class="number">0</span>'(Tail, Expr)];</div><div class="line">'lc^<span class="number">0</span>'([], _Expr) -&gt; [].</div></pre></td></tr></table></figure></p>
+<p>如果列表推导的结果不会被使用，则不会构造列表。如下的代码：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">[io:put_chars(E) || E &lt;- List],</div><div class="line">ok.</div><div class="line"><span class="comment">%% 或者</span></div><div class="line">...</div><div class="line"><span class="keyword">case</span> Var <span class="keyword">of</span></div><div class="line">    ... -&gt;</div><div class="line">        [io:put_chars(E) || E &lt;- List];</div><div class="line">    ... -&gt;</div><div class="line"><span class="keyword">end</span>,</div><div class="line"><span class="function"><span class="title">some_function</span><span class="params">(...)</span>,</span></div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>上述的代码不会构造列表，所以转换成以下的本地函数实现：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">'lc^<span class="number">0</span>'([E|Tail], Expr) -&gt;</div><div class="line">    Expr(E),</div><div class="line">    'lc^<span class="number">0</span>'(Tail, Expr);</div><div class="line">'lc^<span class="number">0</span>'([], _Expr) -&gt; [].</div></pre></td></tr></table></figure></p>
+<p>编译器知道分配给’_’意味着该值不会被使用。因此，以下示例中的代码也将进行优化：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">_ = [io:put_chars(E) || E &lt;- List],</div><div class="line">ok.</div></pre></td></tr></table></figure></p>
+<h4 id="嵌套和拉伸列表-Deep-and-Flat-Lists"><a href="#嵌套和拉伸列表-Deep-and-Flat-Lists" class="headerlink" title="嵌套和拉伸列表(Deep and Flat Lists)"></a>嵌套和拉伸列表(Deep and Flat Lists)</h4><p>lists:flatten/1比++操作更加的低效，在下述的情况中，可以很简单的避免使用lists:flatten/1:</p>
+<ul>
+<li>向端口发送数据时。端口了解嵌套列表，所以没有理由在将列表发送到端口之前拉伸列表。</li>
+<li>当调用接受嵌套列表的BIF时，例如list_to_binary/1或iolist_to_binary/1。</li>
+<li>当知道列表只有一级嵌套时，可以使用list:append/1。</li>
+</ul>
+<h5 id="端口例子"><a href="#端口例子" class="headerlink" title="端口例子"></a>端口例子</h5><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line"><span class="function"><span class="title">port_command</span><span class="params">(Port, DeepList)</span> %% DO</span></div><div class="line">...</div><div class="line"></div><div class="line">...</div><div class="line"><span class="title">port_command</span><span class="params">(Port, lists:flatten(DeepList))</span> %% DO NOT</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>通常会这样向端口发送一个以0为结尾的字符串：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">TerminatedStr = String ++ [<span class="number">0</span>], <span class="comment">% String="foo" =&gt; [$f, $o, $o, 0]</span></div><div class="line"><span class="function"><span class="title">port_command</span><span class="params">(Port, TerminatedStr)</span></span></div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>上述效率比较低，应该用下述方式代替：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">TerminatedStr = [String, <span class="number">0</span>], <span class="comment">% String="foo" =&gt; [[$f, $o, $o], 0]</span></div><div class="line"><span class="function"><span class="title">port_command</span><span class="params">(Port, TerminatedStr)</span> </span></div><div class="line">...</div></pre></td></tr></table></figure></p>
+<h5 id="Append例子"><a href="#Append例子" class="headerlink" title="Append例子"></a>Append例子</h5><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">lists:append([[<span class="number">1</span>], [<span class="number">2</span>], [<span class="number">3</span>]]). <span class="comment">%% DO</span></div><div class="line"></div><div class="line">lists:flatten([[<span class="number">1</span>], [<span class="number">2</span>], [<span class="number">3</span>]]). <span class="comment">%% DO NOT</span></div></pre></td></tr></table></figure>
+<h4 id="递归列表函数"><a href="#递归列表函数" class="headerlink" title="递归列表函数"></a>递归列表函数</h4><p>普通递归列表函数和尾部递归函数在结束的时候反转列表之间通常没有太大差异。因此，专注于编写好看的代码，并忘记了列表功能的性能。在代码的性能关键部分（仅在那里），用比较高效的写法就行了。</p>
+<blockquote>
+<p>这部分是关于构造列表的列表函数。不构造列表的尾递归函数运行在常量空间中，而相应的普通递归函数使用与列表长度成比例的堆栈空间。</p>
+</blockquote>
+<p>例如，一个将整数列表相加的函数不能写成如下：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">recursive_sum</span><span class="params">([H|T])</span> -&gt;</span> H+recursive_sum(T);</div><div class="line"><span class="function"><span class="title">recursive_sum</span><span class="params">([])</span>    -&gt;</span> <span class="number">0</span>.</div></pre></td></tr></table></figure></p>
+<p>应该写成:<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">sum</span><span class="params">(L)</span> -&gt;</span> sum(L, <span class="number">0</span>).</div><div class="line"></div><div class="line"><span class="function"><span class="title">sum</span><span class="params">([H|T], Sum)</span> -&gt;</span> sum(T, Sum + H);</div><div class="line"><span class="function"><span class="title">sum</span><span class="params">([], Sum)</span>    -&gt;</span> Sum.</div></pre></td></tr></table></figure></p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2017-10-14T10:29:42.123Z" itemprop="dateUpdated">2017-10-14 18:29:42</time>
+</span><br>
+
+
+        
+        转载请注明出处，Darcy's Blog <br/><a href="/2017/10/14/efficiency-guide-List处理/" target="_blank" rel="external">https://lintingbin2009.github.io/2017/10/14/efficiency-guide-List处理/</a>
+        
+    </div>
+    <footer>
+        <a href="https://lintingbin2009.github.io">
+            <img src="/img/avatar.jpg" alt="lintingbin2009">
+            lintingbin2009
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-List处理/&title=《efficiency-guide:List处理》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-List处理/&title=《efficiency-guide:List处理》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-List处理/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《efficiency-guide:List处理》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-List处理/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-List处理/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/10/14/efficiency-guide-Binary的构建和匹配/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">efficiency-guide:Binary的构建和匹配</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'lintingbin2009';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢老板~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>lintingbin2009 &copy; 2016 - 2017</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-List处理/&title=《efficiency-guide:List处理》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-List处理/&title=《efficiency-guide:List处理》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-List处理/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《efficiency-guide:List处理》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-List处理/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-List处理/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACpUlEQVR42u3aMVbDMBAEUO5/aWgpiJnRaiHFd5UHjqyvwtqM9uMjvj4fr+/3tN99NU4+/oULDw8Pb23qr/6bPz7/1vOdyZzx8PDwtnnPD3g1dP5mfv5uvrjtouDh4eG9A+95WpMluzs+Hh4e3jvzkg1jEluczQcPDw9vm3cW0Z7FB/kG8KdZCx4eHl7MOwsU/vfzyvkeHh4e3vhUfbtDoT1mq2eLh4eHt8Bry+WkNSopptsly8tlPDw8vG1ePrkoMI0XJQ+R82X64Sl4eHh4a7x5kNouxF6Ye3orHh4e3jlvUsi2h15JAJEsUxRD4OHh4S3w2gK3nVxbap9tLRd2JDw8PLzyhd4eg7XHVPlGchZG/BDj4uHh4S3w8mI6eeTdhq1RrIyHh4e3wGtD1bNJJMdsSandLjoeHh7eHm8SuSbL0QYNyXzqdgQ8PDy8S7w2cm2L6ZadRw910xUeHh7eJV77wj0rf+s96tKxGR4eHt4e727L1ORY66wB65f78fDw8JZ5Z8XxpEnr7NCreC4eHh7eVd7Za7ptnzqs7scbDB4eHt42rw1kJ4X1ZLMp5oaHh4e3wMsbAtrpPpfCt9q5ijACDw8P7xJv3g7VvvrPCvEWjIeHh7fHy3/8FyVsedifxw35/UXTFR4eHt4R79agyXaSlMX5OMVmgIeHh7fAa4OAfFHymPgs8D3sKcPDw8Nb450FEC1gb2Q8PDy8uyN/ltfkiKsNi/MlfjkrPDw8vAXexqs8j4bzI7Gzz3h4eHh7vHkjVLIE+UFaUr4n88HDw8Pb5s2PrG4Fsmeb1i8bAx4eHt7b8CYNCmcFd91YgIeHh/cGvMkUk+aDpLgvNhU8PDy8NV4+6CREOAuIJyEFHh4e3gav/cE/+fv8GGx0joeHh4c35X0B0NoNAb1RrD8AAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

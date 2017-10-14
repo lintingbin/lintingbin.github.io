@@ -3,6 +3,219 @@
   
     
     <entry>
+      <title><![CDATA[efficiency-guide:List处理]]></title>
+      <url>/2017/10/14/efficiency-guide-List%E5%A4%84%E7%90%86/</url>
+      <content type="html"><![CDATA[<h4 id="列表创建"><a href="#列表创建" class="headerlink" title="列表创建"></a>列表创建</h4><p>不能使用如下代码创建列表，因为每次迭代都会创建一个新的列表:<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(N)</span> -&gt;</span></div><div class="line">    bad_fib(N, <span class="number">0</span>, <span class="number">1</span>, []).</div><div class="line"></div><div class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(<span class="number">0</span>, _Current, _Next, Fibs)</span> -&gt;</span></div><div class="line">    Fibs;</div><div class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(N, Current, Next, Fibs)</span> -&gt;</span> </div><div class="line">    bad_fib(N - <span class="number">1</span>, Next, Current + Next, Fibs ++ [Current]).</div></pre></td></tr></table></figure></p>
+<p>应该使用如下的代码创建列表:<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">tail_recursive_fib</span><span class="params">(N)</span> -&gt;</span></div><div class="line">    tail_recursive_fib(N, <span class="number">0</span>, <span class="number">1</span>, []).</div><div class="line"></div><div class="line"><span class="function"><span class="title">tail_recursive_fib</span><span class="params">(<span class="number">0</span>, _Current, _Next, Fibs)</span> -&gt;</span></div><div class="line">    lists:reverse(Fibs);</div><div class="line"><span class="function"><span class="title">tail_recursive_fib</span><span class="params">(N, Current, Next, Fibs)</span> -&gt;</span> </div><div class="line">    tail_recursive_fib(N - <span class="number">1</span>, Next, Current + Next, [Current|Fibs]).</div></pre></td></tr></table></figure></p>
+<h4 id="列表推导"><a href="#列表推导" class="headerlink" title="列表推导"></a>列表推导</h4><p>列表推导现在仍然被认为是缓慢的。他们过去常常使用funs来实现，而funs过去很慢。<br>以下的列表推荐：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[Expr(E) || E &lt;- List]</div></pre></td></tr></table></figure></p>
+<p>会被转换成本地的函数实现：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">'lc^<span class="number">0</span>'([E|Tail], Expr) -&gt;</div><div class="line">    [Expr(E)|'lc^<span class="number">0</span>'(Tail, Expr)];</div><div class="line">'lc^<span class="number">0</span>'([], _Expr) -&gt; [].</div></pre></td></tr></table></figure></p>
+<p>如果列表推导的结果不会被使用，则不会构造列表。如下的代码：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">[io:put_chars(E) || E &lt;- List],</div><div class="line">ok.</div><div class="line"><span class="comment">%% 或者</span></div><div class="line">...</div><div class="line"><span class="keyword">case</span> Var <span class="keyword">of</span></div><div class="line">    ... -&gt;</div><div class="line">        [io:put_chars(E) || E &lt;- List];</div><div class="line">    ... -&gt;</div><div class="line"><span class="keyword">end</span>,</div><div class="line"><span class="function"><span class="title">some_function</span><span class="params">(...)</span>,</span></div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>上述的代码不会构造列表，所以转换成以下的本地函数实现：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">'lc^<span class="number">0</span>'([E|Tail], Expr) -&gt;</div><div class="line">    Expr(E),</div><div class="line">    'lc^<span class="number">0</span>'(Tail, Expr);</div><div class="line">'lc^<span class="number">0</span>'([], _Expr) -&gt; [].</div></pre></td></tr></table></figure></p>
+<p>编译器知道分配给’_’意味着该值不会被使用。因此，以下示例中的代码也将进行优化：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">_ = [io:put_chars(E) || E &lt;- List],</div><div class="line">ok.</div></pre></td></tr></table></figure></p>
+<h4 id="嵌套和拉伸列表-Deep-and-Flat-Lists"><a href="#嵌套和拉伸列表-Deep-and-Flat-Lists" class="headerlink" title="嵌套和拉伸列表(Deep and Flat Lists)"></a>嵌套和拉伸列表(Deep and Flat Lists)</h4><p>lists:flatten/1比++操作更加的低效，在下述的情况中，可以很简单的避免使用lists:flatten/1:</p>
+<ul>
+<li>向端口发送数据时。端口了解嵌套列表，所以没有理由在将列表发送到端口之前拉伸列表。</li>
+<li>当调用接受嵌套列表的BIF时，例如list_to_binary/1或iolist_to_binary/1。</li>
+<li>当知道列表只有一级嵌套时，可以使用list:append/1。</li>
+</ul>
+<h5 id="端口例子"><a href="#端口例子" class="headerlink" title="端口例子"></a>端口例子</h5><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line"><span class="function"><span class="title">port_command</span><span class="params">(Port, DeepList)</span> %% DO</span></div><div class="line">...</div><div class="line"></div><div class="line">...</div><div class="line"><span class="title">port_command</span><span class="params">(Port, lists:flatten(DeepList))</span> %% DO NOT</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>通常会这样向端口发送一个以0为结尾的字符串：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">TerminatedStr = String ++ [<span class="number">0</span>], <span class="comment">% String="foo" =&gt; [$f, $o, $o, 0]</span></div><div class="line"><span class="function"><span class="title">port_command</span><span class="params">(Port, TerminatedStr)</span></span></div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>上述效率比较低，应该用下述方式代替：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">TerminatedStr = [String, <span class="number">0</span>], <span class="comment">% String="foo" =&gt; [[$f, $o, $o], 0]</span></div><div class="line"><span class="function"><span class="title">port_command</span><span class="params">(Port, TerminatedStr)</span> </span></div><div class="line">...</div></pre></td></tr></table></figure></p>
+<h5 id="Append例子"><a href="#Append例子" class="headerlink" title="Append例子"></a>Append例子</h5><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">lists:append([[<span class="number">1</span>], [<span class="number">2</span>], [<span class="number">3</span>]]). <span class="comment">%% DO</span></div><div class="line"></div><div class="line">lists:flatten([[<span class="number">1</span>], [<span class="number">2</span>], [<span class="number">3</span>]]). <span class="comment">%% DO NOT</span></div></pre></td></tr></table></figure>
+<h4 id="递归列表函数"><a href="#递归列表函数" class="headerlink" title="递归列表函数"></a>递归列表函数</h4><p>普通递归列表函数和尾部递归函数在结束的时候反转列表之间通常没有太大差异。因此，专注于编写好看的代码，并忘记了列表功能的性能。在代码的性能关键部分（仅在那里），用比较高效的写法就行了。</p>
+<blockquote>
+<p>这部分是关于构造列表的列表函数。不构造列表的尾递归函数运行在常量空间中，而相应的普通递归函数使用与列表长度成比例的堆栈空间。</p>
+</blockquote>
+<p>例如，一个将整数列表相加的函数不能写成如下：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">recursive_sum</span><span class="params">([H|T])</span> -&gt;</span> H+recursive_sum(T);</div><div class="line"><span class="function"><span class="title">recursive_sum</span><span class="params">([])</span>    -&gt;</span> <span class="number">0</span>.</div></pre></td></tr></table></figure></p>
+<p>应该写成:<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">sum</span><span class="params">(L)</span> -&gt;</span> sum(L, <span class="number">0</span>).</div><div class="line"></div><div class="line"><span class="function"><span class="title">sum</span><span class="params">([H|T], Sum)</span> -&gt;</span> sum(T, Sum + H);</div><div class="line"><span class="function"><span class="title">sum</span><span class="params">([], Sum)</span>    -&gt;</span> Sum.</div></pre></td></tr></table></figure></p>
+]]></content>
+      
+        <categories>
+            
+            <category> Erlang Efficiency Guide </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Erlang </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[efficiency-guide:Binary的构建和匹配]]></title>
+      <url>/2017/10/14/efficiency-guide-Binary%E7%9A%84%E6%9E%84%E5%BB%BA%E5%92%8C%E5%8C%B9%E9%85%8D/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>这篇文章非常详细的介绍了Binary是怎么样构造和匹配的，同时介绍了一些优化的技巧，没看过的一定要仔细看下。</p>
+</blockquote>
+<p>以下代码可以高效的构建Binary(有点奇怪，和List不一样，下面构造Binary的段落会有解释):<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">my_list_to_binary</span><span class="params">(List)</span> -&gt;</span></div><div class="line">    my_list_to_binary(List, &lt;&lt;&gt;&gt;).</div><div class="line"></div><div class="line"><span class="function"><span class="title">my_list_to_binary</span><span class="params">([H|T], Acc)</span> -&gt;</span></div><div class="line">    my_list_to_binary(T, &lt;&lt;Acc/binary,H&gt;&gt;);</div><div class="line"><span class="function"><span class="title">my_list_to_binary</span><span class="params">([], Acc)</span> -&gt;</span></div><div class="line">    Acc.</div></pre></td></tr></table></figure></p>
+<p>以下代码可以高效的匹配Binary:<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">my_binary_to_list</span><span class="params">(&lt;&lt;H,T/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    [H|my_binary_to_list(T)];</div><div class="line"><span class="function"><span class="title">my_binary_to_list</span><span class="params">(&lt;&lt;&gt;&gt;)</span> -&gt;</span> [].</div></pre></td></tr></table></figure></p>
+<h4 id="Binary类型是怎么实现的"><a href="#Binary类型是怎么实现的" class="headerlink" title="Binary类型是怎么实现的?"></a>Binary类型是怎么实现的?</h4><p>Binary和Bitstring在虚拟机的内部实现是一样的。在虚拟机的源代码中都叫做Binary。Binary类型在虚拟机内部由四种Binary对象实现:</p>
+<ul>
+<li><p><strong>Refc Binaries</strong><br>Refc Binaries由两部分组成：</p>
+<ul>
+<li>存储在进程堆上的对象，称为ProcBin </li>
+<li>Binary对象本身,它存储在所有进程堆之外 </li>
+</ul>
+<p>Binary对象可以由任意数量的进程引用任何数量的ProcBin。该对象包含一个引用计数器，用于跟踪引用数量，以便在最后一个引用消失时可以将其删除。进程中的所有ProcBin对象都是链表的一部分，因此当ProcBin消失时，垃圾回收器可以跟踪它们并减少二进制中的引用计数器。当构建的Binary大于64Byte的时候就会使用这种类型，此时进程之间发送Binary只是发送一个ProcBin。</p>
+</li>
+<li><strong>Heap Binaries</strong><br>Heap binaries是小型Binary，最多64Byte，并直接存储在进程堆中。当Heap Binary被进程垃圾回收或者是作为消息发送时，都需要被复制。垃圾收集器不需要特殊处理。</li>
+<li><strong>Sub Binaries</strong><br>Sub Binaries和match contexts对象能引用refc binary和heap binary对象的部分内容。<br>Sub Binary是由split_binary/2创建的。一个Sub Binary引用另一个Binary的部分内容（只能引用Refc和Heap Binary，不能引用另一个Sub Binary）。因此，匹配一个Binary类型是比较高效的，因为实际的Binary数据是不会被复制的。</li>
+<li><strong>Match Context</strong><br>Match context和Sub binary比较类似，但是Match context专门为Binary匹配优化。（原文比较拗口，这里不做解释了，我也没太看懂）</li>
+</ul>
+<h4 id="构建Binary"><a href="#构建Binary" class="headerlink" title="构建Binary"></a>构建Binary</h4><p>Binary和Bitstring的append操作是被运行时系统特别优化的，只有在极少数的情况下优化是不起作用的。<br>如下代码可以解释优化是如何起作用的:<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Bin0 = &lt;&lt;<span class="number">0</span>&gt;&gt;,</div><div class="line">Bin1 = &lt;&lt;Bin0/binary,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&gt;&gt;,</div><div class="line">Bin2 = &lt;&lt;Bin1/binary,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>&gt;&gt;,</div><div class="line">Bin3 = &lt;&lt;Bin2/binary,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>&gt;&gt;,</div><div class="line">Bin4 = &lt;&lt;Bin1/binary,<span class="number">17</span>&gt;&gt;,</div><div class="line">&#123;Bin4,Bin3&#125;</div></pre></td></tr></table></figure></p>
+<ul>
+<li>第1行分配一个Heap Binary给Bin0变量</li>
+<li>第2行是append操作。由于Bin0没有涉及append操作，所以创建一个新的Refc Binary，并将Bin0的内容复制到其中。Refc Binary的ProcBin部分存有Binary对象的数据大小，而Binary对象还分配了额外的空间。Binary对象的大小是Bin1或256的大小的两倍，以较大者为准。在这个例子中是256。</li>
+<li>第3行更有意思。Bin1已被用于append操作，最后有252字节的未使用内存，因此3个新的字节会被存储在这些空闲的内存中。</li>
+<li>第4行。和第3行一样。剩下249个字节，所以存储另外3个新字节没有问题。</li>
+<li>第5行。有趣的事情发生。请注意，Bin4是用Bin1来append值17。Bin4将被赋值为&lt;<0,1,2,3,17>&gt;。Bin3将保留其价值&lt;<0,1,2,3,4,5,6,7,8,9>&gt;。显然，运行时系统不能将字节17写入上述的Refc Binary中，因为这会将Bin3的值更改为&lt;<0,1,2,3,4,17,6,7,8,9>&gt;。<br>运行时系统知道Bin1是先前append操作的结果，所以它将Bin1的内容复制到一个新的Binary，预留额外的存储空间等等类似上面的操作。（这里没有解释为什么运行时系统知道不能写入到Bin1中，如果有兴趣的话可以阅读erl_bits.c源代码）</0,1,2,3,4,17,6,7,8,9></0,1,2,3,4,5,6,7,8,9></0,1,2,3,17></li>
+</ul>
+<h5 id="强制拷贝的情况"><a href="#强制拷贝的情况" class="headerlink" title="强制拷贝的情况"></a>强制拷贝的情况</h5><p>Binary的append操作优化要求对于Binary:只有一个ProcBin指向一个Refc Binary的Binary对象。原因是优化需要在append操作期间移动（重新分配）Binary对象，并且同时更新ProcBin中的指针。如果有多个ProcBin指向Binary对象，则无法找到并更新它们。<br>因此，对Binary的某些操作会被做标记，以便在将来做append操作的时候知道是否要强制拷贝Binary。在大多数情况下，Binary额外分配的空间也会在这个时候也被回收掉。<br>如果将Binary作为消息发送到其他进程或端口，则binary对象会缩小，任何进一步的append操作都会将Binary数据复制到新的Binary中。例如，在下面的代码，第3行的Bin1将会被复制：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Bin1 = &lt;&lt;Bin0,...&gt;&gt;,</div><div class="line">PortOrPid ! Bin1,</div><div class="line">Bin = &lt;&lt;Bin1,...&gt;&gt;  <span class="comment">%% Bin1 will be COPIED</span></div></pre></td></tr></table></figure></p>
+<p>同样的情况一样会发生，如果将Binary插入到Ets表中、使用erlangport_command/2将其发送到端口、或者将其传递给NIF中的enif_inspect_binary。<br>匹配Binary也会导致其缩小，下一个append操作将会复制Binary数据：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Bin1 = &lt;&lt;Bin0,...&gt;&gt;,</div><div class="line">&lt;&lt;X,Y,Z,T/binary&gt;&gt; = Bin1,</div><div class="line">Bin = &lt;&lt;Bin1,...&gt;&gt;  <span class="comment">%% Bin1 will be COPIED</span></div></pre></td></tr></table></figure></p>
+<p>原因是match context包含直接指向二进制数据的指针。<br>如果一个进程简单地保留Binary（在“循环数据”或进程字典中），垃圾回收器最终可以收缩这个Binary。如果只保留一个这样的Binary，则不会收缩。如果该进程后续append到已收缩的Binary中，则Binary对象将被重新分配，以使数据被加上。</p>
+<h4 id="匹配Binary"><a href="#匹配Binary" class="headerlink" title="匹配Binary"></a>匹配Binary</h4><p>重新看下文章开头的匹配例子：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">my_binary_to_list</span><span class="params">(&lt;&lt;H,T/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    [H|my_binary_to_list(T)];</div><div class="line"><span class="function"><span class="title">my_binary_to_list</span><span class="params">(&lt;&lt;&gt;&gt;)</span> -&gt;</span> [].</div></pre></td></tr></table></figure></p>
+<p>第一次调用my_binary_to_list/1时，会创建match context。match context指向Binary的第一个字节。匹配1个字节，并更新match context以指向Binary的第二个字节。<br>在此时，创建一个sub binary似乎是有意义的，但是在这个特定的例子中编译器知道每次匹配后会马上调用一个函数（在这个例子中，是my_binary_to_list/1本身），这会导致要创建一个新的match context然后丢弃sub binary。<br>因此，my_binary_to_list/1使用match context而不是使用sub binary调用自身。初始化匹配操作的指令当它看到它被传递给match context而不是sub binary时基本上什么都不做。<br>当到达Binary的末尾并且第二个子句匹配时，match context将被简单地丢弃（在下一个垃圾回收中被移除，因为不再有任何引用）。<br>总而言之，my_binary_to_list/1只需要创建一个match context，而不需要sub binary。<br>注意，当遍历完整个Binary后，my_binary_to_list/1中的match context被丢弃。如果迭代在Binary结束之前停止，会发生什么？优化还会生效吗？<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;<span class="number">0</span>,T/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    T;</div><div class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;_,T/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    after_zero(T);</div><div class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;&gt;&gt;)</span> -&gt;</span></div><div class="line">    &lt;&lt;&gt;&gt;.</div></pre></td></tr></table></figure></p>
+<p>答案是依然生效，编译器将在第二个子句中删除sub binary的构建：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;_,T/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    after_zero(T);</div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>但是它会生成在第一个子句中构建sub binary的代码：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;<span class="number">0</span>,T/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    T;</div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>因此，after_zero/1将构建一个match context和一个sub binary（如果它传进一个包含0的binary）。<br>以下代码也将进行优化：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">all_but_zeroes_to_list</span><span class="params">(Buffer, Acc, <span class="number">0</span>)</span> -&gt;</span></div><div class="line">    &#123;lists:reverse(Acc),Buffer&#125;;</div><div class="line"><span class="function"><span class="title">all_but_zeroes_to_list</span><span class="params">(&lt;&lt;<span class="number">0</span>,T/binary&gt;&gt;, Acc, Remaining)</span> -&gt;</span></div><div class="line">    all_but_zeroes_to_list(T, Acc, Remaining-<span class="number">1</span>);</div><div class="line"><span class="function"><span class="title">all_but_zeroes_to_list</span><span class="params">(&lt;&lt;Byte,T/binary&gt;&gt;, Acc, Remaining)</span> -&gt;</span></div><div class="line">    all_but_zeroes_to_list(T, [Byte|Acc], Remaining-<span class="number">1</span>).</div></pre></td></tr></table></figure></p>
+<p>编译器将删除第二和第三个子句中的sub binary的构建，并向第一个子句添加一个指令，该指令将Buffer从match context转换成sub binary（如果Buffer已经是binary，则不执行任何操作）。<br>在开始认为编译器可以优化任何Binary模式匹配之前，以下函数不能由编译器进行优化（至少当前是这样的）：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([H|T1], &lt;&lt;H,T2/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    non_opt_eq(T1, T2);</div><div class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([_|_], &lt;&lt;_,_/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    <span class="literal">false</span>;</div><div class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([], &lt;&lt;&gt;&gt;)</span> -&gt;</span></div><div class="line">    <span class="literal">true</span>.</div></pre></td></tr></table></figure></p>
+<p>之前提到，如果编译器知道Binary不会被共享，则会延迟创建sub binary。在当前的这种情况下，编译器无法知道。<br>很快，下面的章节将解释如何重写non_opt_eq/2，以便可以应用延迟sub binary的优化，更重要的是，还能发现你的代码是否可以优化。</p>
+<h5 id="bin-opt-info选项"><a href="#bin-opt-info选项" class="headerlink" title="bin_opt_info选项"></a>bin_opt_info选项</h5><p>使用bin_opt_info选项可以让编译器打印大量有关二进制优化的信息。</p>
+<blockquote>
+<p>erlc +bin_opt_info Mod.erl</p>
+</blockquote>
+<p>请注意，bin_opt_info不能是能永久添加到Makefile中的选项，因为它生成的所有信息都不能被删除。因此，通过环境选择在大多数情况下是最实际的方法。<br>为了更准确地说明警告所引用的代码，以下示例中的警告将作为注释引用到它们所引用的子句之后插入，例如：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;<span class="number">0</span>,T/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">         <span class="comment">%% NOT OPTIMIZED: sub binary is used or returned</span></div><div class="line">    T;</div><div class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;_,T/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">         <span class="comment">%% OPTIMIZED: creation of sub binary delayed</span></div><div class="line">    after_zero(T);</div><div class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;&gt;&gt;)</span> -&gt;</span></div><div class="line">    &lt;&lt;&gt;&gt;.</div></pre></td></tr></table></figure></p>
+<p>上述代码说明第一个匹配没有优化，第二个匹配会被优化。<br>让我们重新回顾一下无法优化的代码的例子，并找出原因：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([H|T1], &lt;&lt;H,T2/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">        <span class="comment">%% INFO: matching anything else but a plain variable to</span></div><div class="line">    <span class="comment">%%    the left of binary pattern will prevent delayed </span></div><div class="line">    <span class="comment">%%    sub binary optimization;</span></div><div class="line">    <span class="comment">%%    SUGGEST changing argument order</span></div><div class="line">        <span class="comment">%% NOT OPTIMIZED: called function non_opt_eq/2 does not</span></div><div class="line">    <span class="comment">%%    begin with a suitable binary matching instruction</span></div><div class="line">    non_opt_eq(T1, T2);</div><div class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([_|_], &lt;&lt;_,_/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">    <span class="literal">false</span>;</div><div class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([], &lt;&lt;&gt;&gt;)</span> -&gt;</span></div><div class="line">    <span class="literal">true</span>.</div></pre></td></tr></table></figure></p>
+<p>编译器发出两个警告。INFO警告指的是函数non_opt_eq/2作为被调用者，表示任何调用non_opt_eq/2的函数都不能进行延迟sub binary优化。还有一个建议来改变参数顺序。第二个警告（恰好是指同一行）是指sub binary本身的构造。<br>下面的另一个例子将显示INFO和NOT OPTIMIZED警告之间的区别，这些警告有些清晰，但是让我们先来试一下改变参数顺序的建议：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">opt_eq</span><span class="params">(&lt;&lt;H,T1/binary&gt;&gt;, [H|T2])</span> -&gt;</span></div><div class="line">        <span class="comment">%% OPTIMIZED: creation of sub binary delayed</span></div><div class="line">    opt_eq(T1, T2);</div><div class="line"><span class="function"><span class="title">opt_eq</span><span class="params">(&lt;&lt;_,_/binary&gt;&gt;, [_|_])</span> -&gt;</span></div><div class="line">    <span class="literal">false</span>;</div><div class="line"><span class="function"><span class="title">opt_eq</span><span class="params">(&lt;&lt;&gt;&gt;, [])</span> -&gt;</span></div><div class="line">    <span class="literal">true</span>.</div></pre></td></tr></table></figure></p>
+<p>编译器给出以下代码片段的警告：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">match_body</span><span class="params">([<span class="number">0</span>|_], &lt;&lt;H,_/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">        <span class="comment">%% INFO: matching anything else but a plain variable to</span></div><div class="line">    <span class="comment">%%    the left of binary pattern will prevent delayed </span></div><div class="line">    <span class="comment">%%    sub binary optimization;</span></div><div class="line">    <span class="comment">%%    SUGGEST changing argument order</span></div><div class="line">    done;</div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>这个警告意味着如果有一个对match_body/2的调用（来自match_body/2中的另一个子句或另一个函数），那么延迟的子二进制优化是不可能的。在二进制匹配结束处的任何地方将发生更多警告，并作为match_body/2的第二个参数传递，例如：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">match_head</span><span class="params">(List, &lt;&lt;_:<span class="number">10</span>,Data/binary&gt;&gt;)</span> -&gt;</span></div><div class="line">        <span class="comment">%% NOT OPTIMIZED: called function match_body/2 does not</span></div><div class="line">    <span class="comment">%%     begin with a suitable binary matching instruction</span></div><div class="line">    match_body(List, Data).</div></pre></td></tr></table></figure></p>
+<h5 id="未使用的变量"><a href="#未使用的变量" class="headerlink" title="未使用的变量"></a>未使用的变量</h5><p>编译器能够算出一个变量是否未被使用。然后为以下每个功能生成相同的代码：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">count1</span><span class="params">(&lt;&lt;_,T/binary&gt;&gt;, Count)</span> -&gt;</span> count1(T, Count+<span class="number">1</span>);</div><div class="line"><span class="function"><span class="title">count1</span><span class="params">(&lt;&lt;&gt;&gt;, Count)</span> -&gt;</span> Count.</div><div class="line"></div><div class="line"><span class="function"><span class="title">count2</span><span class="params">(&lt;&lt;H,T/binary&gt;&gt;, Count)</span> -&gt;</span> count2(T, Count+<span class="number">1</span>);</div><div class="line"><span class="function"><span class="title">count2</span><span class="params">(&lt;&lt;&gt;&gt;, Count)</span> -&gt;</span> Count.</div><div class="line"></div><div class="line"><span class="function"><span class="title">count3</span><span class="params">(&lt;&lt;_H,T/binary&gt;&gt;, Count)</span> -&gt;</span> count3(T, Count+<span class="number">1</span>);</div><div class="line"><span class="function"><span class="title">count3</span><span class="params">(&lt;&lt;&gt;&gt;, Count)</span> -&gt;</span> Count.</div></pre></td></tr></table></figure></p>
+<p>在每次迭代中，二进制中的前8位将被跳过，不匹配。</p>
+<h4 id="历史笔记"><a href="#历史笔记" class="headerlink" title="历史笔记"></a>历史笔记</h4><p>R12的Binary处理显着改善。因此R11B中执行高效的代码在R12B中可能不是那么高效，反之亦然，此efficiency-guide的较早版本包含了有关R11B中二进制处理的一些信息。</p>
+]]></content>
+      
+        <categories>
+            
+            <category> Erlang Efficiency Guide </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Erlang </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[efficiency_guide:需要注意的模块和BIF]]></title>
+      <url>/2017/10/14/efficiency-guide-%E9%9C%80%E8%A6%81%E6%B3%A8%E6%84%8F%E7%9A%84%E6%A8%A1%E5%9D%97%E5%92%8CBIF/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>以下就是要注意的模块和BIF，这些内容之前大多数知道，就setelement/3和size/1的使用优化是不知道的，值得一读</p>
+</blockquote>
+<h4 id="Timer模块"><a href="#Timer模块" class="headerlink" title="Timer模块"></a>Timer模块</h4><p>使用erlang:send_after/3和erlang:start_timer/3创建定时器比使用Timer模块更有效率。Timer模块使用单独的进程来管理定时器。如果许多进程在同时创建和取消定时器，这个进程很容易成为瓶颈。此外Timer模块的有些函数是不通过单一的进程实现的（如定时器：tc/3或定时器：sleep/1），因此这些函数是可以放心使用的。</p>
+<h4 id="list-to-atom-1"><a href="#list-to-atom-1" class="headerlink" title="list_to_atom/1"></a>list_to_atom/1</h4><p>Atom是不进行内存回收的，一旦一个Atom被创建，它永远不会被移除。如果Atom的数量到达虚拟机的上限（默认1,048,576）的话，虚拟机将会奔溃。<br>因此，在一个连续运行的系统中，将任意输入字符串转换成Atom是危险的。如果只允许某些定义好的原子作为输入，使用list_to_existing_atom/1可以用来防范拒绝服务攻击。<br>使用list_to_atom/1构建一个可以被传入apply/3函数的atom，效率是比较低的，不推荐在需要运行很快的代码中使用:<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">apply</span><span class="params">(list_to_atom(“some_prefix”+ + Var), foo, Args)</span></span></div></pre></td></tr></table></figure></p>
+<h4 id="length-1"><a href="#length-1" class="headerlink" title="length/1"></a>length/1</h4><p>与tuple_size/1、byte_size/1和bit_size/1的O(1)时间复杂度不同，length/1执行的时间与List的长度成正比为O(n)<br>。通常，没有必要担心length/1的速度，因为它是用C语言很高效的实现的，但是如果List很长，为了避免O(n)的时间复杂度。在一些使用场景中length/1可以被模式匹配来代替,如下：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">foo</span><span class="params">(L)</span> <span class="title">when</span> <span class="title">length</span><span class="params">(L)</span> &gt;= 3 -&gt;</span></div><div class="line">    ...</div></pre></td></tr></table></figure></p>
+<p>  可以被写成模式匹配的方式<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">foo</span><span class="params">([_,_,_|_]=L)</span> -&gt;</span></div><div class="line">   ...</div></pre></td></tr></table></figure></p>
+<p>  上面两段代码的区别是：如果L不是的列表，length(L)将会出错，而第二段代码中将不能正确匹配。</p>
+<h4 id="setelement-3"><a href="#setelement-3" class="headerlink" title="setelement/3"></a>setelement/3</h4><p>setelement/3会复制其修改的tuple。因此，使用setelement/3循环更新一个tuple的不同字段，会每次创建一个tuple的新副本。<br>有一种情况是可以例外的，如果编译器清楚地知道，破坏性地更新tuple会产生tuple复制相同的结果，那么对setelement/3的调用将被替换为一个特殊的破坏性设置指令。在以下代码中，第一个setelement/3调用复制该tuple并修改第9个元素：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">multiple_setelement</span><span class="params">(T0)</span> -&gt;</span></div><div class="line">    T1 = setelement(<span class="number">9</span>, T0, bar),</div><div class="line">    T2 = setelement(<span class="number">7</span>, T1, foobar),</div><div class="line">    setelement(<span class="number">5</span>, T2, new_value).</div></pre></td></tr></table></figure></p>
+<p>  后面两个setelement/3调用将该复制的tuple的d第7和第5个元素也修改了，不再复制新的tuple。<br>要实现上述的优化，必须满足以下条件：</p>
+<ul>
+<li>索引必须是整数文字，而不是变量或表达式。</li>
+<li>索引必须按降序给出。 </li>
+<li>在连续的setelement/3调用之间不能有任何其他函数调用。 </li>
+<li><p>从一个setelement/3调用返回的元组只能在随后的setelement/3调用中使用。</p>
+<p>如果代码不能像multi_setelement/1示例中那样被构造，那么修改大元组中的多个元素的最好方法是将元组转换为列表，修改列表，并将其转换回元组。</p>
+</li>
+</ul>
+<h4 id="size-1"><a href="#size-1" class="headerlink" title="size/1"></a>size/1</h4><p>size/1可以用来返回tuple和binary的大小。但是如果使用tuple_size/1和byte_size/1的话，能为编译器和运行时系统提供了更多优化机会。另一个优点是能给了Dialyzer提供更多的类型信息。</p>
+<h4 id="split-binary-2"><a href="#split-binary-2" class="headerlink" title="split_binary/2"></a>split_binary/2</h4><p>使用模式匹配而不是调用split_binary/2函数来分割二进制通常更有效率。此外，混合使用比特语法匹配和split_binary/2会使比特语法匹配的一些优化失效。<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&lt;&lt;Bin1:Num/binary,Bin2/binary&gt;&gt; = Bin <span class="comment">%% 推荐</span></div><div class="line">&#123;Bin1,Bin2&#125; = split_binary(Bin, Num) <span class="comment">%% 不推荐</span></div></pre></td></tr></table></figure></p>
+<h4 id="运算符-“-“"><a href="#运算符-“-“" class="headerlink" title="运算符 “- -“"></a>运算符 “- -“</h4><p>“- -“ 运算符具有与其操作数长度乘积成比例的时间复杂度（O(m*n)）。这意味着如果该操作符的两个操作数都是长列表，那么操作者非常慢：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">HugeList1 -- HugeList2</div><div class="line"><span class="comment">%% 上述操作应该被替换成下面的操作</span></div><div class="line">HugeSet1 = ordsets:from_list(HugeList1),</div><div class="line">HugeSet2 = ordsets:from_list(HugeList2),</div><div class="line">ordsets:subtract(HugeSet1, HugeSet2)</div><div class="line"><span class="comment">%% 如果在意列表的原始顺序的话，可以退换成如下的操作</span></div><div class="line">Set = gb_sets:from_list(HugeList2),</div><div class="line">[E || E &lt;- HugeList1, <span class="keyword">not</span> gb_sets:is_element(E, Set)]</div></pre></td></tr></table></figure></p>
+<p>  注意：如果列表包含重复的元素(HugeList2中出现一个元素在HugeList1中删除了所有出现的元素)，则该代码的行为与“- -”不同。另外，这个代码比较了使用“==”运算符的列表元素，而“- -”使用“=:=”运算符。如果这个区别很重要，那么可以使用set代替gb_set，但是在长列表中set:from_list/1比gb_sets:from_list/1慢得多。<br>使用“- -”运算符从列表中删除一个元素不会有性能问题：HugeList1 – [Element] 。</p>
+]]></content>
+      
+        <categories>
+            
+            <category> Erlang Efficiency Guide </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Erlang </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[efficiency_guide:七个Erlang性能的误区]]></title>
+      <url>/2017/10/14/efficiency-guide-%E4%B8%83%E4%B8%AAErlang%E6%80%A7%E8%83%BD%E7%9A%84%E8%AF%AF%E5%8C%BA/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>这些内容是有些是由于Erlang版本变化做的一些优化，和之前的有些要点有些出入，快速的扫一下即可</p>
+</blockquote>
+<h4 id="尾递归总是比普通递归来的快"><a href="#尾递归总是比普通递归来的快" class="headerlink" title="尾递归总是比普通递归来的快"></a>尾递归总是比普通递归来的快</h4><p>这个说法在R12B之前是真的。在R7B之前更是如此。但是现在普通递归通常使用与尾递归相同的内存量，通常不可能预测尾递归或身体递归版本是否更快。因此，使用使代码更清洁的版本就可以了（通常是普通递归的版本）。但是死循环还是要使用尾递归，防止内存耗尽。</p>
+<h4 id="“-”-操作总是不好的"><a href="#“-”-操作总是不好的" class="headerlink" title="“++” 操作总是不好的"></a>“++” 操作总是不好的</h4><p>如果是这样[H] ++ Tail 使用 “++” 操作的话，没有什么不好的，编译器会自动把该操作转换成[H| Tail]。</p>
+<h4 id="字符串操作很慢"><a href="#字符串操作很慢" class="headerlink" title="字符串操作很慢"></a>字符串操作很慢</h4><p>如果不正确地使用字符串，字符串操作速度可能很慢。在Erlang中，需要更多地思考如何使用字符串并选择适当的字符表示。如果使用正则表达式，请使用STDLIB中的re模块，而不是过时的regexp模块。</p>
+<h4 id="修复Dets文件非常慢"><a href="#修复Dets文件非常慢" class="headerlink" title="修复Dets文件非常慢"></a>修复Dets文件非常慢</h4><p>Dets文件的修复时间与文件中的记录数成正比，虽然Dets文件修复以前很慢，但是Dets的实现已被大量改写和改进。</p>
+<h4 id="BEAM是一个基于堆栈的字节码虚拟机（因此比较慢）"><a href="#BEAM是一个基于堆栈的字节码虚拟机（因此比较慢）" class="headerlink" title="BEAM是一个基于堆栈的字节码虚拟机（因此比较慢）"></a>BEAM是一个基于堆栈的字节码虚拟机（因此比较慢）</h4><p>BEAM是一个基于寄存器的虚拟机。它有1024个虚拟寄存器，用于保存临时值，并在调用函数时传递参数。需要在函数调用中使用的变量将保存到堆栈中。<br>BEAM是一个线程代码解释器。每个指令是直接指向可执行C代码的字，使得指令调度非常快。</p>
+<h4 id="当变量不被使用时，使用“-”来加快程序速度"><a href="#当变量不被使用时，使用“-”来加快程序速度" class="headerlink" title="当变量不被使用时，使用“_”来加快程序速度"></a>当变量不被使用时，使用“_”来加快程序速度</h4><p>这个在R6B版本之前是这样的，但是在这个版本之后，编译器能够自动识别不使用的变量，所以用不用“_”都一样。</p>
+<h4 id="NIF总是能使用你的程序更快"><a href="#NIF总是能使用你的程序更快" class="headerlink" title="NIF总是能使用你的程序更快"></a>NIF总是能使用你的程序更快</h4><p>将Erlang代码重写为NIF以使其更快，应该被视为最后的手段。使用NIF肯定有风险，但是不能保证程序能更快。在每个NIF调用中进行太多的工作会降低VM的响应能力。做太少的工作可能意味着NIF中更快处理的优势被调用NIF并检查参数的开销所抵消了。所以在写NIF之前，请务必阅读 <a href="http://erlang.org/doc/man/erl_nif.html#lengthy_work" target="_blank" rel="external">Long-running NIFs</a> 。</p>
+]]></content>
+      
+        <categories>
+            
+            <category> Erlang Efficiency Guide </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Erlang </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Erlang文档的efficiency_guide总结]]></title>
+      <url>/2017/10/13/Erlang%E6%96%87%E6%A1%A3%E7%9A%84efficiency-guide%E6%80%BB%E7%BB%93/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>之前刚开始学习的Erlang的时候稍微看过这个教程，但是没有看全，发现这个教程还涵盖了挺多的信息的，今天把这个教程看完，顺便做一下总结，<a href="http://erlang.org/doc/efficiency_guide/introduction.html" target="_blank" rel="external">教程原版地址</a></p>
+</blockquote>
+<p>本来是想把所有的总结写在一篇文章里面的，但是由于篇幅比较大，所以就把所有的总结分为以下几篇文章:</p>
+<ul>
+<li><a href="/2017/10/14/efficiency-guide-七个Erlang性能的误区/" title="efficiency_guide:七个Erlang性能的误区">efficiency_guide:七个Erlang性能的误区</a></li>
+<li><a href="/2017/10/14/efficiency-guide-需要注意的模块和BIF/" title="efficiency_guide:需要注意的模块和BIF">efficiency_guide:需要注意的模块和BIF</a></li>
+<li><a href="/2017/10/14/efficiency-guide-Binary的构建和匹配/" title="efficiency-guide:Binary的构建和匹配">efficiency-guide:Binary的构建和匹配</a></li>
+<li><a href="/2017/10/14/efficiency-guide-List处理/" title="efficiency-guide:List处理">efficiency-guide:List处理</a></li>
+</ul>
+]]></content>
+      
+        <categories>
+            
+            <category> Erlang Efficiency Guide </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Erlang </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[怎么实现一个Sublime的自动补全插件]]></title>
       <url>/2017/09/03/%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AASublime%E7%9A%84%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8%E6%8F%92%E4%BB%B6/</url>
       <content type="html"><![CDATA[<blockquote>
