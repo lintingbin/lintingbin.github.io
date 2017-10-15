@@ -154,6 +154,165 @@ ga('send', 'pageview');
     <ul class="post-list">
     
         <li class="post-list-item fade">
+            <article id="post-efficiency-guide-进程"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-10-15 14:38:57" datetime="2017-10-15T06:38:57.000Z"  itemprop="datePublished">2017-10-15</time>
+
+        
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang-Efficiency-Guide/">Erlang Efficiency Guide</a></li></ul>
+
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/10/15/efficiency-guide-进程/">efficiency-guide:进程</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        
+这篇文章主要介绍进程的堆大小的优化，以及模块内的常量池，如果之前没有看过的，值得一看。
+
+创建一个进程与操作系统中的线程和进程相比，Erlang进程是轻量级的。新创建的Erlang进程在非SMP和非HiPE模式下中使用309个字的内存。（SMP和HiPE支持会增加一些内存）进程占用的内存大小可以通过以下方式得到：
+
+Erlang (BEAM) emulator version 5.6 [a...
+    
+
+        <a href="/2017/10/15/efficiency-guide-进程/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
+            <article id="post-efficiency-guide-表和数据库"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-10-15 13:36:22" datetime="2017-10-15T05:36:22.000Z"  itemprop="datePublished">2017-10-15</time>
+
+        
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang-Efficiency-Guide/">Erlang Efficiency Guide</a></li></ul>
+
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/10/15/efficiency-guide-表和数据库/">efficiency-guide:表和数据库</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        
+这篇文件主要讲一些简单的Erlang数据库注意要点，干货好像没那么多，可以快速浏览下。
+
+Ets、Dets、Mnesia每个Ets的例子都有一个与之对应的Mnesia的例子。一般来说，所有Ets示例也适用于Dets表。
+Select/Match操作在Ets和Mnesia表上的Select/Match操作是非常低效的。他们通常需要扫描整个表。需要优化数据的结构来减少对Select/Match...
+    
+
+        <a href="/2017/10/15/efficiency-guide-表和数据库/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
+            <article id="post-efficiency-guide-函数"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-10-15 12:15:32" datetime="2017-10-15T04:15:32.000Z"  itemprop="datePublished">2017-10-15</time>
+
+        
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang-Efficiency-Guide/">Erlang Efficiency Guide</a></li></ul>
+
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/10/15/efficiency-guide-函数/">efficiency-guide:函数</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        
+本篇文章主要介绍函数的模式匹配和调用，函数的模式匹配优化还是有必要了解一下的。
+
+模式匹配在函数的头部以及case和receive子句中的模式匹配都会被编译器优化。但是有一些例外，重新排列匹配子句没有什么好处。Binary的模式匹配就是一个例外。编译器不重新排列与Binary相匹配的子句。最后放置与空Binary匹配的子句通常比放置在第一个的子句执行的更快。下面是另一种例外的例子：1234...
+    
+
+        <a href="/2017/10/15/efficiency-guide-函数/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
             <article id="post-efficiency-guide-List处理"
   class="article-card article-type-post" itemprop="blogPost">
 
@@ -184,7 +343,10 @@ ga('send', 'pageview');
     <div class="post-content" id="post-content" itemprop="postContent">
 
     
-        列表创建不能使用如下代码创建列表，因为每次迭代都会创建一个新的列表:1234567bad_fib(N) -&gt;    bad_fib(N, 0, 1, []).bad_fib(0, _Current, _Next, Fibs) -&gt;    Fibs;bad_fib(N, Current, Next, Fibs) -&gt;     bad_fib(N - 1, Next, Curr...
+        
+关于列表的处理，大多懂得Erlang的同学都差不多知道列表要怎么用，但是关于列表嵌套和拉伸的优化点还是值得一看的。
+
+列表创建不能使用如下代码创建列表，因为每次迭代都会创建一个新的列表:1234567bad_fib(N) -&gt;    bad_fib(N, 0, 1, []).bad_fib(0, _Current, _Next, Fibs) -&gt;    Fibs;bad_fib...
     
 
         <a href="/2017/10/14/efficiency-guide-List处理/" class="post-more waves-effect waves-button">
@@ -393,7 +555,7 @@ Timer模块使用erlang:send_after/3和erlang:start_timer/3创建定时器比使
         
 之前刚开始学习的Erlang的时候稍微看过这个教程，但是没有看全，发现这个教程还涵盖了挺多的信息的，今天把这个教程看完，顺便做一下总结，教程原版地址
 
-本来是想把所有的总结写在一篇文章里面的，但是由于篇幅比较大，所以就把所有的总结分为以下几篇文章:
+本来是想把所有的总结写在一篇文章里面的，但是由于篇幅比较大，所以就把所有的总结分为以下几篇文章：
 
 efficiency_guide:七个Erlang性能的误区
 efficiency_guide:需要注意的模块和BIF
@@ -512,167 +674,6 @@ Sublime插件是用Python写的，所以打算开发Sublime插件的话要稍微
     <div class="post-footer">
         
 	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mochiweb/">mochiweb</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/x-forwarded-for/">x-forwarded-for</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-基于Erlang的全区服分数竞技场的设计的优化"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-07-13 21:47:51" datetime="2017-07-13T13:47:51.000Z"  itemprop="datePublished">2017-07-13</time>
-
-        
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/算法设计/">算法设计</a></li></ul>
-
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/07/13/基于Erlang的全区服分数竞技场的设计的优化/">基于Erlang的全区服分数竞技场的设计的优化</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        
-在上一篇文章Erlang动态代码载入小实验中，我提到的竞技场设计中存在一些性能问题，这篇文章主要是针对上一篇文章提到的性能问题在整体设计方案不进行大改的情况下进行优化。
-
-主要性能问题回顾上一篇文章，我们知道之前的设计方案的主要问题是：频繁的在分数ETS中拿取和更新新的玩家List，而且该List的大小有可能是几十万的级别的，主要的性能问题是ETS和排行榜进程之间的数据拷贝。
-在同一分数段...
-    
-
-        <a href="/2017/07/13/基于Erlang的全区服分数竞技场的设计的优化/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-设置Shell脚本执行错误自动退出"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-07-06 21:44:10" datetime="2017-07-06T13:44:10.000Z"  itemprop="datePublished">2017-07-06</time>
-
-        
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/备忘/">备忘</a></li></ul>
-
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/07/06/设置Shell脚本执行错误自动退出/">设置Shell脚本执行错误自动退出</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        
-这是一篇备忘记录，以后再写Shell脚本的时候需要注意！
-
-之前项目使用Jenkins打包的时候，有时候因为一些错误的提交，导致出包的时候编译失败，从而导致打包出来的包里面只有部分的代码，这是因为我们写的Shell脚本没有对每条Shell命令的结果进行检查，不管执行结果是否成功都会继续往下执行。所以即使我们在编译环节有错误产生，打包的脚本还是会继续执行后面的打包指令。所以必须让脚本在某条命...
-    
-
-        <a href="/2017/07/06/设置Shell脚本执行错误自动退出/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Shell/">Shell</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-基于Erlang的全区服分数竞技场的设计"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-06-19 21:38:56" datetime="2017-06-19T13:38:56.000Z"  itemprop="datePublished">2017-06-19</time>
-
-        
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/算法设计/">算法设计</a></li></ul>
-
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/06/19/基于Erlang的全区服分数竞技场的设计/">基于Erlang的全区服分数竞技场的设计</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        
-这篇文章主要介绍我之前开发的一个基于Erlang的全区服分数竞技场的设计思路，同时会给出该设计的在现实项目中出现的问题，并且在后续的几篇文章中优化设计。
-
-关键需求该分数竞技场的实际需求比较多，这边只列举对我们设计有影响的几个关键需求，以下是该分数竞技场的关键需求：
-
-每个玩家拥有一个分数，该分数大概是6000以内的数字。
-玩家要实时知道自己的分数和排名。
-玩家可以手动刷新自己的对手，玩家...
-    
-
-        <a href="/2017/06/19/基于Erlang的全区服分数竞技场的设计/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
 
     </div>
     

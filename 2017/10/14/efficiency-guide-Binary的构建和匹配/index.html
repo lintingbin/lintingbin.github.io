@@ -36,7 +36,7 @@ ga('send', 'pageview');
 <meta property="og:url" content="https://lintingbin2009.github.io/2017/10/14/efficiency-guide-Binary的构建和匹配/index.html">
 <meta property="og:site_name" content="Darcy&#39;s Blog">
 <meta property="og:description" content="这篇文章非常详细的介绍了Binary是怎么样构造和匹配的，同时介绍了一些优化的技巧，没看过的一定要仔细看下。  以下代码可以高效的构建Binary(有点奇怪，和List不一样，下面构造Binary的段落会有解释):1234567my_list_to_binary(List) -&amp;gt;    my_list_to_binary(List, &amp;lt;&amp;lt;&amp;gt;&amp;gt;).my_list_to">
-<meta property="og:updated_time" content="2017-10-14T09:15:09.504Z">
+<meta property="og:updated_time" content="2017-10-14T15:56:48.191Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="efficiency-guide:Binary的构建和匹配">
 <meta name="twitter:description" content="这篇文章非常详细的介绍了Binary是怎么样构造和匹配的，同时介绍了一些优化的技巧，没看过的一定要仔细看下。  以下代码可以高效的构建Binary(有点奇怪，和List不一样，下面构造Binary的段落会有解释):1234567my_list_to_binary(List) -&amp;gt;    my_list_to_binary(List, &amp;lt;&amp;lt;&amp;gt;&amp;gt;).my_list_to">
@@ -202,7 +202,7 @@ ga('send', 'pageview');
 <li>存储在进程堆上的对象，称为ProcBin </li>
 <li>Binary对象本身,它存储在所有进程堆之外 </li>
 </ul>
-<p>Binary对象可以由任意数量的进程引用任何数量的ProcBin。该对象包含一个引用计数器，用于跟踪引用数量，以便在最后一个引用消失时可以将其删除。进程中的所有ProcBin对象都是链表的一部分，因此当ProcBin消失时，垃圾回收器可以跟踪它们并减少二进制中的引用计数器。当构建的Binary大于64Byte的时候就会使用这种类型，此时进程之间发送Binary只是发送一个ProcBin。</p>
+<p>Binary对象可以由任意数量的进程引用任意数量的ProcBin。该对象包含一个引用计数器，用于跟踪引用数量，以便在最后一个引用消失时可以将其删除。进程中的所有ProcBin对象都是链表的一部分，因此当ProcBin消失时，垃圾回收器可以跟踪它们并减少二进制中的引用计数器。当构建的Binary大于64Byte的时候就会使用这种类型，此时进程之间发送Binary只是发送一个ProcBin。</p>
 </li>
 <li><strong>Heap Binaries</strong><br>Heap binaries是小型Binary，最多64Byte，并直接存储在进程堆中。当Heap Binary被进程垃圾回收或者是作为消息发送时，都需要被复制。垃圾收集器不需要特殊处理。</li>
 <li><strong>Sub Binaries</strong><br>Sub Binaries和match contexts对象能引用refc binary和heap binary对象的部分内容。<br>Sub Binary是由split_binary/2创建的。一个Sub Binary引用另一个Binary的部分内容（只能引用Refc和Heap Binary，不能引用另一个Sub Binary）。因此，匹配一个Binary类型是比较高效的，因为实际的Binary数据是不会被复制的。</li>
@@ -245,7 +245,7 @@ ga('send', 'pageview');
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-10-14T09:15:09.504Z" itemprop="dateUpdated">2017-10-14 17:15:09</time>
+    最后更新时间：<time datetime="2017-10-14T15:56:48.191Z" itemprop="dateUpdated">2017-10-14 23:56:48</time>
 </span><br>
 
 

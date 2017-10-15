@@ -29,17 +29,17 @@ ga('send', 'pageview');
     
     
     <meta name="keywords" content="Erlang">
-    <meta name="description" content="列表创建不能使用如下代码创建列表，因为每次迭代都会创建一个新的列表:1234567bad_fib(N) -&amp;gt;    bad_fib(N, 0, 1, []).bad_fib(0, _Current, _Next, Fibs) -&amp;gt;    Fibs;bad_fib(N, Current, Next, Fibs) -&amp;gt;     bad_fib(N - 1, Next, Current">
+    <meta name="description" content="关于列表的处理，大多懂得Erlang的同学都差不多知道列表要怎么用，但是关于列表嵌套和拉伸的优化点还是值得一看的。  列表创建不能使用如下代码创建列表，因为每次迭代都会创建一个新的列表:1234567bad_fib(N) -&amp;gt;    bad_fib(N, 0, 1, []).bad_fib(0, _Current, _Next, Fibs) -&amp;gt;    Fibs;bad_fib(N,">
 <meta name="keywords" content="Erlang">
 <meta property="og:type" content="article">
 <meta property="og:title" content="efficiency-guide:List处理">
 <meta property="og:url" content="https://lintingbin2009.github.io/2017/10/14/efficiency-guide-List处理/index.html">
 <meta property="og:site_name" content="Darcy&#39;s Blog">
-<meta property="og:description" content="列表创建不能使用如下代码创建列表，因为每次迭代都会创建一个新的列表:1234567bad_fib(N) -&amp;gt;    bad_fib(N, 0, 1, []).bad_fib(0, _Current, _Next, Fibs) -&amp;gt;    Fibs;bad_fib(N, Current, Next, Fibs) -&amp;gt;     bad_fib(N - 1, Next, Current">
-<meta property="og:updated_time" content="2017-10-14T10:29:42.123Z">
+<meta property="og:description" content="关于列表的处理，大多懂得Erlang的同学都差不多知道列表要怎么用，但是关于列表嵌套和拉伸的优化点还是值得一看的。  列表创建不能使用如下代码创建列表，因为每次迭代都会创建一个新的列表:1234567bad_fib(N) -&amp;gt;    bad_fib(N, 0, 1, []).bad_fib(0, _Current, _Next, Fibs) -&amp;gt;    Fibs;bad_fib(N,">
+<meta property="og:updated_time" content="2017-10-15T04:13:43.614Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="efficiency-guide:List处理">
-<meta name="twitter:description" content="列表创建不能使用如下代码创建列表，因为每次迭代都会创建一个新的列表:1234567bad_fib(N) -&amp;gt;    bad_fib(N, 0, 1, []).bad_fib(0, _Current, _Next, Fibs) -&amp;gt;    Fibs;bad_fib(N, Current, Next, Fibs) -&amp;gt;     bad_fib(N - 1, Next, Current">
+<meta name="twitter:description" content="关于列表的处理，大多懂得Erlang的同学都差不多知道列表要怎么用，但是关于列表嵌套和拉伸的优化点还是值得一看的。  列表创建不能使用如下代码创建列表，因为每次迭代都会创建一个新的列表:1234567bad_fib(N) -&amp;gt;    bad_fib(N, 0, 1, []).bad_fib(0, _Current, _Next, Fibs) -&amp;gt;    Fibs;bad_fib(N,">
     
         <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
     
@@ -190,9 +190,12 @@ ga('send', 'pageview');
 
         </div>
         <div class="post-content" id="post-content" itemprop="postContent">
-            <h4 id="列表创建"><a href="#列表创建" class="headerlink" title="列表创建"></a>列表创建</h4><p>不能使用如下代码创建列表，因为每次迭代都会创建一个新的列表:<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(N)</span> -&gt;</span></div><div class="line">    bad_fib(N, <span class="number">0</span>, <span class="number">1</span>, []).</div><div class="line"></div><div class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(<span class="number">0</span>, _Current, _Next, Fibs)</span> -&gt;</span></div><div class="line">    Fibs;</div><div class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(N, Current, Next, Fibs)</span> -&gt;</span> </div><div class="line">    bad_fib(N - <span class="number">1</span>, Next, Current + Next, Fibs ++ [Current]).</div></pre></td></tr></table></figure></p>
+            <blockquote>
+<p>关于列表的处理，大多懂得Erlang的同学都差不多知道列表要怎么用，但是关于列表嵌套和拉伸的优化点还是值得一看的。</p>
+</blockquote>
+<h4 id="列表创建"><a href="#列表创建" class="headerlink" title="列表创建"></a>列表创建</h4><p>不能使用如下代码创建列表，因为每次迭代都会创建一个新的列表:<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(N)</span> -&gt;</span></div><div class="line">    bad_fib(N, <span class="number">0</span>, <span class="number">1</span>, []).</div><div class="line"></div><div class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(<span class="number">0</span>, _Current, _Next, Fibs)</span> -&gt;</span></div><div class="line">    Fibs;</div><div class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(N, Current, Next, Fibs)</span> -&gt;</span> </div><div class="line">    bad_fib(N - <span class="number">1</span>, Next, Current + Next, Fibs ++ [Current]).</div></pre></td></tr></table></figure></p>
 <p>应该使用如下的代码创建列表:<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">tail_recursive_fib</span><span class="params">(N)</span> -&gt;</span></div><div class="line">    tail_recursive_fib(N, <span class="number">0</span>, <span class="number">1</span>, []).</div><div class="line"></div><div class="line"><span class="function"><span class="title">tail_recursive_fib</span><span class="params">(<span class="number">0</span>, _Current, _Next, Fibs)</span> -&gt;</span></div><div class="line">    lists:reverse(Fibs);</div><div class="line"><span class="function"><span class="title">tail_recursive_fib</span><span class="params">(N, Current, Next, Fibs)</span> -&gt;</span> </div><div class="line">    tail_recursive_fib(N - <span class="number">1</span>, Next, Current + Next, [Current|Fibs]).</div></pre></td></tr></table></figure></p>
-<h4 id="列表推导"><a href="#列表推导" class="headerlink" title="列表推导"></a>列表推导</h4><p>列表推导现在仍然被认为是缓慢的。他们过去常常使用funs来实现，而funs过去很慢。<br>以下的列表推荐：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[Expr(E) || E &lt;- List]</div></pre></td></tr></table></figure></p>
+<h4 id="列表推导"><a href="#列表推导" class="headerlink" title="列表推导"></a>列表推导</h4><p>列表推导现在仍然被认为是缓慢的。他们过去常常使用funs来实现，而funs过去很慢。<br>以下的列表推导：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[Expr(E) || E &lt;- List]</div></pre></td></tr></table></figure></p>
 <p>会被转换成本地的函数实现：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">'lc^<span class="number">0</span>'([E|Tail], Expr) -&gt;</div><div class="line">    [Expr(E)|'lc^<span class="number">0</span>'(Tail, Expr)];</div><div class="line">'lc^<span class="number">0</span>'([], _Expr) -&gt; [].</div></pre></td></tr></table></figure></p>
 <p>如果列表推导的结果不会被使用，则不会构造列表。如下的代码：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">[io:put_chars(E) || E &lt;- List],</div><div class="line">ok.</div><div class="line"><span class="comment">%% 或者</span></div><div class="line">...</div><div class="line"><span class="keyword">case</span> Var <span class="keyword">of</span></div><div class="line">    ... -&gt;</div><div class="line">        [io:put_chars(E) || E &lt;- List];</div><div class="line">    ... -&gt;</div><div class="line"><span class="keyword">end</span>,</div><div class="line"><span class="function"><span class="title">some_function</span><span class="params">(...)</span>,</span></div><div class="line">...</div></pre></td></tr></table></figure></p>
 <p>上述的代码不会构造列表，所以转换成以下的本地函数实现：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">'lc^<span class="number">0</span>'([E|Tail], Expr) -&gt;</div><div class="line">    Expr(E),</div><div class="line">    'lc^<span class="number">0</span>'(Tail, Expr);</div><div class="line">'lc^<span class="number">0</span>'([], _Expr) -&gt; [].</div></pre></td></tr></table></figure></p>
@@ -220,7 +223,7 @@ ga('send', 'pageview');
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-10-14T10:29:42.123Z" itemprop="dateUpdated">2017-10-14 18:29:42</time>
+    最后更新时间：<time datetime="2017-10-15T04:13:43.614Z" itemprop="dateUpdated">2017-10-15 12:13:43</time>
 </span><br>
 
 
@@ -300,7 +303,14 @@ ga('send', 'pageview');
     </div>
 
     
-<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2017/10/15/efficiency-guide-函数/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">efficiency-guide:函数</h4>
+      </a>
+    </div>
   
 
   

@@ -154,6 +154,167 @@ ga('send', 'pageview');
     <ul class="post-list">
     
         <li class="post-list-item fade">
+            <article id="post-基于Erlang的全区服分数竞技场的设计的优化"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-07-13 21:47:51" datetime="2017-07-13T13:47:51.000Z"  itemprop="datePublished">2017-07-13</time>
+
+        
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/算法设计/">算法设计</a></li></ul>
+
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/07/13/基于Erlang的全区服分数竞技场的设计的优化/">基于Erlang的全区服分数竞技场的设计的优化</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        
+在上一篇文章Erlang动态代码载入小实验中，我提到的竞技场设计中存在一些性能问题，这篇文章主要是针对上一篇文章提到的性能问题在整体设计方案不进行大改的情况下进行优化。
+
+主要性能问题回顾上一篇文章，我们知道之前的设计方案的主要问题是：频繁的在分数ETS中拿取和更新新的玩家List，而且该List的大小有可能是几十万的级别的，主要的性能问题是ETS和排行榜进程之间的数据拷贝。
+在同一分数段...
+    
+
+        <a href="/2017/07/13/基于Erlang的全区服分数竞技场的设计的优化/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
+            <article id="post-设置Shell脚本执行错误自动退出"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-07-06 21:44:10" datetime="2017-07-06T13:44:10.000Z"  itemprop="datePublished">2017-07-06</time>
+
+        
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/备忘/">备忘</a></li></ul>
+
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/07/06/设置Shell脚本执行错误自动退出/">设置Shell脚本执行错误自动退出</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        
+这是一篇备忘记录，以后再写Shell脚本的时候需要注意！
+
+之前项目使用Jenkins打包的时候，有时候因为一些错误的提交，导致出包的时候编译失败，从而导致打包出来的包里面只有部分的代码，这是因为我们写的Shell脚本没有对每条Shell命令的结果进行检查，不管执行结果是否成功都会继续往下执行。所以即使我们在编译环节有错误产生，打包的脚本还是会继续执行后面的打包指令。所以必须让脚本在某条命...
+    
+
+        <a href="/2017/07/06/设置Shell脚本执行错误自动退出/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Shell/">Shell</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
+            <article id="post-基于Erlang的全区服分数竞技场的设计"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-06-19 21:38:56" datetime="2017-06-19T13:38:56.000Z"  itemprop="datePublished">2017-06-19</time>
+
+        
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/算法设计/">算法设计</a></li></ul>
+
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/06/19/基于Erlang的全区服分数竞技场的设计/">基于Erlang的全区服分数竞技场的设计</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        
+这篇文章主要介绍我之前开发的一个基于Erlang的全区服分数竞技场的设计思路，同时会给出该设计的在现实项目中出现的问题，并且在后续的几篇文章中优化设计。
+
+关键需求该分数竞技场的实际需求比较多，这边只列举对我们设计有影响的几个关键需求，以下是该分数竞技场的关键需求：
+
+每个玩家拥有一个分数，该分数大概是6000以内的数字。
+玩家要实时知道自己的分数和排名。
+玩家可以手动刷新自己的对手，玩家...
+    
+
+        <a href="/2017/06/19/基于Erlang的全区服分数竞技场的设计/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
             <article id="post-Markdown语法速记"
   class="article-card article-type-post" itemprop="blogPost">
 
@@ -506,153 +667,6 @@ rpc:cast 是怎么工作的？我们在查阅rpc的源代码的时候可以发�
     <div class="post-footer">
         
 	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="posts-Erlang中catch和try...catch的区别"
-  class="article-card article-type-posts" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-05-01 16:06:51" datetime="2017-05-01T08:06:51.000Z"  itemprop="datePublished">2017-05-01</time>
-
-        
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang入门教程/">Erlang入门教程</a></li></ul>
-
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/05/01/Erlang中catch和try...catch的区别/">Erlang中catch和try...catch的区别</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        在Erlang的错误处理中，catch并不是try…catch的缩写，try…catch和catch是不同的。下面我将通过一个例子来区别出他们的不同，为以后的使用做一个参考。123456789101112131415161718192021222324%% exception_test.erl 代码文件-module(exception_test).-compile(export_all)....
-    
-
-        <a href="/2017/05/01/Erlang中catch和try...catch的区别/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="posts-吴恩达机器学习课程练习实现"
-  class="article-card article-type-posts" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-05-01 12:30:06" datetime="2017-05-01T04:30:06.000Z"  itemprop="datePublished">2017-05-01</time>
-
-        
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/代码/">代码</a></li></ul>
-
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/05/01/吴恩达机器学习课程练习实现/">吴恩达机器学习课程练习实现</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        由于当前机器学习大火，让我对机器学习产生浓厚的兴趣，所以我就上网查了下机器学习的入门教程，大多数的人还是比较推荐吴恩达老师的机器学习课程的。所以我就在Coursera上面学习了吴恩达的机器学习课程，现在已经顺利的毕业了。在Coursera上面每学完一小节课程都会有相应的练习，系统会自动对你提交的练习进行打分，要达到指定的分数才能顺利通过，这点Coursera的体验还是做的比较好的，但是由于国...
-    
-
-        <a href="/2017/05/01/吴恩达机器学习课程练习实现/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="posts-剑指offer——C语言实现"
-  class="article-card article-type-posts" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-05-01 12:09:54" datetime="2017-05-01T04:09:54.000Z"  itemprop="datePublished">2017-05-01</time>
-
-        
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/代码/">代码</a></li></ul>
-
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/05/01/剑指offer——C语言实现/">剑指offer——C语言实现</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        之前实习的时候为了能够比较顺利的找到一个实习，特意练习了下代码能力，期间看了挺多的算法书籍，然后把剑指offer书本上的那些练习大部分都自己用C语言实现了一遍。这些练习的代码都已经传到了Github上面了，地址是：https://github.com/lintingbin2009/C-language/tree/master/%E5%89%91%E6%8C%87offer有需要的可以自取，如...
-    
-
-        <a href="/2017/05/01/剑指offer——C语言实现/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C语言/">C语言</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/剑指offer/">剑指offer</a></li></ul>
 
     </div>
     

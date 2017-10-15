@@ -29,17 +29,17 @@ ga('send', 'pageview');
     
     
     <meta name="keywords" content="Erlang">
-    <meta name="description" content="之前刚开始学习的Erlang的时候稍微看过这个教程，但是没有看全，发现这个教程还涵盖了挺多的信息的，今天把这个教程看完，顺便做一下总结，教程原版地址  本来是想把所有的总结写在一篇文章里面的，但是由于篇幅比较大，所以就把所有的总结分为以下几篇文章:  efficiency_guide:七个Erlang性能的误区 efficiency_guide:需要注意的模块和BIF efficiency-gu">
+    <meta name="description" content="之前刚开始学习的Erlang的时候稍微看过这个教程，但是没有看全，发现这个教程还涵盖了挺多的信息的，今天把这个教程看完，顺便做一下总结，教程原版地址  本来是想把所有的总结写在一篇文章里面的，但是由于篇幅比较大，所以就把所有的总结分为以下几篇文章：  efficiency_guide:七个Erlang性能的误区 efficiency_guide:需要注意的模块和BIF efficiency-gu">
 <meta name="keywords" content="Erlang">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Erlang文档的efficiency_guide总结">
 <meta property="og:url" content="https://lintingbin2009.github.io/2017/10/13/Erlang文档的efficiency-guide总结/index.html">
 <meta property="og:site_name" content="Darcy&#39;s Blog">
-<meta property="og:description" content="之前刚开始学习的Erlang的时候稍微看过这个教程，但是没有看全，发现这个教程还涵盖了挺多的信息的，今天把这个教程看完，顺便做一下总结，教程原版地址  本来是想把所有的总结写在一篇文章里面的，但是由于篇幅比较大，所以就把所有的总结分为以下几篇文章:  efficiency_guide:七个Erlang性能的误区 efficiency_guide:需要注意的模块和BIF efficiency-gu">
-<meta property="og:updated_time" content="2017-10-14T09:21:34.785Z">
+<meta property="og:description" content="之前刚开始学习的Erlang的时候稍微看过这个教程，但是没有看全，发现这个教程还涵盖了挺多的信息的，今天把这个教程看完，顺便做一下总结，教程原版地址  本来是想把所有的总结写在一篇文章里面的，但是由于篇幅比较大，所以就把所有的总结分为以下几篇文章：  efficiency_guide:七个Erlang性能的误区 efficiency_guide:需要注意的模块和BIF efficiency-gu">
+<meta property="og:updated_time" content="2017-10-15T08:08:29.626Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang文档的efficiency_guide总结">
-<meta name="twitter:description" content="之前刚开始学习的Erlang的时候稍微看过这个教程，但是没有看全，发现这个教程还涵盖了挺多的信息的，今天把这个教程看完，顺便做一下总结，教程原版地址  本来是想把所有的总结写在一篇文章里面的，但是由于篇幅比较大，所以就把所有的总结分为以下几篇文章:  efficiency_guide:七个Erlang性能的误区 efficiency_guide:需要注意的模块和BIF efficiency-gu">
+<meta name="twitter:description" content="之前刚开始学习的Erlang的时候稍微看过这个教程，但是没有看全，发现这个教程还涵盖了挺多的信息的，今天把这个教程看完，顺便做一下总结，教程原版地址  本来是想把所有的总结写在一篇文章里面的，但是由于篇幅比较大，所以就把所有的总结分为以下几篇文章：  efficiency_guide:七个Erlang性能的误区 efficiency_guide:需要注意的模块和BIF efficiency-gu">
     
         <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
     
@@ -186,12 +186,21 @@ ga('send', 'pageview');
             <blockquote>
 <p>之前刚开始学习的Erlang的时候稍微看过这个教程，但是没有看全，发现这个教程还涵盖了挺多的信息的，今天把这个教程看完，顺便做一下总结，<a href="http://erlang.org/doc/efficiency_guide/introduction.html" target="_blank" rel="external">教程原版地址</a></p>
 </blockquote>
-<p>本来是想把所有的总结写在一篇文章里面的，但是由于篇幅比较大，所以就把所有的总结分为以下几篇文章:</p>
+<p>本来是想把所有的总结写在一篇文章里面的，但是由于篇幅比较大，所以就把所有的总结分为以下几篇文章：</p>
 <ul>
 <li><a href="/2017/10/14/efficiency-guide-七个Erlang性能的误区/" title="efficiency_guide:七个Erlang性能的误区">efficiency_guide:七个Erlang性能的误区</a></li>
 <li><a href="/2017/10/14/efficiency-guide-需要注意的模块和BIF/" title="efficiency_guide:需要注意的模块和BIF">efficiency_guide:需要注意的模块和BIF</a></li>
 <li><a href="/2017/10/14/efficiency-guide-Binary的构建和匹配/" title="efficiency-guide:Binary的构建和匹配">efficiency-guide:Binary的构建和匹配</a></li>
 <li><a href="/2017/10/14/efficiency-guide-List处理/" title="efficiency-guide:List处理">efficiency-guide:List处理</a></li>
+<li><a href="/2017/10/15/efficiency-guide-函数/" title="efficiency-guide:函数">efficiency-guide:函数</a></li>
+<li><a href="/2017/10/15/efficiency-guide-表和数据库/" title="efficiency-guide:表和数据库">efficiency-guide:表和数据库</a></li>
+<li><a href="/2017/10/15/efficiency-guide-进程/" title="efficiency-guide:进程">efficiency-guide:进程</a>
+</li>
+</ul>
+<p>最后再提两个误区：</p>
+<ul>
+<li>匿名函数很慢<br>匿名函数过去很慢，慢于apply/3。最初，使用编译器技巧，普通元组，apply/​3和大量的精巧方法实现了匿名函数。但那是历史。匿名函数在R6B中给出了自己的数据类型，并在R7B中进一步优化。现在，一个匿名函数的调用开销大概在调用本地函数和apply/3的开销之间。</li>
+<li>列表推导很慢<br>以前通过匿名函数实现列表推导，而在过去匿名函数确实很慢。 如今，编译器将列表推导重写成一个普通的递归函数。</li>
 </ul>
 
         </div>
@@ -200,7 +209,7 @@ ga('send', 'pageview');
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-10-14T09:21:34.785Z" itemprop="dateUpdated">2017-10-14 17:21:34</time>
+    最后更新时间：<time datetime="2017-10-15T08:08:29.626Z" itemprop="dateUpdated">2017-10-15 16:08:29</time>
 </span><br>
 
 
