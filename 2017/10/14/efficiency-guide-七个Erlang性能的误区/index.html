@@ -36,7 +36,7 @@ ga('send', 'pageview');
 <meta property="og:url" content="https://lintingbin2009.github.io/2017/10/14/efficiency-guide-七个Erlang性能的误区/index.html">
 <meta property="og:site_name" content="Darcy&#39;s Blog">
 <meta property="og:description" content="这些内容是有些是由于Erlang版本变化做的一些优化，和之前的有些要点有些出入，快速的扫一下即可  尾递归总是比普通递归来的快这个说法在R12B之前是真的。在R7B之前更是如此。但是现在普通递归通常使用与尾递归相同的内存量，通常不可能预测尾递归或身体递归版本是否更快。因此，使用使代码更清洁的版本就可以了（通常是普通递归的版本）。但是死循环还是要使用尾递归，防止内存耗尽。 “++” 操作总是不好的">
-<meta property="og:updated_time" content="2017-10-14T04:44:15.421Z">
+<meta property="og:updated_time" content="2017-10-15T10:50:27.674Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="efficiency_guide:七个Erlang性能的误区">
 <meta name="twitter:description" content="这些内容是有些是由于Erlang版本变化做的一些优化，和之前的有些要点有些出入，快速的扫一下即可  尾递归总是比普通递归来的快这个说法在R12B之前是真的。在R7B之前更是如此。但是现在普通递归通常使用与尾递归相同的内存量，通常不可能预测尾递归或身体递归版本是否更快。因此，使用使代码更清洁的版本就可以了（通常是普通递归的版本）。但是死循环还是要使用尾递归，防止内存耗尽。 “++” 操作总是不好的">
@@ -163,7 +163,7 @@ ga('send', 'pageview');
     <aside class="post-widget">
         <nav class="post-toc-wrap" id="post-toc">
             <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#尾递归总是比普通递归来的快"><span class="post-toc-number">1.</span> <span class="post-toc-text">尾递归总是比普通递归来的快</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#“-”-操作总是不好的"><span class="post-toc-number">2.</span> <span class="post-toc-text">“++” 操作总是不好的</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#字符串操作很慢"><span class="post-toc-number">3.</span> <span class="post-toc-text">字符串操作很慢</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#修复Dets文件非常慢"><span class="post-toc-number">4.</span> <span class="post-toc-text">修复Dets文件非常慢</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#BEAM是一个基于堆栈的字节码虚拟机（因此比较慢）"><span class="post-toc-number">5.</span> <span class="post-toc-text">BEAM是一个基于堆栈的字节码虚拟机（因此比较慢）</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#当变量不被使用时，使用“-”来加快程序速度"><span class="post-toc-number">6.</span> <span class="post-toc-text">当变量不被使用时，使用“_”来加快程序速度</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#NIF总是能使用你的程序更快"><span class="post-toc-number">7.</span> <span class="post-toc-text">NIF总是能使用你的程序更快</span></a></li></ol>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#尾递归总是比普通递归来的快"><span class="post-toc-number">1.</span> <span class="post-toc-text">尾递归总是比普通递归来的快</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#“-”-操作总是不好的"><span class="post-toc-number">2.</span> <span class="post-toc-text">“++” 操作总是不好的</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#字符串操作很慢"><span class="post-toc-number">3.</span> <span class="post-toc-text">字符串操作很慢</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#修复Dets文件非常慢"><span class="post-toc-number">4.</span> <span class="post-toc-text">修复Dets文件非常慢</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#BEAM是一个基于堆栈的字节码虚拟机（因此比较慢）"><span class="post-toc-number">5.</span> <span class="post-toc-text">BEAM是一个基于堆栈的字节码虚拟机（因此比较慢）</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#当变量不被使用时，使用“-”来加快程序速度"><span class="post-toc-number">6.</span> <span class="post-toc-text">当变量不被使用时，使用“_”来加快程序速度</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#NIF总是能使你的程序更快"><span class="post-toc-number">7.</span> <span class="post-toc-text">NIF总是能使你的程序更快</span></a></li></ol>
         </nav>
     </aside>
     
@@ -199,7 +199,7 @@ ga('send', 'pageview');
 <h4 id="修复Dets文件非常慢"><a href="#修复Dets文件非常慢" class="headerlink" title="修复Dets文件非常慢"></a>修复Dets文件非常慢</h4><p>Dets文件的修复时间与文件中的记录数成正比，虽然Dets文件修复以前很慢，但是Dets的实现已被大量改写和改进。</p>
 <h4 id="BEAM是一个基于堆栈的字节码虚拟机（因此比较慢）"><a href="#BEAM是一个基于堆栈的字节码虚拟机（因此比较慢）" class="headerlink" title="BEAM是一个基于堆栈的字节码虚拟机（因此比较慢）"></a>BEAM是一个基于堆栈的字节码虚拟机（因此比较慢）</h4><p>BEAM是一个基于寄存器的虚拟机。它有1024个虚拟寄存器，用于保存临时值，并在调用函数时传递参数。需要在函数调用中使用的变量将保存到堆栈中。<br>BEAM是一个线程代码解释器。每个指令是直接指向可执行C代码的字，使得指令调度非常快。</p>
 <h4 id="当变量不被使用时，使用“-”来加快程序速度"><a href="#当变量不被使用时，使用“-”来加快程序速度" class="headerlink" title="当变量不被使用时，使用“_”来加快程序速度"></a>当变量不被使用时，使用“_”来加快程序速度</h4><p>这个在R6B版本之前是这样的，但是在这个版本之后，编译器能够自动识别不使用的变量，所以用不用“_”都一样。</p>
-<h4 id="NIF总是能使用你的程序更快"><a href="#NIF总是能使用你的程序更快" class="headerlink" title="NIF总是能使用你的程序更快"></a>NIF总是能使用你的程序更快</h4><p>将Erlang代码重写为NIF以使其更快，应该被视为最后的手段。使用NIF肯定有风险，但是不能保证程序能更快。在每个NIF调用中进行太多的工作会降低VM的响应能力。做太少的工作可能意味着NIF中更快处理的优势被调用NIF并检查参数的开销所抵消了。所以在写NIF之前，请务必阅读 <a href="http://erlang.org/doc/man/erl_nif.html#lengthy_work" target="_blank" rel="external">Long-running NIFs</a> 。</p>
+<h4 id="NIF总是能使你的程序更快"><a href="#NIF总是能使你的程序更快" class="headerlink" title="NIF总是能使你的程序更快"></a>NIF总是能使你的程序更快</h4><p>将Erlang代码重写为NIF以使其更快，应该被视为最后的手段。使用NIF肯定有风险，但是不能保证程序能更快。在每个NIF调用中进行太多的工作会降低VM的响应能力。做太少的工作可能意味着NIF中更快处理的优势被调用NIF并检查参数的开销所抵消了。所以在写NIF之前，请务必阅读 <a href="http://erlang.org/doc/man/erl_nif.html#lengthy_work" target="_blank" rel="external">Long-running NIFs</a> 。</p>
 
         </div>
 
@@ -207,7 +207,7 @@ ga('send', 'pageview');
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2017-10-14T04:44:15.421Z" itemprop="dateUpdated">2017-10-14 12:44:15</time>
+    最后更新时间：<time datetime="2017-10-15T10:50:27.674Z" itemprop="dateUpdated">2017-10-15 18:50:27</time>
 </span><br>
 
 

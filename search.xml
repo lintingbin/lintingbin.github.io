@@ -318,7 +318,7 @@
 <h4 id="修复Dets文件非常慢"><a href="#修复Dets文件非常慢" class="headerlink" title="修复Dets文件非常慢"></a>修复Dets文件非常慢</h4><p>Dets文件的修复时间与文件中的记录数成正比，虽然Dets文件修复以前很慢，但是Dets的实现已被大量改写和改进。</p>
 <h4 id="BEAM是一个基于堆栈的字节码虚拟机（因此比较慢）"><a href="#BEAM是一个基于堆栈的字节码虚拟机（因此比较慢）" class="headerlink" title="BEAM是一个基于堆栈的字节码虚拟机（因此比较慢）"></a>BEAM是一个基于堆栈的字节码虚拟机（因此比较慢）</h4><p>BEAM是一个基于寄存器的虚拟机。它有1024个虚拟寄存器，用于保存临时值，并在调用函数时传递参数。需要在函数调用中使用的变量将保存到堆栈中。<br>BEAM是一个线程代码解释器。每个指令是直接指向可执行C代码的字，使得指令调度非常快。</p>
 <h4 id="当变量不被使用时，使用“-”来加快程序速度"><a href="#当变量不被使用时，使用“-”来加快程序速度" class="headerlink" title="当变量不被使用时，使用“_”来加快程序速度"></a>当变量不被使用时，使用“_”来加快程序速度</h4><p>这个在R6B版本之前是这样的，但是在这个版本之后，编译器能够自动识别不使用的变量，所以用不用“_”都一样。</p>
-<h4 id="NIF总是能使用你的程序更快"><a href="#NIF总是能使用你的程序更快" class="headerlink" title="NIF总是能使用你的程序更快"></a>NIF总是能使用你的程序更快</h4><p>将Erlang代码重写为NIF以使其更快，应该被视为最后的手段。使用NIF肯定有风险，但是不能保证程序能更快。在每个NIF调用中进行太多的工作会降低VM的响应能力。做太少的工作可能意味着NIF中更快处理的优势被调用NIF并检查参数的开销所抵消了。所以在写NIF之前，请务必阅读 <a href="http://erlang.org/doc/man/erl_nif.html#lengthy_work" target="_blank" rel="external">Long-running NIFs</a> 。</p>
+<h4 id="NIF总是能使你的程序更快"><a href="#NIF总是能使你的程序更快" class="headerlink" title="NIF总是能使你的程序更快"></a>NIF总是能使你的程序更快</h4><p>将Erlang代码重写为NIF以使其更快，应该被视为最后的手段。使用NIF肯定有风险，但是不能保证程序能更快。在每个NIF调用中进行太多的工作会降低VM的响应能力。做太少的工作可能意味着NIF中更快处理的优势被调用NIF并检查参数的开销所抵消了。所以在写NIF之前，请务必阅读 <a href="http://erlang.org/doc/man/erl_nif.html#lengthy_work" target="_blank" rel="external">Long-running NIFs</a> 。</p>
 ]]></content>
       
         <categories>
