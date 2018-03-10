@@ -154,6 +154,58 @@ ga('send', 'pageview');
     <ul class="post-list">
     
         <li class="post-list-item fade">
+            <article id="post-mochiweb的x-forwarded-for实现引发的线上掉单"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2017-08-18 21:13:44" datetime="2017-08-18T13:13:44.000Z"  itemprop="datePublished">2017-08-18</time>
+
+        
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang/">Erlang</a></li></ul>
+
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2017/08/18/mochiweb的x-forwarded-for实现引发的线上掉单/">mochiweb的x-forwarded-for实现引发的线上掉单</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        
+记录一次线上充值服的掉单问题，同时学习下什么是x-forwarded-for
+
+掉单原因？因为充值服都设有白名单，如果充值请求的机器的IP不在白名单里面的话会被视为非法IP，在掉单期间，线上的充值服发现有大量的100.116. . 的非法IP的访问，之后在网上一查，原来100.64.0.0/10也是属于内网IP的。我们的充值服务器使用了负载均衡，所以100.116..的IP应该是负载均衡机...
+    
+
+        <a href="/2017/08/18/mochiweb的x-forwarded-for实现引发的线上掉单/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mochiweb/">mochiweb</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/x-forwarded-for/">x-forwarded-for</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
             <article id="post-基于Erlang的全区服分数竞技场的设计的优化"
   class="article-card article-type-post" itemprop="blogPost">
 
@@ -622,58 +674,6 @@ rpc:cast 是怎么工作的？我们在查阅rpc的源代码的时候可以发�
 
         </li>
     
-        <li class="post-list-item fade">
-            <article id="posts-Erlang动态代码载入小实验"
-  class="article-card article-type-posts" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-05-01 23:19:04" datetime="2017-05-01T15:19:04.000Z"  itemprop="datePublished">2017-05-01</time>
-
-        
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang入门教程/">Erlang入门教程</a></li></ul>
-
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/05/01/Erlang动态代码载入小实验/">Erlang动态代码载入小实验</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        
-下面的内容为《Erlang程序设计（第2版）》8.10节的内容，这个动态代码载入的小实验非常的简单生动，通过这个小实验能够充分理解Erlang代码的载入机制。
-
-动态代码载入是内建于Erlang核心的最惊人特性之一。它的美妙之处在于你无需了解后台的运作就能顺利实现它。它的思路很简单：每当调用 someModule:someFunction(…)时，调用的总是最新版模块里的最新版函数，哪怕当...
-    
-
-        <a href="/2017/05/01/Erlang动态代码载入小实验/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
     </ul>
 
     
@@ -709,7 +709,7 @@ rpc:cast 是怎么工作的？我们在查阅rpc的源代码的时候可以发�
     <div class="bottom">
         <p>
             <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>lintingbin2009 &copy; 2016 - 2017</span>
+            <span>lintingbin2009 &copy; 2016 - 2018</span>
         </p>
     </div>
 </footer>

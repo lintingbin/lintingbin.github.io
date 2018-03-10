@@ -3,6 +3,49 @@
   
     
     <entry>
+      <title><![CDATA[关于erlang-mysql-driver timeout的bug分析]]></title>
+      <url>/2018/03/10/timeout%E7%9A%84bug%E5%88%86%E6%9E%90/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>我们游戏之前使用的是erlang-mysql-driver来连接数据库，经常会碰到一些timeout和一条纪录被重复插入多次的bug，后面把erlang-mysql-driver替换成emysql就没有问题了。研究了下erlang-mysql-driver的源代码才知道具体的问题出在哪里，下面就简单的介绍下这个问题，同时介绍下emysql是如何避免这个问题的</p>
+</blockquote>
+<h4 id="erlang-mysql-driver-用法"><a href="#erlang-mysql-driver-用法" class="headerlink" title="erlang-mysql-driver 用法"></a>erlang-mysql-driver 用法</h4><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">mysql:start_link(DB, Pool, Server, Port, User, Passwd, DBName, <span class="keyword">fun</span> mysql_log/<span class="number">4</span>, utf8),</div><div class="line">[mysql:connect(DB, Pool, Server, Port, User, Passwd, DBName, utf8, <span class="literal">true</span>, <span class="literal">true</span>) </div><div class="line">|| _ &lt;- lists:seq(<span class="number">1</span>, PoolCount)]</div></pre></td></tr></table></figure>
+<p>使用erlang-mysql-driver的时候首先要用mysql:start_link来建立一个连接池，然后再自己调用mysql:connect来建立多个连接。对应的erlang-mysql-driver库里面会创建一个名为DB的连接池gen_server，然后再建立多个mysql数据库的连接，每个连接会有一个进程来接管，并把这些进程和连接信息放入连接池gen_server中。按道理我们建立了多个数据库的连接，在进行数据库操作的时候应该能够并发访问数据库的，确实erlang-mysql-driver实现也是多进程访问数据库的，但是由于连接池gen_server的单点瓶颈，会导致一些事实上成功的操作被认为是失败的。</p>
+<h4 id="erlang-mysql-driver-的sql执行过程"><a href="#erlang-mysql-driver-的sql执行过程" class="headerlink" title="erlang-mysql-driver 的sql执行过程"></a>erlang-mysql-driver 的sql执行过程</h4><p>在我们执行一个mysql:execute的函数的时候，具体的执行过程如下：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="comment">%% mysql.erl 文件中的代码</span></div><div class="line"><span class="function"><span class="title">execute</span><span class="params">(SvrName, PoolId, Name, Params, Timeout)</span> -&gt;</span></div><div class="line">  <span class="keyword">case</span> get(?STATE_VAR) <span class="keyword">of</span></div><div class="line">    undefined -&gt;</div><div class="line">      call_server(SvrName, &#123;execute, SvrName, PoolId, Name, Params&#125;, Timeout);</div><div class="line">    State -&gt;</div><div class="line">      <span class="keyword">case</span> mysql_conn:execute_local(SvrName, State, Name, Params) <span class="keyword">of</span></div><div class="line">        &#123;ok, Res, NewState&#125; -&gt;</div><div class="line">          put(?STATE_VAR, NewState),</div><div class="line">          Res;</div><div class="line">        Err -&gt;</div><div class="line">          Err</div><div class="line">      <span class="keyword">end</span></div><div class="line">  <span class="keyword">end</span>.</div><div class="line">  </div><div class="line"><span class="function"><span class="title">handle_call</span><span class="params">(&#123;execute, SvrName, PoolId, Name, Params&#125;, From, State)</span> -&gt;</span></div><div class="line">  with_next_conn(PoolId, State,</div><div class="line">    <span class="keyword">fun</span>(Conn, State1) -&gt;</div><div class="line">      <span class="keyword">case</span> gb_trees:lookup(Name, State1#state.prepares) <span class="keyword">of</span></div><div class="line">        none -&gt;</div><div class="line">          &#123;reply, &#123;error, &#123;no_such_statement, Name&#125;&#125;, State1&#125;;</div><div class="line">        &#123;value, &#123;_Stmt, Version&#125;&#125; -&gt;</div><div class="line">          mysql_conn:execute(SvrName, Conn#conn.pid, Name,</div><div class="line">            Version, Params, From),</div><div class="line">          &#123;noreply, State1&#125;</div><div class="line">      <span class="keyword">end</span></div><div class="line">    <span class="keyword">end</span>);</div></pre></td></tr></table></figure></p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="comment">%% mysql_conn的代码</span></div><div class="line"><span class="function"><span class="title">execute</span><span class="params">(SvrName, Pid, Name, Version, Params, From, Timeout)</span> -&gt;</span></div><div class="line">    send_msg(Pid, &#123;execute, SvrName, Name, Version, Params, From&#125;, From, Timeout).</div><div class="line">    </div><div class="line"><span class="function"><span class="title">loop</span><span class="params">(State)</span> -&gt;</span></div><div class="line">    RecvPid = State#state.recv_pid,</div><div class="line">    LogFun = State#state.log_fun,</div><div class="line">    <span class="keyword">receive</span></div><div class="line">    ....</div><div class="line">    &#123;execute, SvrName, Name, Version, Params, From&#125; -&gt;</div><div class="line">        State1 =</div><div class="line">        <span class="keyword">case</span> do_execute(State, SvrName, Name, Params, Version) <span class="keyword">of</span></div><div class="line">            &#123;error, _&#125; = Err -&gt;</div><div class="line">            send_reply(From, Err),</div><div class="line">            State;</div><div class="line">            &#123;ok, Result, NewState&#125; -&gt;</div><div class="line">            send_reply(From, Result),</div><div class="line">            NewState</div><div class="line">        <span class="keyword">end</span>,</div><div class="line">        loop(State1);</div><div class="line">        </div><div class="line"><span class="function"><span class="title">send_reply</span><span class="params">(GenSrvFrom, Res)</span> -&gt;</span></div><div class="line">    gen_server:reply(GenSrvFrom, Res).</div></pre></td></tr></table></figure>
+<p>mysql:execute在执行的过程中首先调用名为DB的连接池gen_server，该gen_server会执行with_next_conn选择一个持有数据库连接的进程（进程x），然后通过mysql_conn中的send_msg函数向进程x发送需要执行的sql语句，sql语句发送成功后gen_server会返回noreply，这时调用mysql:execute的进程会一直阻塞，直到进程x执行gen_server:reply来返回结果。</p>
+<p>通过上面的执行过程我们可以知道以下两点：</p>
+<ol>
+<li>mysql:execute的timeout为gen_server:call调用的timeout时间</li>
+<li>连接池gen_server只要把sql语句发送给进程x，进程x就会去执行（可能执行的比较慢，但是已经加入进程x的信箱）</li>
+</ol>
+<p>现在我们可以知道mysql:execute返回timeout的情况有两种：</p>
+<ol>
+<li>连接池gen_server太过繁忙，mysql:execute的请求还没执行，mysql:execute就已经timeout</li>
+<li>连接池gen_server已经成功执行请求，返回noreply，mysql:execute的执行进程一直在等待进程x的返回，而进程x一直不返回，这时mysql:execute触发timeout</li>
+</ol>
+<p>不管是上述那种timeout情况，只要是mysql数据库没有问题，sql语句都能够执行成功（可能会执行的慢点）。mysql:execute的调用者在发现mysql:execute返回timeout的情况下，肯定会认为sql语句没有执行成功，这时候会重新调用mysql:execute，导致一条相同的记录被多次插入。</p>
+<h4 id="emysql-的sql执行过程"><a href="#emysql-的sql执行过程" class="headerlink" title="emysql 的sql执行过程"></a>emysql 的sql执行过程</h4><p>emysql的连接池也会有一个gen_server进行管理，emysql:execute在执行的过程中是去向该gen_server申请一个可用的连接，然后再spawn一个进程来执行sql语句，而不是委托该gen_server来执行sql语句，从而避免了这个timeout的bug。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>通过上面的分析，我觉得erlang-mysql-driver会写出这个bug的原因主要是对gen_server noreply的误用。所以以后如果有需要用noreply的话，要注意避免该问题。</p>
+]]></content>
+      
+        <categories>
+            
+            <category> Erlang </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> erlang-mysql-driver </tag>
+            
+            <tag> emysql </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[efficiency-guide:进程]]></title>
       <url>/2017/10/15/efficiency-guide-%E8%BF%9B%E7%A8%8B/</url>
       <content type="html"><![CDATA[<blockquote>

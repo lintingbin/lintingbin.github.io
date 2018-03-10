@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://lintingbin2009.github.io/"/>
-  <updated>2017-10-15T07:40:48.607Z</updated>
+  <updated>2018-03-10T14:12:36.846Z</updated>
   <id>https://lintingbin2009.github.io/</id>
   
   <author>
@@ -14,6 +14,52 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>关于erlang-mysql-driver timeout的bug分析</title>
+    <link href="https://lintingbin2009.github.io/2018/03/10/timeout%E7%9A%84bug%E5%88%86%E6%9E%90/"/>
+    <id>https://lintingbin2009.github.io/2018/03/10/timeout的bug分析/</id>
+    <published>2018-03-10T14:08:17.000Z</published>
+    <updated>2018-03-10T14:12:36.846Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote>
+<p>我们游戏之前使用的是erlang-mysql-driver来连接数据库，经常会碰到一些timeout和一条纪录被重复插入多次的bug，后面把erlang-mysql-driver替换成emysql就没有问题了。研究了下erlang-mysql-driver的源代码才知道具体的问题出在哪里，下面就简单的介绍下这个问题，同时介绍下emysql是如何避免这个问题的</p>
+</blockquote>
+<h4 id="erlang-mysql-driver-用法"><a href="#erlang-mysql-driver-用法" class="headerlink" title="erlang-mysql-driver 用法"></a>erlang-mysql-driver 用法</h4><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">mysql:start_link(DB, Pool, Server, Port, User, Passwd, DBName, <span class="keyword">fun</span> mysql_log/<span class="number">4</span>, utf8),</div><div class="line">[mysql:connect(DB, Pool, Server, Port, User, Passwd, DBName, utf8, <span class="literal">true</span>, <span class="literal">true</span>) </div><div class="line">|| _ &lt;- lists:seq(<span class="number">1</span>, PoolCount)]</div></pre></td></tr></table></figure>
+<p>使用erlang-mysql-driver的时候首先要用mysql:start_link来建立一个连接池，然后再自己调用mysql:connect来建立多个连接。对应的erlang-mysql-driver库里面会创建一个名为DB的连接池gen_server，然后再建立多个mysql数据库的连接，每个连接会有一个进程来接管，并把这些进程和连接信息放入连接池gen_server中。按道理我们建立了多个数据库的连接，在进行数据库操作的时候应该能够并发访问数据库的，确实erlang-mysql-driver实现也是多进程访问数据库的，但是由于连接池gen_server的单点瓶颈，会导致一些事实上成功的操作被认为是失败的。</p>
+<h4 id="erlang-mysql-driver-的sql执行过程"><a href="#erlang-mysql-driver-的sql执行过程" class="headerlink" title="erlang-mysql-driver 的sql执行过程"></a>erlang-mysql-driver 的sql执行过程</h4><p>在我们执行一个mysql:execute的函数的时候，具体的执行过程如下：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="comment">%% mysql.erl 文件中的代码</span></div><div class="line"><span class="function"><span class="title">execute</span><span class="params">(SvrName, PoolId, Name, Params, Timeout)</span> -&gt;</span></div><div class="line">  <span class="keyword">case</span> get(?STATE_VAR) <span class="keyword">of</span></div><div class="line">    undefined -&gt;</div><div class="line">      call_server(SvrName, &#123;execute, SvrName, PoolId, Name, Params&#125;, Timeout);</div><div class="line">    State -&gt;</div><div class="line">      <span class="keyword">case</span> mysql_conn:execute_local(SvrName, State, Name, Params) <span class="keyword">of</span></div><div class="line">        &#123;ok, Res, NewState&#125; -&gt;</div><div class="line">          put(?STATE_VAR, NewState),</div><div class="line">          Res;</div><div class="line">        Err -&gt;</div><div class="line">          Err</div><div class="line">      <span class="keyword">end</span></div><div class="line">  <span class="keyword">end</span>.</div><div class="line">  </div><div class="line"><span class="function"><span class="title">handle_call</span><span class="params">(&#123;execute, SvrName, PoolId, Name, Params&#125;, From, State)</span> -&gt;</span></div><div class="line">  with_next_conn(PoolId, State,</div><div class="line">    <span class="keyword">fun</span>(Conn, State1) -&gt;</div><div class="line">      <span class="keyword">case</span> gb_trees:lookup(Name, State1#state.prepares) <span class="keyword">of</span></div><div class="line">        none -&gt;</div><div class="line">          &#123;reply, &#123;error, &#123;no_such_statement, Name&#125;&#125;, State1&#125;;</div><div class="line">        &#123;value, &#123;_Stmt, Version&#125;&#125; -&gt;</div><div class="line">          mysql_conn:execute(SvrName, Conn#conn.pid, Name,</div><div class="line">            Version, Params, From),</div><div class="line">          &#123;noreply, State1&#125;</div><div class="line">      <span class="keyword">end</span></div><div class="line">    <span class="keyword">end</span>);</div></pre></td></tr></table></figure></p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="comment">%% mysql_conn的代码</span></div><div class="line"><span class="function"><span class="title">execute</span><span class="params">(SvrName, Pid, Name, Version, Params, From, Timeout)</span> -&gt;</span></div><div class="line">    send_msg(Pid, &#123;execute, SvrName, Name, Version, Params, From&#125;, From, Timeout).</div><div class="line">    </div><div class="line"><span class="function"><span class="title">loop</span><span class="params">(State)</span> -&gt;</span></div><div class="line">    RecvPid = State#state.recv_pid,</div><div class="line">    LogFun = State#state.log_fun,</div><div class="line">    <span class="keyword">receive</span></div><div class="line">    ....</div><div class="line">    &#123;execute, SvrName, Name, Version, Params, From&#125; -&gt;</div><div class="line">        State1 =</div><div class="line">        <span class="keyword">case</span> do_execute(State, SvrName, Name, Params, Version) <span class="keyword">of</span></div><div class="line">            &#123;error, _&#125; = Err -&gt;</div><div class="line">            send_reply(From, Err),</div><div class="line">            State;</div><div class="line">            &#123;ok, Result, NewState&#125; -&gt;</div><div class="line">            send_reply(From, Result),</div><div class="line">            NewState</div><div class="line">        <span class="keyword">end</span>,</div><div class="line">        loop(State1);</div><div class="line">        </div><div class="line"><span class="function"><span class="title">send_reply</span><span class="params">(GenSrvFrom, Res)</span> -&gt;</span></div><div class="line">    gen_server:reply(GenSrvFrom, Res).</div></pre></td></tr></table></figure>
+<p>mysql:execute在执行的过程中首先调用名为DB的连接池gen_server，该gen_server会执行with_next_conn选择一个持有数据库连接的进程（进程x），然后通过mysql_conn中的send_msg函数向进程x发送需要执行的sql语句，sql语句发送成功后gen_server会返回noreply，这时调用mysql:execute的进程会一直阻塞，直到进程x执行gen_server:reply来返回结果。</p>
+<p>通过上面的执行过程我们可以知道以下两点：</p>
+<ol>
+<li>mysql:execute的timeout为gen_server:call调用的timeout时间</li>
+<li>连接池gen_server只要把sql语句发送给进程x，进程x就会去执行（可能执行的比较慢，但是已经加入进程x的信箱）</li>
+</ol>
+<p>现在我们可以知道mysql:execute返回timeout的情况有两种：</p>
+<ol>
+<li>连接池gen_server太过繁忙，mysql:execute的请求还没执行，mysql:execute就已经timeout</li>
+<li>连接池gen_server已经成功执行请求，返回noreply，mysql:execute的执行进程一直在等待进程x的返回，而进程x一直不返回，这时mysql:execute触发timeout</li>
+</ol>
+<p>不管是上述那种timeout情况，只要是mysql数据库没有问题，sql语句都能够执行成功（可能会执行的慢点）。mysql:execute的调用者在发现mysql:execute返回timeout的情况下，肯定会认为sql语句没有执行成功，这时候会重新调用mysql:execute，导致一条相同的记录被多次插入。</p>
+<h4 id="emysql-的sql执行过程"><a href="#emysql-的sql执行过程" class="headerlink" title="emysql 的sql执行过程"></a>emysql 的sql执行过程</h4><p>emysql的连接池也会有一个gen_server进行管理，emysql:execute在执行的过程中是去向该gen_server申请一个可用的连接，然后再spawn一个进程来执行sql语句，而不是委托该gen_server来执行sql语句，从而避免了这个timeout的bug。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>通过上面的分析，我觉得erlang-mysql-driver会写出这个bug的原因主要是对gen_server noreply的误用。所以以后如果有需要用noreply的话，要注意避免该问题。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;我们游戏之前使用的是erlang-mysql-driver来连接数据库，经常会碰到一些timeout和一条纪录被重复插入多次的bug，后面把erlang-mysql-driver替换成emysql就没有问题了。研究了下erlang-mysql-dr
+    
+    </summary>
+    
+      <category term="Erlang" scheme="https://lintingbin2009.github.io/categories/Erlang/"/>
+    
+    
+      <category term="erlang-mysql-driver" scheme="https://lintingbin2009.github.io/tags/erlang-mysql-driver/"/>
+    
+      <category term="emysql" scheme="https://lintingbin2009.github.io/tags/emysql/"/>
+    
+  </entry>
   
   <entry>
     <title>efficiency-guide:进程</title>
@@ -900,65 +946,6 @@
     <summary type="html">
     
       &lt;p&gt;通过上一篇的文章&lt;a href=&quot;/2017/05/01/Erlang动态代码载入小实验/&quot; title=&quot;Erlang动态代码载入小实验&quot;&gt;Erlang动态代码载入小实验&lt;/a&gt;，我们可以了解到Erlang的热更机制，在Erlang里面会维护两个版本的代码。在新版本载入的
-    
-    </summary>
-    
-      <category term="Erlang入门教程" scheme="https://lintingbin2009.github.io/categories/Erlang%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/"/>
-    
-    
-      <category term="Erlang" scheme="https://lintingbin2009.github.io/tags/Erlang/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang动态代码载入小实验</title>
-    <link href="https://lintingbin2009.github.io/2017/05/01/Erlang%E5%8A%A8%E6%80%81%E4%BB%A3%E7%A0%81%E8%BD%BD%E5%85%A5%E5%B0%8F%E5%AE%9E%E9%AA%8C/"/>
-    <id>https://lintingbin2009.github.io/2017/05/01/Erlang动态代码载入小实验/</id>
-    <published>2017-05-01T15:19:04.000Z</published>
-    <updated>2017-05-01T15:57:39.008Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote>
-<p>下面的内容为《Erlang程序设计（第2版）》8.10节的内容，这个动态代码载入的小实验非常的简单生动，通过这个小实验能够充分理解Erlang代码的载入机制。</p>
-</blockquote>
-<p>动态代码载入是内建于Erlang核心的最惊人特性之一。它的美妙之处在于你无需了解后台的运作就能顺利实现它。<br>它的思路很简单：每当调用 someModule:someFunction(…)时，调用的总是最新版模块里的最新版函数，哪怕当代码在模块里运行时重新编译了该模块也是如此。<br>如果在a循环调用b时重新编译了b，那么下一次a调用b时就会自动调用新版的 b 。如果有许多不同进程正在运行而它们都调用了b，那么当b被重新编译后，所有这些进程就都会调用新版的b 。为了了解它的工作原理，我们将编写两个小模块：a和b。<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">%% b.erl</span></div><div class="line"><span class="keyword">-module</span><span class="params">(b)</span>.</div><div class="line"><span class="keyword">-export</span><span class="params">([x/<span class="number">0</span>])</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">x</span><span class="params">()</span> -&gt;</span> <span class="number">1</span>.</div></pre></td></tr></table></figure></p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment">%% a.erl</span></div><div class="line"><span class="keyword">-module</span><span class="params">(a)</span>.</div><div class="line"><span class="keyword">-compile</span><span class="params">(export_all)</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">start</span><span class="params">(Tag)</span> -&gt;</span></div><div class="line">  spawn(<span class="keyword">fun</span>() -&gt; loop(Tag) <span class="keyword">end</span>).</div><div class="line"></div><div class="line"><span class="function"><span class="title">loop</span><span class="params">(Tag)</span> -&gt;</span></div><div class="line">  sleep(),</div><div class="line">  Val = b:x(),</div><div class="line">  io:format(<span class="string">"Vsn1 (~p) b:x() = ~p~n"</span>, [Tag, Val]),</div><div class="line">  loop(Tag).</div><div class="line"></div><div class="line"><span class="function"><span class="title">sleep</span><span class="params">()</span> -&gt;</span></div><div class="line">  <span class="keyword">receive</span></div><div class="line">    <span class="keyword">after</span> <span class="number">3000</span> -&gt; <span class="literal">true</span></div><div class="line">  <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
-<p>现在可以编译a和b，然后启动两个a进程。</p>
-<blockquote>
-<p>1&gt; c(a).<br>{ok,a}<br>2&gt; c(b).<br>{ok,b}<br>3&gt; a:start(one).</p>
-<p><0.70.0><br>Vsn1 (one) b:x() = 1<br>Vsn1 (one) b:x() = 1<br>4&gt; a:start(two).</0.70.0></p>
-<p><0.72.0><br>Vsn1 (one) b:x() = 1<br>Vsn1 (two) b:x() = 1</0.72.0></p>
-</blockquote>
-<p>这些a进程休眠3秒钟后唤醒并调用b:x()，然后打印出结果。现在进入编辑器，把模块b改<br>成下面这样：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(b)</span>.</div><div class="line"><span class="keyword">-export</span><span class="params">([x/<span class="number">0</span>])</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">x</span><span class="params">()</span> -&gt;</span> <span class="number">2</span>.</div></pre></td></tr></table></figure></p>
-<p>然后在shell里面重新编译b。这是现在所发生的：</p>
-<blockquote>
-<p>5&gt; c(b).<br>{ok,b}<br>Vsn1 (one) b:x() = 2<br>Vsn1 (two) b:x() = 2</p>
-</blockquote>
-<p>两个原版的a仍然在运行，但现在它们调用了新版的b。所以在模块a里调用b:x()时，实际上是在调用“b的最新版”。我们可以随心所欲地多次修改并重新编译b，而所有调用它的模块无需特别处理就会自动调用新版的b。<br>现在已经重新编译了b，那么如果我们修改并重新编译a会发生什么？来做个试验，把a改成下面这样：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(a)</span>.</div><div class="line"><span class="keyword">-compile</span><span class="params">(export_all)</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">start</span><span class="params">(Tag)</span> -&gt;</span></div><div class="line">  spawn(<span class="keyword">fun</span>() -&gt; loop(Tag) <span class="keyword">end</span>).</div><div class="line"></div><div class="line"><span class="function"><span class="title">loop</span><span class="params">(Tag)</span> -&gt;</span></div><div class="line">  sleep(),</div><div class="line">  Val = b:x(),</div><div class="line">  io:format(<span class="string">"Vsn2 (~p) b:x() = ~p~n"</span>, [Tag, Val]),</div><div class="line">  loop(Tag).</div><div class="line"></div><div class="line"><span class="function"><span class="title">sleep</span><span class="params">()</span> -&gt;</span></div><div class="line">  <span class="keyword">receive</span></div><div class="line">    <span class="keyword">after</span> <span class="number">3000</span> -&gt; <span class="literal">true</span></div><div class="line">  <span class="keyword">end</span>.</div></pre></td></tr></table></figure></p>
-<p>现在编译并启动a。</p>
-<blockquote>
-<p>6&gt; c(a).<br>{ok,a}<br>Vsn1 (two) b:x() = 2<br>Vsn1 (one) b:x() = 2<br>Vsn1 (two) b:x() = 2<br>7&gt; a:start(three).</p>
-<p><0.84.0><br>Vsn1 (two) b:x() = 2<br>Vsn1 (one) b:x() = 2<br>Vsn2 (three) b:x() = 2<br>Vsn1 (two) b:x() = 2</0.84.0></p>
-</blockquote>
-<p>有趣的事情发生了。启动新版的a后，我们看到了新版正在运行。但是，那些运行最初版a的现有进程仍然在正常地运行旧版的a。<br>现在可以试着再次修改b。<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(b)</span>.</div><div class="line"><span class="keyword">-export</span><span class="params">([x/<span class="number">0</span>])</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">x</span><span class="params">()</span> -&gt;</span> <span class="number">3</span>.</div></pre></td></tr></table></figure></p>
-<p>我们将在shell里重新编译b，观察会发生什么。</p>
-<blockquote>
-<p>8&gt; c(b).<br>{ok,b}<br>Vsn1 (one) b:x() = 3<br>Vsn2 (three) b:x() = 3<br>Vsn1 (two) b:x() = 3</p>
-</blockquote>
-<p>现在新旧版本的a都调用了b的最新版。<br>最后，再次修改a（这是第三次修改a了）。<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(a)</span>.</div><div class="line"><span class="keyword">-compile</span><span class="params">(export_all)</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">start</span><span class="params">(Tag)</span> -&gt;</span></div><div class="line">  spawn(<span class="keyword">fun</span>() -&gt; loop(Tag) <span class="keyword">end</span>).</div><div class="line"></div><div class="line"><span class="function"><span class="title">loop</span><span class="params">(Tag)</span> -&gt;</span></div><div class="line">  sleep(),</div><div class="line">  Val = b:x(),</div><div class="line">  io:format(<span class="string">"Vsn3 (~p) b:x() = ~p~n"</span>, [Tag, Val]),</div><div class="line">  loop(Tag).</div><div class="line"></div><div class="line"><span class="function"><span class="title">sleep</span><span class="params">()</span> -&gt;</span></div><div class="line">  <span class="keyword">receive</span></div><div class="line">    <span class="keyword">after</span> <span class="number">3000</span> -&gt; <span class="literal">true</span></div><div class="line">  <span class="keyword">end</span>.</div></pre></td></tr></table></figure></p>
-<p>现在，当我们重新编译a并启动一个新版的a时，就会看到以下输出：</p>
-<blockquote>
-<p>9&gt; c(a).<br>{ok,a}<br>Vsn2 (three) b:x() = 3<br>Vsn2 (three) b:x() = 3<br>Vsn2 (three) b:x() = 3<br>Vsn2 (three) b:x() = 3<br>10&gt; a:start(four).</p>
-<p><0.96.0><br>Vsn2 (three) b:x() = 3<br>Vsn3 (four) b:x() = 3<br>Vsn2 (three) b:x() = 3<br>Vsn3 (four) b:x() = 3<br>Vsn2 (three) b:x() = 3</0.96.0></p>
-</blockquote>
-<p>这段输出里的字符串是由两个最新版本的a（第2版和第3版）生成的，而那些运行第1版a代码的进程已经消失了。<br>在任一时刻，Erlang允许一个模块的两个版本同时运行：当前版和旧版。重新编译某个模块时，任何运行旧版代码的进程都会被终止，当前版成为旧版，新编译的版本则成为当前版。可以把这想象成一个带有两个版本代码的移位寄存器。当添加新代码时，最老的版本就被清除了。一些进程可以运行旧版代码，与此同时，另一些则可以运行新版代码。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;下面的内容为《Erlang程序设计（第2版）》8.10节的内容，这个动态代码载入的小实验非常的简单生动，通过这个小实验能够充分理解Erlang代码的载入机制。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;动态代码载入是内建于Erlang核心的最惊人特
     
     </summary>
     
