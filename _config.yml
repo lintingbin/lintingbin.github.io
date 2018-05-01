@@ -66,6 +66,10 @@ pagination_dir: page
 ## Themes: https://hexo.io/themes/
 theme: indigo
 
+marked:
+  breaks: false
+  gfm: true
+
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
