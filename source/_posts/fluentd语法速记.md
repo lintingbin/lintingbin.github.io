@@ -20,7 +20,7 @@ Fluentd是一款完全免费且完全开源的日志收集器，拥有“Log Eve
 5. 通过过滤器，事件可以被重新触发
 
 ##### "source": 定义数据源
-数据源可以在source指令中定义，比如我们可以定义http和forward的数据源。http数据源可以通过http协议来接受数据，forward可以通过tcp协议来接收数据。
+数据源可以在source指令中定义，比如我们可以定义http和forward的数据源。http数据源可以通过http协议来接收数据，forward可以通过tcp协议来接收数据。
 ```markdown
 # Receive events from 24224/tcp
 # This is used by log forwarding and the fluent-cat command
@@ -38,7 +38,7 @@ Fluentd是一款完全免费且完全开源的日志收集器，拥有“Log Eve
 所有source指令中必须包含@type参数，该参数用来指定使用哪个输入插件，比如我们还可以用tail插件来读取文件的内容。 
 ###### 路由
 source指令把事件提交到Fluentd的路由引擎。一个事件由三个实体组成：tag、time和record。tag是由'.'分割的字符串组成，被内部路由引擎使用。time由input插件指定，必须是Unix时间戳格式。record是一个Json对象。
-> 强烈推荐使用小写字母、数组和下划线来命名tag，虽然其他的字符也是合法的。
+> 强烈推荐使用小写字母、数字和下划线来命名tag，虽然其他的字符也是合法的。
 
 ##### "match": 定义数据的输出目标
 match指令通过匹配tag字段来将事件输出到其他的系统。同样match指令也必须指定@type参数，该参数用来指定使用哪个输出插件。在下面的例子中，只有myapp.access的tag能够匹配到该输出插件。
@@ -49,13 +49,14 @@ match指令通过匹配tag字段来将事件输出到其他的系统。同样mat
 </match>
 ```
 ###### 匹配模式
-下面的这些匹配模式可以在<match>中使用来匹配tag:  
+下面的这些匹配模式可以在&lt;match&gt;中使用，用来匹配tag:  
 * \*用来匹配tag的一部分（比如：a.*可以匹配a.b，但是不能匹配a或者a.b.c）
 * \*\*可以用来匹配tag的0个或多个部分（比如：a.**可以匹配a、a.b和a.b.c）
 * {X,Y,Z}匹配X,Y或者Z（比如：{a,b}可以匹配a和b，但是不能匹配c。他可以和\*或者\**结合起来一起使用。）
-* 如果有多个匹配模式写在<match>里面，则可以用空格分开(比如：<match a b>能够匹配a和b。<match a.** b.*>能够匹配a,a.b,a.b.c和b.d。)
+* 如果有多个匹配模式写在&lt;match&gt;里面，则可以用空格分开(比如：&lt;match a b&gt;能够匹配a和b。&lt;match a.\*\* b.* &gt;能够匹配a,a.b,a.b.c和b.d。)
+
 ###### 匹配顺序
-Fluentd是按顺序匹配的，先在配置文件里面出现的match会先匹配。下面的例子中myapp.access永远都不会匹配到。
+Fluentd是按顺序匹配的，先在配置文件里面出现的match会先匹配。下面的例子中myapp.access永远都不会被匹配到。
 ```markdown
 # ** matches all tags. Bad :(
 <match **>
@@ -67,6 +68,7 @@ Fluentd是按顺序匹配的，先在配置文件里面出现的match会先匹�
   path /var/log/fluent/access
 </match>
 ```
+
 ##### "filter"：事件处理管道
 "filter"指令的语法和"match"指令的语法相同，但是"filter"能够在管道中被连起来处理，如下所示：
 ```markdown
@@ -92,6 +94,7 @@ Input -> filter 1 -> ... -> filter N -> Output
   path /var/log/fluent/access
 </match>
 ```
+
 ##### "system"：设置系统范围配置
 以下的配置能够由"system"指令指定。也可以通过Fluentd的配置选项设置相同的配置:
 * log_level
@@ -100,6 +103,7 @@ Input -> filter 1 -> ... -> filter N -> Output
 * suppress_config_dump
 * without_source
 * process_name (只能用"system"指令指定)
+
 下面是一些例子：
 ```markdown
 <system>
@@ -120,6 +124,7 @@ process_name用来指定Fluentd监控进程和工作进程的名字，通过ps�
 foo      45673   0.4  0.2  2523252  38620 s001  S+    7:04AM   0:00.44 worker:fluentd1
 foo      45647   0.0  0.1  2481260  23700 s001  S+    7:04AM   0:00.40 supervisor:fluentd1
 ```
+
 ##### "label"：用来组织filter和match
 "label"指令用来降低tag路由的复杂度，通过"label"指令可以用来组织filter和match的内部路由。下面是一个配置的例子，由于"label"是内建的插件，所以他的参数需要以@开头。
 ```markdown
@@ -155,8 +160,10 @@ foo      45647   0.0  0.1  2481260  23700 s001  S+    7:04AM   0:00.40 superviso
 </label>
 ```
 在上面的例子中，forward的数据源的事件被路由到record_transformer filter和elasticsearch output中。tail数据源被路由到@system里面的grep filter和s3 output中。
+
 ###### @ERROR label
-@ERROR label是内建的label，用来记录emit_error_event错误事件的。如果在配置文件里面设置了<label @ERROR>，当有相关的错误发生（比如：缓冲区已满或无效记录）的话，该错误事件就会被发送到<label @ERROR>。
+@ERROR label是内建的label，用来记录emit_error_event错误事件的。如果在配置文件里面设置了<label @ERROR>，当有相关的错误发生（比如：缓冲区已满或无效记录）的话，该错误事件就会被发送到&lt; label @ERROR &gt;。
+
 ##### "@include"：重用配置
 可以通过"@include"来导入其他的配置文件，配置文件是按顺序导入的。如果使用模式匹配的话，文件是按字母顺序导入的。
 ```markdown
@@ -172,7 +179,7 @@ foo      45647   0.0  0.1  2481260  23700 s001  S+    7:04AM   0:00.40 superviso
 如果导入的文件有顺序的要求的话，最好自己主动写导入的语句，模式匹配导入容易出错。
 #### 支持的数据类型
 每个插件都需要一些参数。例如：in_tail插件有rotate_wait和pos_file这两个参数。每个参数都有对应的类型与其关联。下面是这些类型的定义：
-* string 类型：该类型被解析成一个字符串。可以有三种形式：不带引号的字符串、带单引号的字符串和带双引号的字符串。
+* string 类型：该类型被解析成一个字符串。string类型可以有三种形式：不带引号的字符串、带单引号的字符串和带双引号的字符串。
 * integer 类型：该类型被解析成一个整数。
 * float 类型：该类型被解析成一个浮点数。
 * size 类型：该类型用来解析成有多少个字节。可以在整数后面加上k/K、m/M、g/G、t/T，对应的是计算机学科的度量单位。比如：12k表示为12*1024后的数值。
