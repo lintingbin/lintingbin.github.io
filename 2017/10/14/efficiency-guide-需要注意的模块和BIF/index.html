@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-98287189-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>efficiency_guide:需要注意的模块和BIF | Darcy&#39;s Blog | 不如烂笔头</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Erlang">
+    <meta name="description" content="以下就是要注意的模块和BIF，这些内容之前大多数知道，就setelement/3和size/1的使用优化是不知道的，值得一读  Timer模块使用erlang:send_after/3和erlang:start_timer/3创建定时器比使用Timer模块更有效率。Timer模块使用单独的进程来管理定时器。如果许多进程在同时创建和取消定时器，这个进程很容易成为瓶颈。此外Timer模块的有些函数是">
+<meta name="keywords" content="Erlang">
+<meta property="og:type" content="article">
+<meta property="og:title" content="efficiency_guide:需要注意的模块和BIF">
+<meta property="og:url" content="https://lintingbin2009.github.io/2017/10/14/efficiency-guide-需要注意的模块和BIF/index.html">
+<meta property="og:site_name" content="Darcy&#39;s Blog">
+<meta property="og:description" content="以下就是要注意的模块和BIF，这些内容之前大多数知道，就setelement/3和size/1的使用优化是不知道的，值得一读  Timer模块使用erlang:send_after/3和erlang:start_timer/3创建定时器比使用Timer模块更有效率。Timer模块使用单独的进程来管理定时器。如果许多进程在同时创建和取消定时器，这个进程很容易成为瓶颈。此外Timer模块的有些函数是">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-05-04T15:15:55.984Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="efficiency_guide:需要注意的模块和BIF">
+<meta name="twitter:description" content="以下就是要注意的模块和BIF，这些内容之前大多数知道，就setelement/3和size/1的使用优化是不知道的，值得一读  Timer模块使用erlang:send_after/3和erlang:start_timer/3创建定时器比使用Timer模块更有效率。Timer模块使用单独的进程来管理定时器。如果许多进程在同时创建和取消定时器，这个进程很容易成为瓶颈。此外Timer模块的有些函数是">
+    
+        <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">lintingbin2009</h5>
+          <a href="mailto:lintingbin31@gmail.com" title="lintingbin31@gmail.com" class="mail">lintingbin31@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                类别
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/lintingbin2009" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">efficiency_guide:需要注意的模块和BIF</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">efficiency_guide:需要注意的模块和BIF</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-10-14T04:38:02.000Z" itemprop="datePublished" class="page-time">
+  2017-10-14
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang-Efficiency-Guide/">Erlang Efficiency Guide</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#Timer模块"><span class="post-toc-number">1.</span> <span class="post-toc-text">Timer模块</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#list-to-atom-1"><span class="post-toc-number">2.</span> <span class="post-toc-text">list_to_atom/1</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#length-1"><span class="post-toc-number">3.</span> <span class="post-toc-text">length/1</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#setelement-3"><span class="post-toc-number">4.</span> <span class="post-toc-text">setelement/3</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#size-1"><span class="post-toc-number">5.</span> <span class="post-toc-text">size/1</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#split-binary-2"><span class="post-toc-number">6.</span> <span class="post-toc-text">split_binary/2</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#运算符-“-“"><span class="post-toc-number">7.</span> <span class="post-toc-text">运算符 “- -“</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-efficiency-guide-需要注意的模块和BIF"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">efficiency_guide:需要注意的模块和BIF</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-10-14 12:38:02" datetime="2017-10-14T04:38:02.000Z"  itemprop="datePublished">2017-10-14</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang-Efficiency-Guide/">Erlang Efficiency Guide</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>以下就是要注意的模块和BIF，这些内容之前大多数知道，就setelement/3和size/1的使用优化是不知道的，值得一读</p>
+</blockquote>
+<h4 id="Timer模块"><a href="#Timer模块" class="headerlink" title="Timer模块"></a>Timer模块</h4><p>使用erlang:send_after/3和erlang:start_timer/3创建定时器比使用Timer模块更有效率。Timer模块使用单独的进程来管理定时器。如果许多进程在同时创建和取消定时器，这个进程很容易成为瓶颈。此外Timer模块的有些函数是不通过单一的进程实现的（如定时器：tc/3或定时器：sleep/1），因此这些函数是可以放心使用的。</p>
+<h4 id="list-to-atom-1"><a href="#list-to-atom-1" class="headerlink" title="list_to_atom/1"></a>list_to_atom/1</h4><p>Atom是不进行内存回收的，一旦一个Atom被创建，它永远不会被移除。如果Atom的数量到达虚拟机的上限（默认1,048,576）的话，虚拟机将会奔溃。
+因此，在一个连续运行的系统中，将任意输入字符串转换成Atom是危险的。如果只允许某些定义好的原子作为输入，使用list_to_existing_atom/1可以用来防范拒绝服务攻击。
+使用list_to_atom/1构建一个可以被传入apply/3函数的atom，效率是比较低的，不推荐在需要运行很快的代码中使用:
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">apply</span><span class="params">(list_to_atom(“some_prefix”+ + Var), foo, Args)</span></span></span><br></pre></td></tr></table></figure></p>
+<h4 id="length-1"><a href="#length-1" class="headerlink" title="length/1"></a>length/1</h4><p>与tuple_size/1、byte_size/1和bit_size/1的O(1)时间复杂度不同，length/1执行的时间与List的长度成正比为O(n)
+。通常，没有必要担心length/1的速度，因为它是用C语言很高效的实现的，但是如果List很长，为了避免O(n)的时间复杂度。在一些使用场景中length/1可以被模式匹配来代替,如下：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">foo</span><span class="params">(L)</span> <span class="title">when</span> <span class="title">length</span><span class="params">(L)</span> &gt;= 3 -&gt;</span></span><br><span class="line">    ...</span><br></pre></td></tr></table></figure></p>
+<p>  可以被写成模式匹配的方式
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">foo</span><span class="params">([_,_,_|_]=L)</span> -&gt;</span></span><br><span class="line">   ...</span><br></pre></td></tr></table></figure></p>
+<p>  上面两段代码的区别是：如果L不是的列表，length(L)将会出错，而第二段代码中将不能正确匹配。</p>
+<h4 id="setelement-3"><a href="#setelement-3" class="headerlink" title="setelement/3"></a>setelement/3</h4><p>setelement/3会复制其修改的tuple。因此，使用setelement/3循环更新一个tuple的不同字段，会每次创建一个tuple的新副本。
+有一种情况是可以例外的，如果编译器清楚地知道，破坏性地更新tuple会产生tuple复制相同的结果，那么对setelement/3的调用将被替换为一个特殊的破坏性设置指令。在以下代码中，第一个setelement/3调用复制该tuple并修改第9个元素：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">multiple_setelement</span><span class="params">(T0)</span> -&gt;</span></span><br><span class="line">    T1 = setelement(<span class="number">9</span>, T0, bar),</span><br><span class="line">    T2 = setelement(<span class="number">7</span>, T1, foobar),</span><br><span class="line">    setelement(<span class="number">5</span>, T2, new_value).</span><br></pre></td></tr></table></figure></p>
+<p>  后面两个setelement/3调用将该复制的tuple的d第7和第5个元素也修改了，不再复制新的tuple。
+要实现上述的优化，必须满足以下条件：</p>
+<ul>
+<li>索引必须是整数文字，而不是变量或表达式。</li>
+<li>索引必须按降序给出。 </li>
+<li>在连续的setelement/3调用之间不能有任何其他函数调用。 </li>
+<li><p>从一个setelement/3调用返回的元组只能在随后的setelement/3调用中使用。</p>
+<p>如果代码不能像multi_setelement/1示例中那样被构造，那么修改大元组中的多个元素的最好方法是将元组转换为列表，修改列表，并将其转换回元组。</p>
+</li>
+</ul>
+<h4 id="size-1"><a href="#size-1" class="headerlink" title="size/1"></a>size/1</h4><p>size/1可以用来返回tuple和binary的大小。但是如果使用tuple_size/1和byte_size/1的话，能为编译器和运行时系统提供了更多优化机会。另一个优点是能给了Dialyzer提供更多的类型信息。</p>
+<h4 id="split-binary-2"><a href="#split-binary-2" class="headerlink" title="split_binary/2"></a>split_binary/2</h4><p>使用模式匹配而不是调用split_binary/2函数来分割二进制通常更有效率。此外，混合使用比特语法匹配和split_binary/2会使比特语法匹配的一些优化失效。
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;Bin1:Num/binary,Bin2/binary&gt;&gt; = Bin <span class="comment">%% 推荐</span></span><br><span class="line">&#123;Bin1,Bin2&#125; = split_binary(Bin, Num) <span class="comment">%% 不推荐</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="运算符-“-“"><a href="#运算符-“-“" class="headerlink" title="运算符 “- -“"></a>运算符 “- -“</h4><p>“- -“ 运算符具有与其操作数长度乘积成比例的时间复杂度（O(m*n)）。这意味着如果该操作符的两个操作数都是长列表，那么操作者非常慢：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">HugeList1 -- HugeList2</span><br><span class="line"><span class="comment">%% 上述操作应该被替换成下面的操作</span></span><br><span class="line">HugeSet1 = ordsets:from_list(HugeList1),</span><br><span class="line">HugeSet2 = ordsets:from_list(HugeList2),</span><br><span class="line">ordsets:subtract(HugeSet1, HugeSet2)</span><br><span class="line"><span class="comment">%% 如果在意列表的原始顺序的话，可以退换成如下的操作</span></span><br><span class="line">Set = gb_sets:from_list(HugeList2),</span><br><span class="line">[E || E &lt;- HugeList1, <span class="keyword">not</span> gb_sets:is_element(E, Set)]</span><br></pre></td></tr></table></figure></p>
+<p>  注意：如果列表包含重复的元素(HugeList2中出现一个元素在HugeList1中删除了所有出现的元素)，则该代码的行为与“- -”不同。另外，这个代码比较了使用“==”运算符的列表元素，而“- -”使用“=:=”运算符。如果这个区别很重要，那么可以使用set代替gb_set，但是在长列表中set:from_list/1比gb_sets:from_list/1慢得多。
+使用“- -”运算符从列表中删除一个元素不会有性能问题：HugeList1 – [Element] 。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2018-05-04T15:15:55.984Z" itemprop="dateUpdated">2018-05-04 23:15:55</time>
+</span><br>
+
+
+        
+        转载请注明出处，Darcy's Blog <br/><a href="/2017/10/14/efficiency-guide-需要注意的模块和BIF/" target="_blank" rel="external">https://lintingbin2009.github.io/2017/10/14/efficiency-guide-需要注意的模块和BIF/</a>
+        
+    </div>
+    <footer>
+        <a href="https://lintingbin2009.github.io">
+            <img src="/img/avatar.jpg" alt="lintingbin2009">
+            lintingbin2009
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-需要注意的模块和BIF/&title=《efficiency_guide:需要注意的模块和BIF》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-需要注意的模块和BIF/&title=《efficiency_guide:需要注意的模块和BIF》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-需要注意的模块和BIF/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《efficiency_guide:需要注意的模块和BIF》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-需要注意的模块和BIF/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-需要注意的模块和BIF/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2017/10/14/efficiency-guide-Binary的构建和匹配/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">efficiency-guide:Binary的构建和匹配</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/10/14/efficiency-guide-七个Erlang性能的误区/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">efficiency_guide:七个Erlang性能的误区</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'lintingbin2009';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢老板~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>lintingbin2009 &copy; 2016 - 2018</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-需要注意的模块和BIF/&title=《efficiency_guide:需要注意的模块和BIF》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-需要注意的模块和BIF/&title=《efficiency_guide:需要注意的模块和BIF》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-需要注意的模块和BIF/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《efficiency_guide:需要注意的模块和BIF》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-需要注意的模块和BIF/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/10/14/efficiency-guide-需要注意的模块和BIF/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYAAAD2CAAAAADAeSUUAAADK0lEQVR42u3aQZLiQAwEwPn/p9mIPc0ejEuS2cBy+kQwYHf2HIRU/fMTX6+/1+/Xv985+uTRd3vPOnpucs/mhY2NjX0T9uvtlbDn3zpaT77a3IKNjY29lZ0UkqRcJaTqpucbV1gnNjY29iPZeVPRK4p5OcTGxsbGnhSwalnKB09Jebus0GJjY2OvY+fDmt4775fe29D/NEvDxsbG/np2L+j9ztcfz7exsbGxv4z9al3JfZJGohoJVKPfw/tjY2NjL2InA6B5Meu1EL2nFwobNjY29gp2XkJ6Q/xJWZqHB+UpGjY2NvYN2b2RejW+nRz6yedC5WETNjY29gp2ftglbz+SQph/t3qfyIWNjY29lJ3/9K9WyOrgvrod+QDrn1QEGxsbewW7GtNWl14dGOXgfHR1UsawsbGx17Hzn/ujR8bfrTYqzXgAGxsb+7bsvDxMju9MBkDVp0eFExsbG3sdexKyVoOByViqWuROChg2Njb2Cna1JORDpck1DyHKx4CwsbGxb86uFpje4Z5e81D9NzQP7mBjY2Pfll2NS3vj+/zATV6uqiOqw5NK2NjY2DdnJ0OZ/GGTwzTVUjcZh2FjY2PvY88HRr3ilG9fUsaStgQbGxt7HzvalQ+UkGuj3+Se2NjY2LvZE2S1nage+um1MYWKh42NjX1zdhLcJj/9e1HupFGZhATY2NjYT2PPY93egZ7e6KoQUWNjY2OvYFfD1OroP0Hmn8+P8pysGRsbG3sdO8HnxWOyWXnwPAmGsbGxsfexry0PvWFQEh7nf23m29jY2Ng3ZFeHRL02Iylmva3sxcnY2NjY+9ifPt+Sk6oL7eGxsbGxt7KrAW0vTpi3JRfPiLCxsbHXsXsjpGSh125Qsw5jY2Njr2O/ite8Afhc41GIELCxsbEXsT8R6F4V4lZLYxJUYGNjY29l94rWvPGYb8eodcHGxsZex+7FqJPlJiP+yQjp5A7Y2NjYj2dPjmlOotz8oM9JAIyNjY39SHZ1g/IgOY8Nkmbp4gKGjY2NfRN2XnjyFuKqsHYSG2NjY2M/gV1tBt5vVlJCevFA9QjRxUd2sLGxsb+R/QdNqVjck0xEBQAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-98287189-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>Git远程推送时记住用户名和密码 | Darcy&#39;s Blog | 不如烂笔头</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Git">
+    <meta name="description" content="当使用HTTPS协议推送代码到Git仓库时，发现每次都需要输入密码，操作起来非常麻烦。下面介绍几种免去输入密码的方法。">
+<meta name="keywords" content="Git">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Git远程推送时记住用户名和密码">
+<meta property="og:url" content="https://lintingbin2009.github.io/2018/03/11/Git远程推送时记住用户名和密码/index.html">
+<meta property="og:site_name" content="Darcy&#39;s Blog">
+<meta property="og:description" content="当使用HTTPS协议推送代码到Git仓库时，发现每次都需要输入密码，操作起来非常麻烦。下面介绍几种免去输入密码的方法。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-05-04T15:15:55.981Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Git远程推送时记住用户名和密码">
+<meta name="twitter:description" content="当使用HTTPS协议推送代码到Git仓库时，发现每次都需要输入密码，操作起来非常麻烦。下面介绍几种免去输入密码的方法。">
+    
+        <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">lintingbin2009</h5>
+          <a href="mailto:lintingbin31@gmail.com" title="lintingbin31@gmail.com" class="mail">lintingbin31@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                类别
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/lintingbin2009" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Git远程推送时记住用户名和密码</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Git远程推送时记住用户名和密码</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-03-11T09:04:20.000Z" itemprop="datePublished" class="page-time">
+  2018-03-11
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/教程/">教程</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#HTTPS协议推送"><span class="post-toc-number">1.</span> <span class="post-toc-text">HTTPS协议推送</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#SSH协议推送"><span class="post-toc-number">2.</span> <span class="post-toc-text">SSH协议推送</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-Git远程推送时记住用户名和密码"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Git远程推送时记住用户名和密码</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-03-11 17:04:20" datetime="2018-03-11T09:04:20.000Z"  itemprop="datePublished">2018-03-11</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/教程/">教程</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>当使用HTTPS协议推送代码到Git仓库时，发现每次都需要输入密码，操作起来非常麻烦。下面介绍几种免去输入密码的方法。</p>
+<a id="more"></a>
+<h3 id="HTTPS协议推送"><a href="#HTTPS协议推送" class="headerlink" title="HTTPS协议推送"></a>HTTPS协议推送</h3><p>使用HTTPS协议，有一种简单粗暴的方式是在远程地址中带上密码。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; git remote set-url origin http://yourname:password@bitbucket.org/yourname/project.git</span><br></pre></td></tr></table></figure>
+<p>还有一种方法，是创建文件存储Git用户名和密码。</p>
+<p>以Windows环境为例，在%USERPROFILE%目录中（一般为C:\Users\yourname)，打开Git Bash命令行，创建文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; touch .git-credentials</span><br></pre></td></tr></table></figure>
+<p>在文件中输入仓库域名，这里使用了<code>bitbucket.org</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://yourname:password@bitbucket.org</span><br></pre></td></tr></table></figure>
+<p>在CMD终端中设置在全局Git环境中，长期存储密码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; git config --global credential.helper store</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>其他设置密码方式
+记住密码（默认15分钟）：<code>git config --global credential.helper cache</code>
+自定义存储时间：<code>git config credential.helper &#39;cache --timeout=3600&#39;</code></p>
+</blockquote>
+<h3 id="SSH协议推送"><a href="#SSH协议推送" class="headerlink" title="SSH协议推送"></a>SSH协议推送</h3><p>如果原来的推送地址协议是HTTPS，可以通过换成SSH协议，在远程仓库添加SSH Key来实现推送时免账户密码输入。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; git remote -v             // 查看远程地址</span><br><span class="line">&gt; git remote rm origin      // 删除原有的推送地址</span><br><span class="line">&gt; git remote add origin git@github.com:&lt;用户名&gt;/版本库名</span><br></pre></td></tr></table></figure>
+<p>或者</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; git remote -v</span><br><span class="line">&gt; git remote set-url origin git@github.com:&lt;用户名&gt;/版本库名</span><br></pre></td></tr></table></figure>
+<p>执行推送。
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; git push -u origin master</span><br></pre></td></tr></table></figure></p>
+<p>发现提示权限不够。
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">The authenticity of host &apos;bitbucket.org (104.192.143.1)&apos; can&apos;t be established.</span><br><span class="line">RSA key fingerprint is SHA256:zzXQOXSRBEiUtuE8AikJYKwbHaxvSc0ojez9YXaGp1A.</span><br><span class="line">Are you sure you want to continue connecting (yes/no)? yes</span><br><span class="line">Warning: Permanently added &apos;bitbucket.org,104.192.143.1&apos; (RSA) to the list of kn</span><br><span class="line">own hosts.</span><br><span class="line">Permission denied (publickey).</span><br><span class="line">fatal: Could not read from remote repository.</span><br><span class="line"></span><br><span class="line">Please make sure you have the correct access rights</span><br><span class="line">and the repository exists.</span><br></pre></td></tr></table></figure></p>
+<p>需要在本地创建该帐号的RSA Key。可以参考以下两篇文章：
+<a href="/2018/03/11/Windows下配置SSH连接Github/" title="Windows下配置SSH连接Github">Windows下配置SSH连接Github</a>
+<a href="/2018/03/11/Git如何在本地生成多个SSH-key/" title="Git如何在本地生成多个SSH key">Git如何在本地生成多个SSH key</a></p>
+<p>然后再执行推送。
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; git push -u origin master</span><br></pre></td></tr></table></figure></p>
+<p>就可以推送成功了。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2018-05-04T15:15:55.981Z" itemprop="dateUpdated">2018-05-04 23:15:55</time>
+</span><br>
+
+
+        
+        转载请注明出处，Darcy's Blog <br/><a href="/2018/03/11/Git远程推送时记住用户名和密码/" target="_blank" rel="external">https://lintingbin2009.github.io/2018/03/11/Git远程推送时记住用户名和密码/</a>
+        
+    </div>
+    <footer>
+        <a href="https://lintingbin2009.github.io">
+            <img src="/img/avatar.jpg" alt="lintingbin2009">
+            lintingbin2009
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Git/">Git</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2018/03/11/Git远程推送时记住用户名和密码/&title=《Git远程推送时记住用户名和密码》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2018/03/11/Git远程推送时记住用户名和密码/&title=《Git远程推送时记住用户名和密码》 — Darcy's Blog&source=当使用HTTPS协议推送代码到Git仓库时，发现每次都需要输入密码，操作起来非常麻烦。下面介绍几种免去输入密码的方法。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2018/03/11/Git远程推送时记住用户名和密码/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Git远程推送时记住用户名和密码》 — Darcy's Blog&url=https://lintingbin2009.github.io/2018/03/11/Git远程推送时记住用户名和密码/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2018/03/11/Git远程推送时记住用户名和密码/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/03/29/使用erlang-get-stacktrace注意避开的坑/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">使用erlang:get_stacktrace注意避开的坑</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/03/11/Git如何在本地生成多个SSH-key/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">git如何在本地生成多个ssh key</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'lintingbin2009';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢老板~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>lintingbin2009 &copy; 2016 - 2018</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2018/03/11/Git远程推送时记住用户名和密码/&title=《Git远程推送时记住用户名和密码》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2018/03/11/Git远程推送时记住用户名和密码/&title=《Git远程推送时记住用户名和密码》 — Darcy's Blog&source=当使用HTTPS协议推送代码到Git仓库时，发现每次都需要输入密码，操作起来非常麻烦。下面介绍几种免去输入密码的方法。" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2018/03/11/Git远程推送时记住用户名和密码/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Git远程推送时记住用户名和密码》 — Darcy's Blog&url=https://lintingbin2009.github.io/2018/03/11/Git远程推送时记住用户名和密码/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2018/03/11/Git远程推送时记住用户名和密码/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYAAAD2CAAAAADAeSUUAAADNElEQVR42u3ay47iMBAFUP7/pxlpdq2GcG85tIg5WSEejo+zKOpxu8XX/f/17PXv63id418dr3/8/skXNjY29kXY+VZ+3yD57co386Nv74KNjY29HzsJWskW2/DWIvPg+sKIjY2N/ZXsGTXaRLByfndsbGxs7Nlf//zT9WCGjY2Njb1Ssp+Fk1mxKV/hjbU0bGxs7I9nrzd6P+f1n/a3sbGxsT+AfS+v40JPm97kQWhlzw9Ww8bGxt6InQw4ztqrZw39tLtKkiVsbGzsXdnJQeTIdvRnPci1pShsbGzsPdh5A7VtJ7RhbAbOq0Y/1sHGxsbeiJ1vsX0/wbTHvdLMeLomNjY29kbs9ULSrNjU7iEfDCoOFBsbG3s7dh66kgHHnNG2B/LiVxG9sbGxsS/FPl6ubaCuj/K0QTEvY72opWFjY2Nflp2HgVnYyEPO7KBXjgwbGxt7J/YKJm8G5yWkPL3J0xVsbGzsXdktLynuJNtqGwNt8/jFg8HGxsbemp386X9HWb9dIU+WnuZe2NjY2Nux23JSe0CzAtZ62auePMLGxsa+FDuvPCV//fMkZJactCNERUKCjY2NfVl2UrhfaejO0ph2tfYgsLGxsXdlz1KONtjclq/2YRRFJWxsbOzLspeCwakJzErak7Slf4zsYGNjY2/BnhX92wbtWc3jPH2KPsXGxsbejp0HsDxUtMnJesArDgsbGxt7C3bbgk3eb/vMsz3kI0EP9oONjY29HTtPIZJy0mywJj+aNuw9jdjY2NjY27FnyPbG+ZBQexD54WJjY2PvxG5DUTvxMmsA5ENCeSnq6XewsbGxL86eJQk5eBYmZyEzD3LY2NjY38Buw1ibYJwb6vLDxcbGxt6Pnf+5b8PPers330+ShETfx8bGxr4g+15e9fmNnsMsHSpWw8bGxt6I3W4xeSdJMNojaJsTbbKEjY2NfXV2G7TyYlA7BjRLToZPFRsbG3s7dttkzZOTWeE+D1S57kEeho2Njf1l7IT3l1tfakJgY2NjfzF7Rp2VmfK7t8kSNjY29n7slUHM9dJSu5M8TJ5cS8PGxsb+SPa7k4F2AKg93GFRCRsbG3sH9j9InHLeG61M3gAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

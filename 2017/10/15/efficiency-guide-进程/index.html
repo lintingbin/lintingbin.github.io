@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-98287189-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>efficiency-guide:进程 | Darcy&#39;s Blog | 不如烂笔头</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Erlang">
+    <meta name="description" content="这篇文章主要介绍进程的堆大小的优化，以及模块内的常量池，如果之前没有看过的，值得一看。  创建一个进程与操作系统中的线程和进程相比，Erlang进程是轻量级的。 新创建的Erlang进程在非SMP和非HiPE模式下中使用309个字的内存。（SMP和HiPE支持会增加一些内存）进程占用的内存大小可以通过以下方式得到：  Erlang (BEAM) emulator version 5.6 [asy">
+<meta name="keywords" content="Erlang">
+<meta property="og:type" content="article">
+<meta property="og:title" content="efficiency-guide:进程">
+<meta property="og:url" content="https://lintingbin2009.github.io/2017/10/15/efficiency-guide-进程/index.html">
+<meta property="og:site_name" content="Darcy&#39;s Blog">
+<meta property="og:description" content="这篇文章主要介绍进程的堆大小的优化，以及模块内的常量池，如果之前没有看过的，值得一看。  创建一个进程与操作系统中的线程和进程相比，Erlang进程是轻量级的。 新创建的Erlang进程在非SMP和非HiPE模式下中使用309个字的内存。（SMP和HiPE支持会增加一些内存）进程占用的内存大小可以通过以下方式得到：  Erlang (BEAM) emulator version 5.6 [asy">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-05-04T15:15:55.984Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="efficiency-guide:进程">
+<meta name="twitter:description" content="这篇文章主要介绍进程的堆大小的优化，以及模块内的常量池，如果之前没有看过的，值得一看。  创建一个进程与操作系统中的线程和进程相比，Erlang进程是轻量级的。 新创建的Erlang进程在非SMP和非HiPE模式下中使用309个字的内存。（SMP和HiPE支持会增加一些内存）进程占用的内存大小可以通过以下方式得到：  Erlang (BEAM) emulator version 5.6 [asy">
+    
+        <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">lintingbin2009</h5>
+          <a href="mailto:lintingbin31@gmail.com" title="lintingbin31@gmail.com" class="mail">lintingbin31@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                类别
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/lintingbin2009" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">efficiency-guide:进程</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">efficiency-guide:进程</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-10-15T06:38:57.000Z" itemprop="datePublished" class="page-time">
+  2017-10-15
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang-Efficiency-Guide/">Erlang Efficiency Guide</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#创建一个进程"><span class="post-toc-number">1.</span> <span class="post-toc-text">创建一个进程</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#初始堆大小"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">初始堆大小</span></a></li></ol></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#进程消息"><span class="post-toc-number">2.</span> <span class="post-toc-text">进程消息</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#常量池（Constant-Pool）"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">常量池（Constant Pool）</span></a></li><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#共享丢失"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">共享丢失</span></a></li></ol></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#SMP"><span class="post-toc-number">3.</span> <span class="post-toc-text">SMP</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-efficiency-guide-进程"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">efficiency-guide:进程</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-10-15 14:38:57" datetime="2017-10-15T06:38:57.000Z"  itemprop="datePublished">2017-10-15</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang-Efficiency-Guide/">Erlang Efficiency Guide</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>这篇文章主要介绍进程的堆大小的优化，以及模块内的常量池，如果之前没有看过的，值得一看。</p>
+</blockquote>
+<h4 id="创建一个进程"><a href="#创建一个进程" class="headerlink" title="创建一个进程"></a>创建一个进程</h4><p>与操作系统中的线程和进程相比，Erlang进程是轻量级的。
+新创建的Erlang进程在非SMP和非HiPE模式下中使用309个字的内存。（SMP和HiPE支持会增加一些内存）进程占用的内存大小可以通过以下方式得到：</p>
+<blockquote>
+<p>Erlang (BEAM) emulator version 5.6 [async-threads:0] [kernel-poll:false]
+Eshell V5.6  (abort with ^G)
+1&gt; Fun = fun() -&gt; receive after infinity -&gt; ok end end.</p>
+</blockquote>
+<p>#Fun&lt;…&gt;
+2&gt; {_,Bytes} = process_info(spawn(Fun), memory).
+{memory,1232}
+3&gt; Bytes div erlang:system_info(wordsize).
+309</p>
+<p>此大小包括堆区域（包括堆栈）的233个字。垃圾收集器根据需要增加堆。
+进程的主（外）循环必须是尾递归的。否则，堆栈会一直增长直到进程终止。
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% 不要这样做</span></span><br><span class="line"><span class="function"><span class="title">loop</span><span class="params">()</span> -&gt;</span> </span><br><span class="line">  <span class="keyword">receive</span></span><br><span class="line">     &#123;sys, Msg&#125; -&gt;</span><br><span class="line">         handle_sys_msg(Msg),</span><br><span class="line">         loop();</span><br><span class="line">     &#123;From, Msg&#125; -&gt;</span><br><span class="line">          Reply = handle_msg(Msg),</span><br><span class="line">          From ! Reply,</span><br><span class="line">          loop()</span><br><span class="line">  <span class="keyword">end</span>,</span><br><span class="line">  io:format(<span class="string">"Message is processed~n"</span>, []).</span><br></pre></td></tr></table></figure></p>
+<p>对io:format/2的调用永远不会被执行，但是每次loop/0被递归调用时，返回地址仍然被推送到堆栈。该函数的正确尾递归版本如下所示：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">loop</span><span class="params">()</span> -&gt;</span> </span><br><span class="line">   <span class="keyword">receive</span></span><br><span class="line">      &#123;sys, Msg&#125; -&gt;</span><br><span class="line">         handle_sys_msg(Msg),</span><br><span class="line">         loop();</span><br><span class="line">      &#123;From, Msg&#125; -&gt;</span><br><span class="line">         Reply = handle_msg(Msg),</span><br><span class="line">         From ! Reply,</span><br><span class="line">         loop()</span><br><span class="line"> <span class="keyword">end</span>.</span><br></pre></td></tr></table></figure></p>
+<h5 id="初始堆大小"><a href="#初始堆大小" class="headerlink" title="初始堆大小"></a>初始堆大小</h5><p>对于具有数十万甚至数百万个进程的Erlang系统，默认的初始堆大小为233个字节是相当保守的。垃圾收集器根据需要增加和收缩堆。
+在使用相对较少进程的系统中，可以通过使用erl的+h选项或使用spawn_opt/4的min_heap_size选项在每个进程的基础上增加最小堆大小来提高性能。主要有以下两个好处：</p>
+<ul>
+<li>虽然垃圾收集器可以逐步增长堆的大小，但这比生成进程时直接建立更大的堆来的低效。</li>
+<li>垃圾收集器还可以收缩堆，如果它比存储在其上的数据量大得多;设置最小堆大小可以防止这种情况发生。<blockquote>
+<p>注意：由于虚拟机可以使用更多的内存，则内存回收的次数将减少，因此Binary可以被保存的更久才进行内存回收</p>
+</blockquote>
+</li>
+</ul>
+<p>在具有许多进程的系统中，运行时间很短的计算任务可以生成具有更大最小堆大小的新进程。当进程完成后，它将计算结果发送到另一个进程并终止。如果正确计算最小堆大小，则该过程可能根本不需要执行任何垃圾回收。<strong>如果没有进行适当的测量，则不进行此优化。</strong></p>
+<h4 id="进程消息"><a href="#进程消息" class="headerlink" title="进程消息"></a>进程消息</h4><p>除了在同一个Erlang节点上的refc binary，Erlang进程之间的所有消息都会被复制。
+当消息发送到另一个Erlang节点上的进程时，它首先被编码为Erlang外部格式，然后通过TCP/IP套接字发送。接收的Erlang节点解码消息并将其分发到相应的进程。</p>
+<h5 id="常量池（Constant-Pool）"><a href="#常量池（Constant-Pool）" class="headerlink" title="常量池（Constant Pool）"></a>常量池（Constant Pool）</h5><p>Erlang常量（也称为文字(literals)）保存在常量池中;每个加载的模块都有自己的池。以下函数不会在每次调用时构建元组（仅在下次运行垃圾回收时丢弃它），因为元组位于模块的常量池中：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">days_in_month</span><span class="params">(M)</span> -&gt;</span></span><br><span class="line">    element(M, &#123;<span class="number">31</span>,<span class="number">28</span>,<span class="number">31</span>,<span class="number">30</span>,<span class="number">31</span>,<span class="number">30</span>,<span class="number">31</span>,<span class="number">31</span>,<span class="number">30</span>,<span class="number">31</span>,<span class="number">30</span>,<span class="number">31</span>&#125;).</span><br></pre></td></tr></table></figure></p>
+<p>但是如果一个常量被发送到另一个进程（或存储在一个Ets表中），那么它将被复制。原因是运行时系统必须能够跟踪所有对常量的引用，以正确卸载包含常量的代码。（当代码被卸载时，这些常量被复制到引用它们的进程的堆中。）复制常量可能在将来的Erlang/OTP版本中被删除。</p>
+<h5 id="共享丢失"><a href="#共享丢失" class="headerlink" title="共享丢失"></a>共享丢失</h5><p>在以下情况下，共享不会保留：</p>
+<ul>
+<li>当一个共享变量被发送到另一个进程 </li>
+<li>当一个共享变量作为spawn调用中的初始进程参数传递时</li>
+<li>当共享变量被存储在Ets表中时</li>
+</ul>
+<p>这是一个优化。大多数应用不发送带有共享变量的消息。
+以下示例显示如何创建共享变量：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">kilo_byte</span><span class="params">()</span> -&gt;</span></span><br><span class="line">    kilo_byte(<span class="number">10</span>, [<span class="number">42</span>]).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">kilo_byte</span><span class="params">(<span class="number">0</span>, Acc)</span> -&gt;</span></span><br><span class="line">    Acc;</span><br><span class="line"><span class="function"><span class="title">kilo_byte</span><span class="params">(N, Acc)</span> -&gt;</span></span><br><span class="line">    kilo_byte(N-<span class="number">1</span>, [Acc|Acc]).</span><br></pre></td></tr></table></figure></p>
+<p>kilo_byte/1创建一个嵌套列表。如果调用list_to_binary/1，则可以将嵌套列表转换为1024字节的Binary：</p>
+<blockquote>
+<p>1&gt; byte_size(list_to_binary(efficiency_guide:kilo_byte())).
+1024</p>
+</blockquote>
+<p>使用erts_debug:size/1 BIF，可以看出嵌套列表只需要22个字的堆空间：</p>
+<blockquote>
+<p>2&gt; erts_debug:size(efficiency_guide:kilo_byte()).
+22</p>
+</blockquote>
+<p>使用erts_debug:flat_size/1 BIF，可以忽略共享来计算嵌套列表的大小。当它被发送到另一个进程或存储在Ets表中时，它将成为列表的实际大小：</p>
+<blockquote>
+<p>3&gt; erts_debug:flat_size(efficiency_guide:kilo_byte()).
+4094</p>
+</blockquote>
+<p>将数据插入到Ets表中，则可以确认共享丢失：</p>
+<blockquote>
+<p>4&gt; T = ets:new(tab, []).</p>
+</blockquote>
+<p>#Ref&lt;0.1662103692.2407923716.214181&gt;
+5&gt; ets:insert(T, {key,efficiency_guide:kilo_byte()}).
+true
+6&gt; erts_debug:size(element(2, hd(ets:lookup(T, key)))).
+4094
+7&gt; erts_debug:flat_size(element(2, hd(ets:lookup(T, key)))).
+4094</p>
+<p>当数据被插入到Ets表时，erts_debug:size/1和erts_debug:flat_size/1返回相同的值。共享已经丢失。
+在未来的Erlang/OTP版本中，可能会实现一种方式（可选）保留共享。</p>
+<h4 id="SMP"><a href="#SMP" class="headerlink" title="SMP"></a>SMP</h4><p>SMP模式（在R11B中引入）通过运行多个Erlang调度器线程（通常与内核数相同）来利用多核计算机的性能。每个调度器线程以与非SMP模式中的Erlang调度器相同的方式调度Erlang进程。</p>
+<p>为了通过使用SMP模式获得更多的性能提升，应用程序<strong>大多数时候都必须有多个可运行的Erlang进程</strong>。否则，Erlang虚拟机仍然只能运行一个Erlang进程，但是仍然必须增加锁的开销。尽管Erlang/OTP尝试尽可能减少锁开销，但它永远不会变为零。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2018-05-04T15:15:55.984Z" itemprop="dateUpdated">2018-05-04 23:15:55</time>
+</span><br>
+
+
+        
+        转载请注明出处，Darcy's Blog <br/><a href="/2017/10/15/efficiency-guide-进程/" target="_blank" rel="external">https://lintingbin2009.github.io/2017/10/15/efficiency-guide-进程/</a>
+        
+    </div>
+    <footer>
+        <a href="https://lintingbin2009.github.io">
+            <img src="/img/avatar.jpg" alt="lintingbin2009">
+            lintingbin2009
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/10/15/efficiency-guide-进程/&title=《efficiency-guide:进程》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/10/15/efficiency-guide-进程/&title=《efficiency-guide:进程》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/10/15/efficiency-guide-进程/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《efficiency-guide:进程》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/10/15/efficiency-guide-进程/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/10/15/efficiency-guide-进程/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/03/10/timeout的bug分析/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">关于erlang-mysql-driver timeout的bug分析</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/10/15/efficiency-guide-表和数据库/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">efficiency-guide:表和数据库</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'lintingbin2009';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢老板~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>lintingbin2009 &copy; 2016 - 2018</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2017/10/15/efficiency-guide-进程/&title=《efficiency-guide:进程》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2017/10/15/efficiency-guide-进程/&title=《efficiency-guide:进程》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2017/10/15/efficiency-guide-进程/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《efficiency-guide:进程》 — Darcy's Blog&url=https://lintingbin2009.github.io/2017/10/15/efficiency-guide-进程/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2017/10/15/efficiency-guide-进程/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACrUlEQVR42u3a0W7DMAgF0P7/T3evlba6XAhbJp08TW3i+HiSoZjHo3w9X67vn7x+fn723XW+//Xzx8aFh4eHN5j6eejzyyrgCea8uG/fi4eHh7fGO08l3aDry5QGofqc8fDw8O7DmyzEtcuEh4eH9794vdT5/GwlrcfDw8O7D68+dCU8VEhpUXi91oKHh4dX5tVPke7z98r5Hh4eHt74VD1tDqgXatP5NGeLh4eHt8DrlVPTEm09ma6/PbgTDw8P71LepGF0o1Wr10Dw9i14eHh4C7x6OjspDZzHScNAWvzFw8PD2+ClgSEtUvSaU3vzLHVG4OHh4V3ES5sDKsFjXlzohRY8PDy8PV564FQvH8xH7hUjSud7eHh4eGNeuh33npo0V/USbjw8PLw93qTJqd4oMDni6o2Dh4eHt8FLS6vpFNOiw+QYLChV4OHh4Q14aVm2N+l6gOmFjQ9xDw8PD2+N19uy6yXdSaFhlDrj4eHhXcqbHF+VjqDK1dQ0HY/DFR4eHt6lvMkmnqbLVwWMeiKOh4eHt8GLj+TH4SRN3yfdp3h4eHh7vF5zVS/xTUsbvVIFHh4e3gavlwRXtuZzKpz2MvTGxMPDw9vjjX7kt76dHHoFI+Dh4eEt8NISQLpAaUmiHqjqx294eHh4G7x08+1t9Bv3xO1WeHh4eJfy6kl2HRbEovJyp80KeHh4eHu8evrbK8X2QlGv4QAPDw9vj/cMr/mS1Yu/6Zg//GPw8PDwFngb060XhSvFjkr6Pm+KxcPDw0t59YaqdFtP27nO49cDAx4eHt7v8OonR70JpeWJNNX+EBjw8PDw/pQ3Lz2kjVlpWy0eHh7e3XiVidYZaftpXGjGw8PDW+NNJpeWZdOFS5cVDw8Pb5vX+8HfawhIqWlKPWrPwsPDw/vM+wIGM32CCyOoGQAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

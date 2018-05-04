@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-98287189-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>使用spark进行流处理 | Darcy&#39;s Blog | 不如烂笔头</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="spark">
+    <meta name="description" content="最近在做一个假量检测的项目，主要是用来检测是否有一些伪造的广告点击之类的，然后该项目使用了spark来做在线的流处理  spark的使用场景spark主要用来读取kafka里面的一些点击、安装、登入和登出等数据，然后使用spark的流处理模块对这些数据进行处理，最后把处理完的数据存储到相应的数据库中，供后面的数据分析使用。 使用的spark流处理模块spark的流处理模块有两个：  Spark">
+<meta name="keywords" content="spark">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用spark进行流处理">
+<meta property="og:url" content="https://lintingbin2009.github.io/2018/05/04/使用spark进行流处理/index.html">
+<meta property="og:site_name" content="Darcy&#39;s Blog">
+<meta property="og:description" content="最近在做一个假量检测的项目，主要是用来检测是否有一些伪造的广告点击之类的，然后该项目使用了spark来做在线的流处理  spark的使用场景spark主要用来读取kafka里面的一些点击、安装、登入和登出等数据，然后使用spark的流处理模块对这些数据进行处理，最后把处理完的数据存储到相应的数据库中，供后面的数据分析使用。 使用的spark流处理模块spark的流处理模块有两个：  Spark">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-05-04T16:57:24.473Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用spark进行流处理">
+<meta name="twitter:description" content="最近在做一个假量检测的项目，主要是用来检测是否有一些伪造的广告点击之类的，然后该项目使用了spark来做在线的流处理  spark的使用场景spark主要用来读取kafka里面的一些点击、安装、登入和登出等数据，然后使用spark的流处理模块对这些数据进行处理，最后把处理完的数据存储到相应的数据库中，供后面的数据分析使用。 使用的spark流处理模块spark的流处理模块有两个：  Spark">
+    
+        <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">lintingbin2009</h5>
+          <a href="mailto:lintingbin31@gmail.com" title="lintingbin31@gmail.com" class="mail">lintingbin31@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                类别
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/lintingbin2009" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">使用spark进行流处理</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">使用spark进行流处理</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-05-04T15:34:53.000Z" itemprop="datePublished" class="page-time">
+  2018-05-04
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/流处理/">流处理</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#spark的使用场景"><span class="post-toc-number">1.</span> <span class="post-toc-text">spark的使用场景</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#使用的spark流处理模块"><span class="post-toc-number">2.</span> <span class="post-toc-text">使用的spark流处理模块</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#在一个流中处理多个topic"><span class="post-toc-number">3.</span> <span class="post-toc-text">在一个流中处理多个topic</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#总结"><span class="post-toc-number">4.</span> <span class="post-toc-text">总结</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-使用spark进行流处理"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">使用spark进行流处理</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-05-04 23:34:53" datetime="2018-05-04T15:34:53.000Z"  itemprop="datePublished">2018-05-04</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/流处理/">流处理</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>最近在做一个假量检测的项目，主要是用来检测是否有一些伪造的广告点击之类的，然后该项目使用了spark来做在线的流处理</p>
+</blockquote>
+<h4 id="spark的使用场景"><a href="#spark的使用场景" class="headerlink" title="spark的使用场景"></a>spark的使用场景</h4><p>spark主要用来读取kafka里面的一些点击、安装、登入和登出等数据，然后使用spark的流处理模块对这些数据进行处理，最后把处理完的数据存储到相应的数据库中，供后面的数据分析使用。</p>
+<h4 id="使用的spark流处理模块"><a href="#使用的spark流处理模块" class="headerlink" title="使用的spark流处理模块"></a>使用的spark流处理模块</h4><p>spark的流处理模块有两个：</p>
+<ul>
+<li>Spark Streaming(Dstream) 老的接口</li>
+<li>Structured Streaming 新的接口</li>
+</ul>
+<p>我们的项目使用了Dstream实现流处理，一个主要的原因是在新的Structured Streaming中我们不能获取到读取的kafka的offset，这样当我们有数据处理失败的时候就不能从相应的offset中恢复继续运行，虽然可以设置checkpoint来恢复失败的任务，但是checkpoint的恢复是基于任务的，不能对该任务进行修改，然后再重新运行。<br>对于怎么在Structured Streaming中获取offset，我查了一些资料，如果实在是想获取offset的话也可以通过读取checkpoint文件夹下面的offset文件夹来获取当前的offset，不过这种方法比较奇怪。还有一个方法是使用StreamingQueryListener类里面的onQueryProgress回调来获取当前执行的状态，其中包括offset的信息，但是非常遗憾这种方法只支持scala和java，而我们的开发语言是python。下面的链接是该问题的具体讨论：<a href="https://stackoverflow.com/questions/46153105/how-to-get-kafka-offsets-for-structured-query-for-manual-and-reliable-offset-man/46174353" target="_blank" rel="noopener">如何从Structed streaming中获取offset的问题。</a></p>
+<h4 id="在一个流中处理多个topic"><a href="#在一个流中处理多个topic" class="headerlink" title="在一个流中处理多个topic"></a>在一个流中处理多个topic</h4><p>感觉spark的api设置的非常不友好，想要在一个流中处理多个topic也挺麻烦的，主要的问题如下：</p>
+<ul>
+<li>如果使用Dstream，在创建Dstream的时候可以传入多个topic，这样貌似可以解决读取多个topic的问题，但是有一个很严重的问题，读取到的内容你不知道是属于哪个topic，这样你就不能对不同的topic执行不同的处理了。</li>
+<li>如果使用Structured Streaming，也可以在DataStreamReader中指定多个topic，而且传入的每行数据中也有相应的topic信息，是可以根据不同的topic来调用不同的处理方法的。但是如上面所说的，Structured Streaming不支持获取offset让我们放弃了它。</li>
+</ul>
+<p>最后我们的处理方法是在一个流中建立多个Dstream，在每个Dstream中拉取和处理同一个topic的数据，这样一个流就可以处理多个topic了，示例代码如下所示：
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> topic <span class="keyword">in</span> topic_info:</span><br><span class="line">    from_offsets = restore_off_sets(topic)</span><br><span class="line">    DStream = KafkaUtils.createDirectStream(ssc, [topic], kafka_params, from_offsets)</span><br><span class="line">    DStream.transform((<span class="keyword">lambda</span> t: <span class="keyword">lambda</span> rdd: get_offset_ranges(t, rdd))(topic))\</span><br><span class="line">        .map(<span class="keyword">lambda</span> x: x[<span class="number">1</span>])\</span><br><span class="line">        .foreachRDD((<span class="keyword">lambda</span> t: <span class="keyword">lambda</span> rdd: process_rdd(t, rdd))(topic))</span><br></pre></td></tr></table></figure></p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>第一次使用spark，感觉spark的接口设置不是很友好，而且文档写的也不是很友好。比如foreachRDD的回调函数如果是两个参数的函数的话，第一个参数就是时间，这个在文档中没有提及，一不注意就有奇怪的bug了。总之自己还是一个菜鸟，还要多多学习。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2018-05-04T16:57:24.473Z" itemprop="dateUpdated">2018-05-05 00:57:24</time>
+</span><br>
+
+
+        
+        转载请注明出处，Darcy's Blog <br/><a href="/2018/05/04/使用spark进行流处理/" target="_blank" rel="external">https://lintingbin2009.github.io/2018/05/04/使用spark进行流处理/</a>
+        
+    </div>
+    <footer>
+        <a href="https://lintingbin2009.github.io">
+            <img src="/img/avatar.jpg" alt="lintingbin2009">
+            lintingbin2009
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/">spark</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2018/05/04/使用spark进行流处理/&title=《使用spark进行流处理》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2018/05/04/使用spark进行流处理/&title=《使用spark进行流处理》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2018/05/04/使用spark进行流处理/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《使用spark进行流处理》 — Darcy's Blog&url=https://lintingbin2009.github.io/2018/05/04/使用spark进行流处理/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2018/05/04/使用spark进行流处理/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/05/01/fluentd语法速记/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Fluentd语法速记</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'lintingbin2009';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢老板~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>lintingbin2009 &copy; 2016 - 2018</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2018/05/04/使用spark进行流处理/&title=《使用spark进行流处理》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2018/05/04/使用spark进行流处理/&title=《使用spark进行流处理》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2018/05/04/使用spark进行流处理/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《使用spark进行流处理》 — Darcy's Blog&url=https://lintingbin2009.github.io/2018/05/04/使用spark进行流处理/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2018/05/04/使用spark进行流处理/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACr0lEQVR42u3aQU7DQAwFUO5/aZDYojT/25mWxcsKlTDJG6Sxa/vrK76+f6+/Pyef5L/9e+frpzx24eHh4Y1e/eq6uidZLdmmZLNe/+3Nu+Hh4eEd47XLXb1ie+hf8fKVbyx4eHh4H+XlKXJyZL8GPLVZeHh4eP+BlyfESZq+Scfx8PDwPsvLXyV/ifaTNjA8XGvBw8PDi3mbBtinfn5Tfw8PDw+v7KrPDtz8/rxUMbvw8PDwTvDyhlM7BJCPIMwaXcW24uHh4R3gbRLoTfGifcpsNTw8PLwTvPywnr1Q/vk+rY9Sajw8PLw1r21N7Q/0c8n6TdzDw8PDW/Net/83QwD7Blvy3yi+GeDh4eE9xJuVR9tgkJcVkoCRp+Z4eHh453jJY54lzQBtWw4PDw/vBK8tDbRDVMlR3ib3w9YXHh4e3kO82Vf9TesruX+W6N+EBzw8PLyHeHlZth083YSEfLzgJpjh4eHhHeO1Df62VDEj5an2ZbDBw8PDO8xrx63assI+Xa6DDR4eHt4B3uyr/mwsYLNBbYjCw8PDO8d7nZjOkuy2YDELDFGpAg8PD+8tvHbptgAxCx5tyo6Hh4d3mrdJl2fNrU1iXWwHHh4e3gHevgzRbkFSGp6Vj1cVYjw8PLySty9DzA7rnLEKHnh4eHiP8mbDVe0g1MPF2bxAjIeHh/cW3uz4zlPnttmWJPeX9+Ph4eEd4LXFiFmpoi2CtCsU9+Ph4eGted/l1QL2JdpVaRgPDw/vAG92+ObjU23SnA8i4OHh4X2WlweDdsRqhm8Dw01AwsPDwzvG2zy4DQZtYXdVmMDDw8P7KK8dpcqHDDbr3Gw6Hh4e3j/gzZLgvJi7GTK4nI/Aw8PDO8BrixGzNv9sfGFVFsHDw8M7wHt2CCBPgvfp9YqEh4eHN+H9AAorXpOECK32AAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

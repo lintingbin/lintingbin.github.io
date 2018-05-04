@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-98287189-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>图片转像素风实现 | Darcy&#39;s Blog | 不如烂笔头</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="图片,小工具">
+    <meta name="description" content="Python用来写各种小工具简直是神器，昨天晚上花了点时间实现了一个图片转像素风的小工具，下面附上图片Demo和代码                                                                                                               下面是实现的具体代码： 123456789101112131">
+<meta name="keywords" content="图片,小工具">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图片转像素风实现">
+<meta property="og:url" content="https://lintingbin2009.github.io/2018/03/30/图片转像素风实现/index.html">
+<meta property="og:site_name" content="Darcy&#39;s Blog">
+<meta property="og:description" content="Python用来写各种小工具简直是神器，昨天晚上花了点时间实现了一个图片转像素风的小工具，下面附上图片Demo和代码                                                                                                               下面是实现的具体代码： 123456789101112131">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://lintingbin2009.github.io/images/pixel_demo.png">
+<meta property="og:updated_time" content="2018-05-04T15:15:55.988Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="图片转像素风实现">
+<meta name="twitter:description" content="Python用来写各种小工具简直是神器，昨天晚上花了点时间实现了一个图片转像素风的小工具，下面附上图片Demo和代码                                                                                                               下面是实现的具体代码： 123456789101112131">
+<meta name="twitter:image" content="https://lintingbin2009.github.io/images/pixel_demo.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">lintingbin2009</h5>
+          <a href="mailto:lintingbin31@gmail.com" title="lintingbin31@gmail.com" class="mail">lintingbin31@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                类别
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/lintingbin2009" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">图片转像素风实现</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">图片转像素风实现</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-03-30T04:13:27.000Z" itemprop="datePublished" class="page-time">
+  2018-03-30
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Python/">Python</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+<article id="post-图片转像素风实现"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">图片转像素风实现</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-03-30 12:13:27" datetime="2018-03-30T04:13:27.000Z"  itemprop="datePublished">2018-03-30</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Python/">Python</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>Python用来写各种小工具简直是神器，昨天晚上花了点时间实现了一个图片转像素风的小工具，下面附上图片Demo和代码</p>
+</blockquote>
+<p><div style="width: 400px">
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="/images/pixel_demo.png" alt="" title="">
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+</div>
+下面是实现的具体代码：
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image  </span><br><span class="line"><span class="keyword">import</span> argparse  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># 命令行输入参数处理  </span></span><br><span class="line">parser = argparse.ArgumentParser()  </span><br><span class="line">  </span><br><span class="line">parser.add_argument(<span class="string">'file'</span>)     <span class="comment"># 输入文件  </span></span><br><span class="line">parser.add_argument(<span class="string">'-o'</span>, <span class="string">'--output'</span>)   <span class="comment"># 输出文件  </span></span><br><span class="line">parser.add_argument(<span class="string">'--maxlen'</span>, type=int, default=<span class="number">150</span>)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># 获取参数  </span></span><br><span class="line">args = parser.parse_args()  </span><br><span class="line">  </span><br><span class="line">IMG = args.file  </span><br><span class="line">MAXLEN = args.maxlen  </span><br><span class="line">OUTPUT = args.output</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">resize_image</span><span class="params">(im)</span>:</span></span><br><span class="line">    (width, height) = im.size</span><br><span class="line">    max_len = max(width, height)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> max_len &lt;= MAXLEN:</span><br><span class="line">        <span class="keyword">return</span> im</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        scale = max_len / MAXLEN</span><br><span class="line">        size = (int(width//scale), int(height//scale))</span><br><span class="line">        <span class="keyword">return</span>  im.resize(size, Image.NEAREST) </span><br><span class="line">  </span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:  </span><br><span class="line"></span><br><span class="line">    im = Image.open(IMG)  </span><br><span class="line">    im = resize_image(im) </span><br><span class="line">  </span><br><span class="line">    txt = <span class="string">""</span>  </span><br><span class="line">    (width, height) = im.size</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(height):  </span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> range(width):  </span><br><span class="line">            (r, b, g) = im.getpixel((j, i))</span><br><span class="line">            txt += <span class="string">"&lt;font style='background:rgb(&#123;&#125;,&#123;&#125;,&#123;&#125;);display:inline-block;width:3px;height:3px;margin:1px;'&gt;&lt;/font&gt;"</span>.format(r, b, g)</span><br><span class="line">        txt += <span class="string">'&lt;/br&gt;'</span>  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> OUTPUT:</span><br><span class="line">        OUTPUT =  <span class="string">"output.txt"</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">with</span> open(OUTPUT,<span class="string">'w'</span>) <span class="keyword">as</span> f:  </span><br><span class="line">        f.write(txt)</span><br></pre></td></tr></table></figure></p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2018-05-04T15:15:55.988Z" itemprop="dateUpdated">2018-05-04 23:15:55</time>
+</span><br>
+
+
+        
+        转载请注明出处，Darcy's Blog <br/><a href="/2018/03/30/图片转像素风实现/" target="_blank" rel="external">https://lintingbin2009.github.io/2018/03/30/图片转像素风实现/</a>
+        
+    </div>
+    <footer>
+        <a href="https://lintingbin2009.github.io">
+            <img src="/img/avatar.jpg" alt="lintingbin2009">
+            lintingbin2009
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/图片/">图片</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/小工具/">小工具</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2018/03/30/图片转像素风实现/&title=《图片转像素风实现》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2018/03/30/图片转像素风实现/&title=《图片转像素风实现》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2018/03/30/图片转像素风实现/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《图片转像素风实现》 — Darcy's Blog&url=https://lintingbin2009.github.io/2018/03/30/图片转像素风实现/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2018/03/30/图片转像素风实现/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/05/01/fluentd语法速记/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Fluentd语法速记</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/03/29/使用erlang-get-stacktrace注意避开的坑/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">使用erlang:get_stacktrace注意避开的坑</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'lintingbin2009';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢老板~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>lintingbin2009 &copy; 2016 - 2018</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2018/03/30/图片转像素风实现/&title=《图片转像素风实现》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2018/03/30/图片转像素风实现/&title=《图片转像素风实现》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2018/03/30/图片转像素风实现/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《图片转像素风实现》 — Darcy's Blog&url=https://lintingbin2009.github.io/2018/03/30/图片转像素风实现/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2018/03/30/图片转像素风实现/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACo0lEQVR42u3a0WrDMAwF0P3/T2+vgy7plWSVDE6eCk0THw9s7cpfX/H1/eu6+vb1ztdfXX2+etfVcw5feHh4eIOh3w/rfrj3g76fjnxU5SnAw8PDW+NVB3H1snw7SUi9ScHDw8N7Gu8eVsX0Cno8PDy8/8vLh3KqjMbDw8N7Di9/dDUO2HvO4awFDw8Pb6GL9JzPK/09PDw8vHFXvbfcJ22z/Dn5ZvDHu/Dw8PAWeNVmf/WgQALLS+HmOPHw8PAWeL0gtYdMQt57/CQmxsPDwzvLywvopCyuTlDy21GAi4eHh3eUN2ksnYoY8m9HJyPw8PDwjvKqG0O+GeSFch5DJEU5Hh4e3gavdxyq2o7KG2O90OFNfw8PDw9vgdcb3CTMnZfdURGPh4eHt8DLY4VJsJtf1beUG2B4eHh4h3jVA0/VowCThb66aeHh4eFt8/IwonfPxreFPwYeHh7eMi8ZdDXqzdtX1Q0pKrvx8PDwFnjzAjph5L/K3zUJL/Dw8PDmvGp6kQQEvWg4n5q8EMfDw8Pb41Uj2sk9vUMA1ffi4eHhbfCiMwXja37QqrnZ4OHh4S3wegvxpNlffWZSgr95Dh4eHt5R3vzgVP7ifAvpleyXp8nw8PDwjvLyZTdZiHvLd28qRyk1Hh4e3gKv2prKt43eJtE7sIWHh4e3zcsZ+RREC/cgzoiQeHh4eB/h3ZfRyXbSS5RXWnF4eHh4R3mThXjSKku2pQNTg4eHh7fA662xk+NWvfC39xkPDw9vjzf5h38UEwyK+MLGgIeHh7fGyxfl3j29YLe3/RRSajw8PLwP8nrbSR5P5M95E3/g4eHhPYB36jBBLw4uh8V4eHh4a7xJ06vXstrYYEYxLh4eHl7M68WskybZ/BBqr1jHw8PDG/N+ABhMDQE6IiGEAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

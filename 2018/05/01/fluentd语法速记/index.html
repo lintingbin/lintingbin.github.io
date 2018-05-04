@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-98287189-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>Fluentd语法速记 | Darcy&#39;s Blog | 不如烂笔头</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Fluentd">
+    <meta name="description" content="最近开始转行做大数据，大数据中很重要的一部分是数据的收集，我们公司主要用的数据收集工具是Fluentd，由于Fluentd的配置比较多，有可能配置过一次后就会忘了。我这边在学习Fluentd配置的同时也对这些配置进行一些记录，方便后面再用到时可以快速的查找。  Fluentd简介Fluentd是一款完全免费且完全开源的日志收集器，拥有“Log Everything”的体系结构，能够与125种以上">
+<meta name="keywords" content="Fluentd">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fluentd语法速记">
+<meta property="og:url" content="https://lintingbin2009.github.io/2018/05/01/fluentd语法速记/index.html">
+<meta property="og:site_name" content="Darcy&#39;s Blog">
+<meta property="og:description" content="最近开始转行做大数据，大数据中很重要的一部分是数据的收集，我们公司主要用的数据收集工具是Fluentd，由于Fluentd的配置比较多，有可能配置过一次后就会忘了。我这边在学习Fluentd配置的同时也对这些配置进行一些记录，方便后面再用到时可以快速的查找。  Fluentd简介Fluentd是一款完全免费且完全开源的日志收集器，拥有“Log Everything”的体系结构，能够与125种以上">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://lintingbin2009.github.io/images/fluentd-architecture.png">
+<meta property="og:updated_time" content="2018-05-04T15:15:55.985Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Fluentd语法速记">
+<meta name="twitter:description" content="最近开始转行做大数据，大数据中很重要的一部分是数据的收集，我们公司主要用的数据收集工具是Fluentd，由于Fluentd的配置比较多，有可能配置过一次后就会忘了。我这边在学习Fluentd配置的同时也对这些配置进行一些记录，方便后面再用到时可以快速的查找。  Fluentd简介Fluentd是一款完全免费且完全开源的日志收集器，拥有“Log Everything”的体系结构，能够与125种以上">
+<meta name="twitter:image" content="https://lintingbin2009.github.io/images/fluentd-architecture.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">lintingbin2009</h5>
+          <a href="mailto:lintingbin31@gmail.com" title="lintingbin31@gmail.com" class="mail">lintingbin31@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                类别
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/lintingbin2009" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Fluentd语法速记</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Fluentd语法速记</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-05-01T06:17:05.000Z" itemprop="datePublished" class="page-time">
+  2018-05-01
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/日志收集/">日志收集</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#Fluentd简介"><span class="post-toc-number">1.</span> <span class="post-toc-text">Fluentd简介</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#配置文件语法"><span class="post-toc-number">2.</span> <span class="post-toc-text">配置文件语法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#Fluentd事件的生命周期"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">Fluentd事件的生命周期</span></a></li><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#“source”-定义数据源"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">“source”: 定义数据源</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-6"><a class="post-toc-link" href="#路由"><span class="post-toc-number">2.2.1.</span> <span class="post-toc-text">路由</span></a></li></ol></li><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#“match”-定义数据的输出目标"><span class="post-toc-number">2.3.</span> <span class="post-toc-text">“match”: 定义数据的输出目标</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-6"><a class="post-toc-link" href="#匹配模式"><span class="post-toc-number">2.3.1.</span> <span class="post-toc-text">匹配模式</span></a></li><li class="post-toc-item post-toc-level-6"><a class="post-toc-link" href="#匹配顺序"><span class="post-toc-number">2.3.2.</span> <span class="post-toc-text">匹配顺序</span></a></li></ol></li><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#“filter”：事件处理管道"><span class="post-toc-number">2.4.</span> <span class="post-toc-text">“filter”：事件处理管道</span></a></li><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#“system”：设置系统范围配置"><span class="post-toc-number">2.5.</span> <span class="post-toc-text">“system”：设置系统范围配置</span></a></li><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#“label”：用来组织filter和match"><span class="post-toc-number">2.6.</span> <span class="post-toc-text">“label”：用来组织filter和match</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-6"><a class="post-toc-link" href="#ERROR-label"><span class="post-toc-number">2.6.1.</span> <span class="post-toc-text">@ERROR label</span></a></li></ol></li><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#“-include”：重用配置"><span class="post-toc-number">2.7.</span> <span class="post-toc-text">“@include”：重用配置</span></a></li></ol></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#支持的数据类型"><span class="post-toc-number">3.</span> <span class="post-toc-text">支持的数据类型</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#常见的插件参数"><span class="post-toc-number">4.</span> <span class="post-toc-text">常见的插件参数</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#检查配置文件"><span class="post-toc-number">5.</span> <span class="post-toc-text">检查配置文件</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#格式建议"><span class="post-toc-number">6.</span> <span class="post-toc-text">格式建议</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#双引号包起来的字符串、数组和哈希类型支持多行"><span class="post-toc-number">6.1.</span> <span class="post-toc-text">双引号包起来的字符串、数组和哈希类型支持多行</span></a></li><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#嵌入Ruby代码"><span class="post-toc-number">6.2.</span> <span class="post-toc-text">嵌入Ruby代码</span></a></li><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#在双引号字符串中，-是转义字符"><span class="post-toc-number">6.3.</span> <span class="post-toc-text">在双引号字符串中，\是转义字符</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-fluentd语法速记"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Fluentd语法速记</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-05-01 14:17:05" datetime="2018-05-01T06:17:05.000Z"  itemprop="datePublished">2018-05-01</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/日志收集/">日志收集</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>最近开始转行做大数据，大数据中很重要的一部分是数据的收集，我们公司主要用的数据收集工具是Fluentd，由于Fluentd的配置比较多，有可能配置过一次后就会忘了。我这边在学习Fluentd配置的同时也对这些配置进行一些记录，方便后面再用到时可以快速的查找。</p>
+</blockquote>
+<h4 id="Fluentd简介"><a href="#Fluentd简介" class="headerlink" title="Fluentd简介"></a>Fluentd简介</h4><p>Fluentd是一款完全免费且完全开源的日志收集器，拥有“Log Everything”的体系结构，能够与125种以上的系统对接。</p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="/images/fluentd-architecture.png" alt="Fluentd-architecture" title="">
+                </div>
+                <div class="image-caption">Fluentd-architecture</div>
+            </figure>
+<h4 id="配置文件语法"><a href="#配置文件语法" class="headerlink" title="配置文件语法"></a>配置文件语法</h4><h5 id="Fluentd事件的生命周期"><a href="#Fluentd事件的生命周期" class="headerlink" title="Fluentd事件的生命周期"></a>Fluentd事件的生命周期</h5><ol>
+<li>每个输入的事件会带有一个tag</li>
+<li>Fluentd通过tag匹配output</li>
+<li>Fluentd发送事件到匹配的output</li>
+<li>Fluentd支持多个数据源和数据输出</li>
+<li>通过过滤器，事件可以被重新触发</li>
+</ol>
+<h5 id="“source”-定义数据源"><a href="#“source”-定义数据源" class="headerlink" title="“source”: 定义数据源"></a>“source”: 定义数据源</h5><p>数据源可以在source指令中定义，比如我们可以定义http和forward的数据源。http数据源可以通过http协议来接收数据，forward可以通过tcp协议来接收数据。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># Receive events from 24224/tcp</span></span><br><span class="line"><span class="section"># This is used by log forwarding and the fluent-cat command</span></span><br><span class="line">&lt;source&gt;</span><br><span class="line">  @type forward</span><br><span class="line">  port 24224</span><br><span class="line">&lt;/source&gt;</span><br><span class="line"></span><br><span class="line"><span class="section"># http://this.host:9880/myapp.access?json=&#123;"event":"data"&#125;</span></span><br><span class="line">&lt;source&gt;</span><br><span class="line">  @type http</span><br><span class="line">  port 9880</span><br><span class="line">&lt;/source&gt;</span><br></pre></td></tr></table></figure></p>
+<p>所有source指令中必须包含@type参数，该参数用来指定使用哪个输入插件，比如我们还可以用tail插件来读取文件的内容。 </p>
+<h6 id="路由"><a href="#路由" class="headerlink" title="路由"></a>路由</h6><p>source指令把事件提交到Fluentd的路由引擎。一个事件由三个实体组成：tag、time和record。tag是由’.’分割的字符串组成，被内部路由引擎使用。time由input插件指定，必须是Unix时间戳格式。record是一个Json对象。</p>
+<blockquote>
+<p>强烈推荐使用小写字母、数字和下划线来命名tag，虽然其他的字符也是合法的。</p>
+</blockquote>
+<h5 id="“match”-定义数据的输出目标"><a href="#“match”-定义数据的输出目标" class="headerlink" title="“match”: 定义数据的输出目标"></a>“match”: 定义数据的输出目标</h5><p>match指令通过匹配tag字段来将事件输出到其他的系统。同样match指令也必须指定@type参数，该参数用来指定使用哪个输出插件。在下面的例子中，只有myapp.access的tag能够匹配到该输出插件。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;match myapp.access&gt;</span><br><span class="line">  @type file</span><br><span class="line">  path /var/log/fluent/access</span><br><span class="line">&lt;/match&gt;</span><br></pre></td></tr></table></figure></p>
+<h6 id="匹配模式"><a href="#匹配模式" class="headerlink" title="匹配模式"></a>匹配模式</h6><p>下面的这些匹配模式可以在&lt;match&gt;中使用，用来匹配tag:  </p>
+<ul>
+<li>*用来匹配tag的一部分（比如：a.*可以匹配a.b，但是不能匹配a或者a.b.c）</li>
+<li>**可以用来匹配tag的0个或多个部分（比如：a.**可以匹配a、a.b和a.b.c）</li>
+<li>{X,Y,Z}匹配X,Y或者Z（比如：{a,b}可以匹配a和b，但是不能匹配c。他可以和*或者**结合起来一起使用。）</li>
+<li>如果有多个匹配模式写在&lt;match&gt;里面，则可以用空格分开(比如：&lt;match a b&gt;能够匹配a和b。&lt;match a.** b.* &gt;能够匹配a,a.b,a.b.c和b.d。)</li>
+</ul>
+<h6 id="匹配顺序"><a href="#匹配顺序" class="headerlink" title="匹配顺序"></a>匹配顺序</h6><p>Fluentd是按顺序匹配的，先在配置文件里面出现的match会先匹配。下面的例子中myapp.access永远都不会被匹配到。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># ** matches all tags. Bad :(</span></span><br><span class="line">&lt;match **&gt;</span><br><span class="line">  @type blackhole_plugin</span><br><span class="line">&lt;/match&gt;</span><br><span class="line"></span><br><span class="line">&lt;match myapp.access&gt;</span><br><span class="line">  @type file</span><br><span class="line">  path /var/log/fluent/access</span><br><span class="line">&lt;/match&gt;</span><br></pre></td></tr></table></figure></p>
+<h5 id="“filter”：事件处理管道"><a href="#“filter”：事件处理管道" class="headerlink" title="“filter”：事件处理管道"></a>“filter”：事件处理管道</h5><p>“filter”指令的语法和”match”指令的语法相同，但是”filter”能够在管道中被连起来处理，如下所示：
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Input -&gt; filter 1 -&gt; ... -&gt; filter N -&gt; Output</span><br></pre></td></tr></table></figure></p>
+<p>下面的例子展示了record_transformer fliter的用法。source首先会接收到一个{“event”:”data”}的事件，然后该事件会首先被路由到filter，filter会增加一个host_param的字段到record中，然后再把该事件发送到match中。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># http://this.host:9880/myapp.access?json=&#123;"event":"data"&#125;</span></span><br><span class="line">&lt;source&gt;</span><br><span class="line">  @type http</span><br><span class="line">  port 9880</span><br><span class="line">&lt;/source&gt;</span><br><span class="line"></span><br><span class="line">&lt;filter myapp.access&gt;</span><br><span class="line">  @type record_transformer</span><br><span class="line">  &lt;record&gt;</span><br><span class="line"><span class="code">    host_param "#&#123;Socket.gethostname&#125;"</span></span><br><span class="line">  &lt;/record&gt;</span><br><span class="line">&lt;/filter&gt;</span><br><span class="line"></span><br><span class="line">&lt;match myapp.access&gt;</span><br><span class="line">  @type file</span><br><span class="line">  path /var/log/fluent/access</span><br><span class="line">&lt;/match&gt;</span><br></pre></td></tr></table></figure></p>
+<h5 id="“system”：设置系统范围配置"><a href="#“system”：设置系统范围配置" class="headerlink" title="“system”：设置系统范围配置"></a>“system”：设置系统范围配置</h5><p>以下的配置能够由”system”指令指定。也可以通过Fluentd的配置选项设置相同的配置:</p>
+<ul>
+<li>log_level</li>
+<li>suppress_repeated_stacktrace</li>
+<li>emit_error_log_interval</li>
+<li>suppress_config_dump</li>
+<li>without_source</li>
+<li>process_name (只能用”system”指令指定)</li>
+</ul>
+<p>下面是一些例子：
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;system&gt;</span><br><span class="line">  # 等价于-qq选项</span><br><span class="line">  log_level error</span><br><span class="line">  #等价于--without-source选项</span><br><span class="line">  without_source</span><br><span class="line">&lt;/system&gt;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;system&gt;</span><br><span class="line">  process_name fluentd1</span><br><span class="line">&lt;/system&gt;</span><br></pre></td></tr></table></figure>
+<p>process_name用来指定Fluentd监控进程和工作进程的名字，通过ps可以看到
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">% ps aux | grep fluentd1</span><br><span class="line">foo      45673   0.4  0.2  2523252  38620 s001  S+    7:04AM   0:00.44 worker:fluentd1</span><br><span class="line">foo      45647   0.0  0.1  2481260  23700 s001  S+    7:04AM   0:00.40 supervisor:fluentd1</span><br></pre></td></tr></table></figure></p>
+<h5 id="“label”：用来组织filter和match"><a href="#“label”：用来组织filter和match" class="headerlink" title="“label”：用来组织filter和match"></a>“label”：用来组织filter和match</h5><p>“label”指令用来降低tag路由的复杂度，通过”label”指令可以用来组织filter和match的内部路由。下面是一个配置的例子，由于”label”是内建的插件，所以他的参数需要以@开头。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">&lt;source&gt;</span><br><span class="line">  @type forward</span><br><span class="line">&lt;/source&gt;</span><br><span class="line"></span><br><span class="line">&lt;source&gt;</span><br><span class="line">  @type tail</span><br><span class="line">  @label @SYSTEM</span><br><span class="line">&lt;/source&gt;</span><br><span class="line"></span><br><span class="line">&lt;filter access.**&gt;</span><br><span class="line">  @type record_transformer</span><br><span class="line">  &lt;record&gt;</span><br><span class="line"><span class="code">    # ...</span></span><br><span class="line">  &lt;/record&gt;</span><br><span class="line">&lt;/filter&gt;</span><br><span class="line">&lt;match **&gt;</span><br><span class="line">  @type elasticsearch</span><br><span class="line">  # ...</span><br><span class="line">&lt;/match&gt;</span><br><span class="line"></span><br><span class="line">&lt;label @SYSTEM&gt;</span><br><span class="line">  &lt;filter var.log.middleware.**&gt;</span><br><span class="line"><span class="code">    @type grep</span></span><br><span class="line"><span class="code">    # ...</span></span><br><span class="line">  &lt;/filter&gt;</span><br><span class="line">  &lt;match **&gt;</span><br><span class="line"><span class="code">    @type s3</span></span><br><span class="line"><span class="code">    # ...</span></span><br><span class="line">  &lt;/match&gt;</span><br><span class="line">&lt;/label&gt;</span><br></pre></td></tr></table></figure></p>
+<p>在上面的例子中，forward的数据源的事件被路由到record_transformer filter和elasticsearch output中。tail数据源被路由到@system里面的grep filter和s3 output中。</p>
+<h6 id="ERROR-label"><a href="#ERROR-label" class="headerlink" title="@ERROR label"></a>@ERROR label</h6><p>@ERROR label是内建的label，用来记录emit_error_event错误事件的。如果在配置文件里面设置了<label @error="">，当有相关的错误发生（比如：缓冲区已满或无效记录）的话，该错误事件就会被发送到&lt; label @ERROR &gt;。</label></p>
+<h5 id="“-include”：重用配置"><a href="#“-include”：重用配置" class="headerlink" title="“@include”：重用配置"></a>“@include”：重用配置</h5><p>可以通过”@include”来导入其他的配置文件，配置文件是按顺序导入的。如果使用模式匹配的话，文件是按字母顺序导入的。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># If you have a.conf,b.conf,...,z.conf and a.conf / z.conf are important...</span></span><br><span class="line"><span class="section"># This is bad</span></span><br><span class="line">@include *.conf</span><br><span class="line"></span><br><span class="line"><span class="section"># This is good</span></span><br><span class="line">@include a.conf</span><br><span class="line">@include config.d/*.conf</span><br><span class="line">@include z.conf</span><br></pre></td></tr></table></figure></p>
+<p>如果导入的文件有顺序的要求的话，最好自己主动写导入的语句，模式匹配导入容易出错。</p>
+<h4 id="支持的数据类型"><a href="#支持的数据类型" class="headerlink" title="支持的数据类型"></a>支持的数据类型</h4><p>每个插件都需要一些参数。例如：in_tail插件有rotate_wait和pos_file这两个参数。每个参数都有对应的类型与其关联。下面是这些类型的定义：</p>
+<ul>
+<li>string 类型：该类型被解析成一个字符串。string类型可以有三种形式：不带引号的字符串、带单引号的字符串和带双引号的字符串。</li>
+<li>integer 类型：该类型被解析成一个整数。</li>
+<li>float 类型：该类型被解析成一个浮点数。</li>
+<li>size 类型：该类型用来解析成有多少个字节。可以在整数后面加上k/K、m/M、g/G、t/T，对应的是计算机学科的度量单位。比如：12k表示为12*1024后的数值。</li>
+<li>time 类型：该类型被解析成时间。可以在浮点数后面加上s、m、h和d分别表示为秒、分、小时、天。可以用0.1表示100ms。</li>
+<li>array 类型：该类型被解析成JSON数组。这种类型还支持缩写，比如：[“key1”, “key2”]可以缩写成key1,key2。</li>
+<li>hash 类型：该类型被解析成JSON对象。这种类型也支持缩写，比如：{“key1”:”value1”, “key2”:”value2”}可以缩写成key1:value1,key2:value2。</li>
+</ul>
+<h4 id="常见的插件参数"><a href="#常见的插件参数" class="headerlink" title="常见的插件参数"></a>常见的插件参数</h4><p>这些参数是系统保留的并且带有@前缀。</p>
+<ul>
+<li>@type: 指定插件的类型。</li>
+<li>@id: 指定插件的id。</li>
+<li>@label：用来指定标签。</li>
+<li>@log_level：用来指定每个插件的log级别。</li>
+</ul>
+<h4 id="检查配置文件"><a href="#检查配置文件" class="headerlink" title="检查配置文件"></a>检查配置文件</h4><p>通过–dry-run选项，可以在不启动插件的情况下检查配置文件。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ fluentd --dry-run -c fluent.conf</span><br></pre></td></tr></table></figure></p>
+<h4 id="格式建议"><a href="#格式建议" class="headerlink" title="格式建议"></a>格式建议</h4><h5 id="双引号包起来的字符串、数组和哈希类型支持多行"><a href="#双引号包起来的字符串、数组和哈希类型支持多行" class="headerlink" title="双引号包起来的字符串、数组和哈希类型支持多行"></a>双引号包起来的字符串、数组和哈希类型支持多行</h5><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">str_param "foo  # This line is converted to "foo\nbar". NL is kept in the parameter</span><br><span class="line">bar"</span><br><span class="line">array_param [</span><br><span class="line">  "a", "b"</span><br><span class="line">]</span><br><span class="line">hash_param &#123;</span><br><span class="line">  "k":"v",</span><br><span class="line">  "k1":10</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果想让[或者{开头的字符串不被解析成数组或者对象，则需要用’或者“把该字符串包起来。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;match **&gt;</span><br><span class="line">  @type mail</span><br><span class="line">  subject "[CRITICAL] foo's alert system"</span><br><span class="line">&lt;/match&gt;</span><br><span class="line">&lt;match tag&gt;</span><br><span class="line">  @type map</span><br><span class="line">  map '[["code." + tag, time, &#123; "code" =&gt; record["code"].to<span class="emphasis">_i&#125;], ["time." + tag, time, &#123; "time" =&gt; record["time"].to_</span>i&#125;]]'</span><br><span class="line">  multi true</span><br><span class="line">&lt;/match&gt;</span><br></pre></td></tr></table></figure></p>
+<h5 id="嵌入Ruby代码"><a href="#嵌入Ruby代码" class="headerlink" title="嵌入Ruby代码"></a>嵌入Ruby代码</h5><p>可以在”包住的#{}里面执行Ruby代码，这可以用来获取一些机器的信息，比如hostname。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">host_param "#&#123;hostname&#125;"  # This is same with Socket.gethostname</span><br><span class="line">@id "out<span class="emphasis">_foo#&#123;worker_</span>id&#125;" # This is same with ENV["SERVERENGINE<span class="emphasis">_WORKER_</span>ID"]</span><br></pre></td></tr></table></figure></p>
+<h5 id="在双引号字符串中，-是转义字符"><a href="#在双引号字符串中，-是转义字符" class="headerlink" title="在双引号字符串中，\是转义字符"></a>在双引号字符串中，\是转义字符</h5><p>\被解释为转义字符。你需要用\来设置”，\r，\n，\t，\或双引号字符串中的多个字符。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">str_param "foo\nbar" # \n is interpreted as actual LF character</span><br></pre></td></tr></table></figure></p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2018-05-04T15:15:55.985Z" itemprop="dateUpdated">2018-05-04 23:15:55</time>
+</span><br>
+
+
+        
+        转载请注明出处，Darcy's Blog <br/><a href="/2018/05/01/fluentd语法速记/" target="_blank" rel="external">https://lintingbin2009.github.io/2018/05/01/fluentd语法速记/</a>
+        
+    </div>
+    <footer>
+        <a href="https://lintingbin2009.github.io">
+            <img src="/img/avatar.jpg" alt="lintingbin2009">
+            lintingbin2009
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fluentd/">Fluentd</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2018/05/01/fluentd语法速记/&title=《Fluentd语法速记》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2018/05/01/fluentd语法速记/&title=《Fluentd语法速记》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2018/05/01/fluentd语法速记/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Fluentd语法速记》 — Darcy's Blog&url=https://lintingbin2009.github.io/2018/05/01/fluentd语法速记/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2018/05/01/fluentd语法速记/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/05/04/使用spark进行流处理/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">使用spark进行流处理</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/03/30/图片转像素风实现/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">图片转像素风实现</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'lintingbin2009';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢老板~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>lintingbin2009 &copy; 2016 - 2018</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2018/05/01/fluentd语法速记/&title=《Fluentd语法速记》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2018/05/01/fluentd语法速记/&title=《Fluentd语法速记》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2018/05/01/fluentd语法速记/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Fluentd语法速记》 — Darcy's Blog&url=https://lintingbin2009.github.io/2018/05/01/fluentd语法速记/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2018/05/01/fluentd语法速记/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACvElEQVR42u3a0U7DMAwF0P3/T4OEeACJtdd2DEM6eZq6rcnppNiz83jE4+1jXF/5ev3ryO/w7J7Ju6OBh4eH11r6s5EvOr/D9ZUEn6wZDw8Pb5t3vRHni6hu5TeLC9ZzMyMeHh7en/Kebda9MJA/jiRBx8PDw/svvOtFJFt/7108PDy8V+AlpYQJIykozAsfeHh4eL/DqzbAXuH1Yn8PDw8Pb9BVz7fd6yBx6qBAeZ14eHh4C7w8zc2b/dVEvArOZ8TDw8Pb4+V/9athYF7gmAQSPDw8vA3evORabVNdX8nT6Kj9hoeHh7fAqza0qi386kM5lbJHvyEeHh7egJc3/vP0d1KeuL7ePBaGh4eHd4jXa9jnzyxZaLWphoeHh/cKvOqN5ocDqm226nfx8PDwtnnVxny1eT/qy7X6WXh4eHi/w5uMSZKdHzvIjzh8fgYPDw9vjVdNXvPmVi/89GZpRhI8PDy8Fi8vH+yl0b3AcHNnPDw8vAVer6hanb4XVKrNuehMGR4eHt6YlyTNvYpofjggnytJu799Eg8PD2+BlxRDq4XUU4l1ntZfrwEPDw/vLO9U42pv6y//Vht9OTw8PLxWA6xX6s0bWr3HdzM7Hh4e3gJvUj7I997eJ6tF5HIMxMPDwxuXIap/+PPDUpO58hB109nDw8PDO8SrJsTVhDu/T/URlBt1eHh4eId4b4NRbepXixq99tjNoSs8PDy8Ma/XgkrKB/OU/VEc0bfw8PDwxrxeMOgVICZts2qZAw8PD2+PdyqqTLby6sMqF3Dx8PDwFnh5MMiLDnmKvBF+CsVcPDw8vAEvPzI1iT85Yx5g8PDw8F6Hl4eEPL+tHg7IwwYeHh7e3/Lyjb63xOojjtaJh4eHt8brbdnVIu/8gFe1VIGHh4e3wes1wE6l13mYyddwoL+Hh4eH9/N33wEBIiIWSs1u9AAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
