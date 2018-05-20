@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://lintingbin2009.github.io/"/>
-  <updated>2018-05-20T08:05:24.364Z</updated>
+  <updated>2018-05-20T15:53:49.867Z</updated>
   <id>https://lintingbin2009.github.io/</id>
   
   <author>
@@ -17,11 +17,41 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>在Spark中使用Python单例的技巧</title>
+    <link href="https://lintingbin2009.github.io/2018/05/20/%E5%9C%A8Spark%E4%B8%AD%E4%BD%BF%E7%94%A8Python%E5%8D%95%E4%BE%8B%E7%9A%84%E6%8A%80%E5%B7%A7/"/>
+    <id>https://lintingbin2009.github.io/2018/05/20/在Spark中使用Python单例的技巧/</id>
+    <published>2018-05-20T14:33:03.000Z</published>
+    <updated>2018-05-20T15:53:49.867Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>在使用spark编程的时候，我们需要知道我们编写的某一段代码是在driver端执行，还是在executor端执行。如果是在executor端执行的话，就要注意这些代码是否是可以序列化发送到executor端执行，如果不行的话就会报错。接下来这篇文章主要讨论Python单例在使用Spark的时候解决的问题。</p></blockquote><h4 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h4><p>在使用spark的时候经常会用到map来对数据进行处理，在map函数里面的代码会被序列化，然后发送到executor端执行。但是并不是所有的代码都是可以被序列化的，比如一个mysql连接的实例就不能被序列化，然后发送到executor端执行。要解决这个问题很简单，如果一个mysql连接的实例不能被序列化发送的话，可以在executor端实例化一个mysql连接，然后使用这个连接。<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">transform</span><span class="params">(row)</span>:</span></span><br><span class="line">    connector = mysql.connector.connect(**mysql_conf)</span><br><span class="line">    <span class="comment"># Do something</span></span><br><span class="line">rdd.map(transform)</span><br></pre></td></tr></table></figure></p><p>上述的代码可以正确的运行，但是有一个比较严重的问题：map函数在每执行一次转换的时候都需要实例化一个mysql的实例，在实例化的时候要与mysql服务器建立连接，这个开销是比较大的，可想而知效率会非常的低。</p><p>要解决这个问题我们可以用mapPartitions接口来代替map，mapPartitions接口不是对每行数据进行操作的时候都执行一个mysql实例化操作，而是对一个partition的数据执行操作时候才执行一个mysql实例化操作，这样效率会大大的提升，上述的代码可以改成如下的代码。<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">transform</span><span class="params">(rows)</span>:</span></span><br><span class="line">    connector = mysql.connector.connect(**mysql_conf)</span><br><span class="line">    <span class="keyword">for</span> row <span class="keyword">in</span> rows:</span><br><span class="line">        <span class="comment"># Do something</span></span><br><span class="line">rdd.mapPartitions(transform)</span><br></pre></td></tr></table></figure></p><p>这样问题似乎已经解决了，但是解决的还不完全，或者说只解决rdd的问题，因为虽然spark的rdd支持mapPartitions操作，但是DataFrame并不支持mapPartitions的操作（对DataFrame执行map操作可以注册一个udf函数，然后调用这个udf函数）。有一个不太优美的做法是先把DataFrame转化成rdd进行mapPartitions，然后再把处理后的rdd转化成DataFrame。要在两种数据结构之间来回转化，这个操作实在是不够优美，而且效率低下。所以我们需要找到一个让mysql在map操作中只实例化一次的方法。</p><h4 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h4><p>要优美的解决上面提到的这个问题的话，我们就需要用到Python的单例了。Python的单例实现方式有很多种，这在边我只介绍最简单的一种。利用Python的import机制可以确保一个模块只被导入一次，如果在这个模块里面实例化一个mysql实例的话，那么即使被多次导入，也只会被实例化一次。<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># SingletonMysql.py</span></span><br><span class="line">connector = mysql.connector.connect(**mysql_conf)</span><br></pre></td></tr></table></figure></p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">transform</span><span class="params">(row)</span>:</span></span><br><span class="line">    <span class="keyword">from</span> SingletonMysql <span class="keyword">import</span> connector</span><br><span class="line">    <span class="comment"># Do something</span></span><br><span class="line">rdd.map(transform)</span><br><span class="line">spark.udf.register(<span class="string">"transform"</span>, transform)</span><br><span class="line">spark.sql(<span class="string">"select transform(name) from table"</span>)</span><br></pre></td></tr></table></figure><p>通过上面的代码，我们就可以在map函数里面使用mysql实例，而且能够保证它只会在第一次使用的时候被实例化。</p><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>在一些第三方库的接口已经确定的情况下，有时候我们必须使用一些语言的特性才能达到一些特定的目标。这个Python单例的使用只是其中的一个例子，如果Spark本身的接口支持在executor端进行一些初始化操作的话就不需要用到单例了。还有，比如map里面的函数只能是一个参数的函数，但是有时候我们需要一些额外的信息，所以这时候就要用匿名函数来达到这个目的了。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;blockquote&gt;
+&lt;p&gt;在使用spark编程的时候，我们需要知道我们编写的某一段代码是在driver端执行，还是在executor端执行。如果是在executor端执行的话，就要注意这些代码是否是可以序列化发送到executor端执行，如果不行的话就会报错。接下来这篇文章
+      
+    
+    </summary>
+    
+      <category term="python使用" scheme="https://lintingbin2009.github.io/categories/python%E4%BD%BF%E7%94%A8/"/>
+    
+    
+      <category term="spark" scheme="https://lintingbin2009.github.io/tags/spark/"/>
+    
+      <category term="python" scheme="https://lintingbin2009.github.io/tags/python/"/>
+    
+      <category term="单例" scheme="https://lintingbin2009.github.io/tags/%E5%8D%95%E4%BE%8B/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Spark报错——java.lang.outofmemoryerror: java heap space问题处理</title>
     <link href="https://lintingbin2009.github.io/2018/05/20/Spark%E6%8A%A5%E9%94%99%E2%80%94%E2%80%94java-lang-outofmemoryerror-java-heap-space%E9%97%AE%E9%A2%98%E5%A4%84%E7%90%86/"/>
     <id>https://lintingbin2009.github.io/2018/05/20/Spark报错——java-lang-outofmemoryerror-java-heap-space问题处理/</id>
     <published>2018-05-20T07:07:11.000Z</published>
-    <updated>2018-05-20T08:05:24.364Z</updated>
+    <updated>2018-05-20T14:30:56.518Z</updated>
     
     <content type="html"><![CDATA[<blockquote><p>最近在用spark处理数据的时候遇到内存不足的报错，主要的报错信息是在executor端的log中显示java.lang.outofmemoryerror: java heap space。</p></blockquote><h4 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h4><p>具体的问题是spark在执行到最后一个stage后有一个task一直执行不成功，每次都是重试四次后失败。下面的两张图是具体失败的信息：<figure class="image-bubble">                <div class="img-lightbox">                    <div class="overlay"></div>                    <img src="/images/spark_outofmemory1.png" alt="四次task失败信息" title="">                </div>                <div class="image-caption">四次task失败信息</div>            </figure><figure class="image-bubble">                <div class="img-lightbox">                    <div class="overlay"></div>                    <img src="/images/spark_outofmemory2.png" alt="具体失败的log" title="">                </div>                <div class="image-caption">具体失败的log</div>            </figure></p><p>task的失败的信息图中显示：失败的任务的Shffle Read Size是0，这个是不对的，因为这个信息在任务失败的时候都会被置零，实际上在任务在运行的时候这个值是六百多M，远远大于其他task的输入的20多M。</p><p>从上面失败的信息中我们可以看到失败的原因是有一个task的输入的数据量太大，以至于spark executor运行的时候需要的内存大大增加，这才导致了内存不足的异常。</p><h4 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h4><h5 id="解决尝试一"><a href="#解决尝试一" class="headerlink" title="解决尝试一"></a>解决尝试一</h5><p>最简单直接的解决方法是直接通过增大executor-memory的值来增加executor最大的内存使用量，由于yarn默认的每个executor的core是一个，如果本身启动的executor比较多的话，增加executor-memory的值的话，yarn集群就要多消耗executor的数量✖️增加的内存量的内存，内存的消耗会比较大。所以可以减少executor的数量，为每个executor分配多个core，这样需要的内存量就大大的减少了，但是每个executor可以使用的内存量又可以增加，这样的配置可以减少因为数据倾斜导致任务失败的概率。  </p><p>最终我们用这个方法把每个executor的executor-memory值增大到了12G，但是最后还是由于内存不够失败了。</p><h5 id="解决尝试二"><a href="#解决尝试二" class="headerlink" title="解决尝试二"></a>解决尝试二</h5><p>由于某个task需要的内存量非常的大，然而其他task的内存量都很小，这应该不是简单的数据倾斜。spark sql只是对玩家的登陆数据进行以device_id为key的group by操作，数据的倾斜不可能这么严重。</p><p>在重新观察了玩家的登陆数据后，我发现有很多数据的device_id为null。这下就很清楚的知道数据倾斜的原因了，接着对device_id为null的数据进行过滤后，问题就迎刃而解了。</p><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>在处理数据倾斜问题的时候可以通过调整spark的参数来优化任务的执行。但是如果想更彻底的优化任务的执行的话，要观察数据，知道是什么原因造成的数据倾斜。这样才能进行更彻底的优化。</p>]]></content>
     
@@ -526,32 +556,6 @@
       <category term="mochiweb" scheme="https://lintingbin2009.github.io/tags/mochiweb/"/>
     
       <category term="x-forwarded-for" scheme="https://lintingbin2009.github.io/tags/x-forwarded-for/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>基于Erlang的全区服分数竞技场的设计的优化</title>
-    <link href="https://lintingbin2009.github.io/2017/07/13/%E5%9F%BA%E4%BA%8EErlang%E7%9A%84%E5%85%A8%E5%8C%BA%E6%9C%8D%E5%88%86%E6%95%B0%E7%AB%9E%E6%8A%80%E5%9C%BA%E7%9A%84%E8%AE%BE%E8%AE%A1%E7%9A%84%E4%BC%98%E5%8C%96/"/>
-    <id>https://lintingbin2009.github.io/2017/07/13/基于Erlang的全区服分数竞技场的设计的优化/</id>
-    <published>2017-07-13T13:47:51.000Z</published>
-    <updated>2018-05-04T15:15:55.989Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote><p>在上一篇文章<a href="/2017/05/01/Erlang动态代码载入小实验/" title="Erlang动态代码载入小实验">Erlang动态代码载入小实验</a>中，我提到的竞技场设计中存在一些性能问题，这篇文章主要是针对上一篇文章提到的性能问题在整体设计方案不进行大改的情况下进行优化。</p></blockquote><h4 id="主要性能问题"><a href="#主要性能问题" class="headerlink" title="主要性能问题"></a>主要性能问题</h4><p>回顾上一篇文章，我们知道之前的设计方案的主要问题是：频繁的在分数ETS中拿取和更新新的玩家List，而且该List的大小有可能是几十万的级别的，主要的性能问题是ETS和排行榜进程之间的数据拷贝。</p><p>在同一分数段的所有玩家都用List来存储的话，每次在一个分数中增加一个玩家的代价是，先从ets中lookup拿出所有这一分数的玩家，然后在这个列表中增加新的玩家，最后再把新的玩家列表更新回去，删除也是如此。如果每个分数的玩家列表都不是很大的话，这个应该问题也不会很大，但是由于同一分数段的玩家比较多，所以这个方案的性能就很差了。</p><h4 id="优化一"><a href="#优化一" class="headerlink" title="优化一"></a>优化一</h4><p>既然主要的性能问题出在List的更新和删除的操作，所以这个优化方案的主要方法是把List替换成ETS，当List的长度大于N(N可以自己设置，比如100、200之类)时，同一分数的所有玩家都存储在ETS中，这样在一个分数的玩家列表中增加一个玩家也只是在ETS中增加一个玩家ID而已，删除一个玩家的话，也只是在ETS中删除一个玩家ID，这两个操作都非常的快。</p><p>经过这一次的优化，竞技场玩家已经可以在正式环境中上线，但是在游戏最高峰的时间段，玩家还是会有点卡，此时游戏服务器（16核）的cpu几乎全部跑满，所以还需要进一步的优化。</p><h4 id="优化二"><a href="#优化二" class="headerlink" title="优化二"></a>优化二</h4><p>通过上一次优化我们知道，服务器在高峰的时候几乎把cpu全部跑满。这时候我就开始怀疑寻找对手的算法是否有问题，之前寻找对手都是现算的，把玩家的对手的排名算出来，然后在分数的ETS里面开始从头到尾遍历所有分数，找出符合对手排名的玩家。这样子寻找一个玩家的三个对手，大概要遍历分数ETS一千多次，在平时的时候还是非常快的，下面是我用eprof测量的在平时寻找一次对手的一些关键操作的开销：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">legend_arena_global_rank:query_apprentice_rank/<span class="number">7</span>              <span class="number">389</span>   <span class="number">4.25</span>   <span class="number">290</span>  [      <span class="number">0.75</span>]</span><br><span class="line">legend_arena_global_rank:query_apprentice_key/<span class="number">3</span>              <span class="number">1076</span>   <span class="number">7.45</span>   <span class="number">508</span>  [      <span class="number">0.47</span>]</span><br><span class="line">ets:lookup_element/<span class="number">3</span>                                         <span class="number">1465</span>  <span class="number">34.31</span>  <span class="number">2340</span>  [      <span class="number">1.60</span>]</span><br><span class="line">ets:prev/<span class="number">2</span>                                                   <span class="number">1459</span>  <span class="number">45.52</span>  <span class="number">3105</span>  [      <span class="number">2.13</span>]</span><br></pre></td></tr></table></figure></p><p>再下面的是我用eprof测试的在小高峰期寻找一次对手的一些关键操作的开销：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">legend_arena_global_rank:query_apprentice_rank/<span class="number">7</span>              <span class="number">386</span>   <span class="number">1.16</span>    <span class="number">216</span>  [      <span class="number">0.56</span>]</span><br><span class="line">legend_arena_global_rank:query_apprentice_key/<span class="number">3</span>              <span class="number">1029</span>   <span class="number">2.95</span>    <span class="number">551</span>  [      <span class="number">0.54</span>]</span><br><span class="line">ets:lookup_element/<span class="number">3</span>                                         <span class="number">1415</span>  <span class="number">39.47</span>   <span class="number">7371</span>  [      <span class="number">5.21</span>]</span><br><span class="line">ets:prev/<span class="number">2</span>                                                   <span class="number">1409</span>  <span class="number">54.38</span>  <span class="number">10157</span>  [      <span class="number">7.21</span>]</span><br></pre></td></tr></table></figure></p><p>通过上面两次的测量可以看到：分数ETS在大量访问的时候出现了性能下降，本来ets:prev/2操作只需要2.13us，在高峰期居然需要7.21us；本来ets:lookup_element/3操作只需要1.6us，在高峰期居然需要5.21us。</p><p>所以这次的主要优化方法是把对分数ETS的访问次数降下来，建立一些排名的缓存，当一个玩家寻找对手的时候直接在缓存中寻找，同时每秒钟刷新一次缓存（确保排名比较正确）。这样不管是在高峰期还是平时，分数ETS都不会有非常明显的访问量的提升。</p><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>通过这次的优化，我认为不管用什么语言来实现一个系统，都要了解这个语言的优势和劣势，这样才能找出一个合理的解决方案来解决一些比较棘手的问题。</p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;blockquote&gt;
-&lt;p&gt;在上一篇文章&lt;a href=&quot;/2017/05/01/Erlang动态代码载入小实验/&quot; title=&quot;Erlang动态代码载入小实验&quot;&gt;Erlang动态代码载入小实验&lt;/a&gt;中，我提到的竞技场设计中存在一些性能问题，这篇文章主要是针对上一篇文章提
-      
-    
-    </summary>
-    
-      <category term="算法设计" scheme="https://lintingbin2009.github.io/categories/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1/"/>
-    
-    
-      <category term="Erlang" scheme="https://lintingbin2009.github.io/tags/Erlang/"/>
     
   </entry>
   
