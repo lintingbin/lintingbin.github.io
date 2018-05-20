@@ -12,14 +12,6 @@ categories: 教程
 
 这个问题我们可以通过在`~/.ssh`目录下增加`config`文件来解决。
 
-### 配置Git用户名和邮箱
-
-配置Git用户名和邮箱，换成现在需要连接的Git账户信息。
-```
-$ git config user.name <Git注册用户名>
-$ git config user.email <Git注册邮箱>
-```
-
 ### 生成SSH key
 
 生成SSH key，并指定文件名，避免覆盖原有的默认`id_rsa`文件。
