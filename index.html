@@ -155,6 +155,61 @@ ga('send', 'pageview');
     <ul class="post-list">
     
         <li class="post-list-item fade">
+            <article id="post-Spark报错——java-lang-outofmemoryerror-java-heap-space问题处理"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2018-05-20 15:07:11" datetime="2018-05-20T07:07:11.000Z"  itemprop="datePublished">2018-05-20</time>
+
+        
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/错误处理/">错误处理</a></li></ul>
+
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2018/05/20/Spark报错——java-lang-outofmemoryerror-java-heap-space问题处理/">Spark报错——java.lang.outofmemoryerror: java heap space问题处理</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        
+最近在用spark处理数据的时候遇到内存不足的报错，主要的报错信息是在executor端的log中显示java.lang.outofmemoryerror: java heap space。
+
+问题描述具体的问题是spark在执行到最后一个stage后有一个task一直执行不成功，每次都是重试四次后失败。下面的两张图是具体失败的信息：
+
+                
+         ...
+    
+
+        <a href="/2018/05/20/Spark报错——java-lang-outofmemoryerror-java-heap-space问题处理/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/">spark</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
             <article id="post-使用spark进行流处理"
   class="article-card article-type-post" itemprop="blogPost">
 
@@ -613,59 +668,6 @@ Erlang (BEAM) emulator version 5.6 [...
     
 
         <a href="/2017/10/15/efficiency-guide-进程/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-efficiency-guide-表和数据库"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2017-10-15 13:36:22" datetime="2017-10-15T05:36:22.000Z"  itemprop="datePublished">2017-10-15</time>
-
-        
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang-Efficiency-Guide/">Erlang Efficiency Guide</a></li></ul>
-
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2017/10/15/efficiency-guide-表和数据库/">efficiency-guide:表和数据库</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        
-这篇文件主要讲一些简单的Erlang数据库注意要点，干货好像没那么多，可以快速浏览下。
-
-Ets、Dets、Mnesia每个Ets的例子都有一个与之对应的Mnesia的例子。一般来说，所有Ets示例也适用于Dets表。
-Select/Match操作在Ets和Mnesia表上的Select/Match操作是非常低效的。他们通常需要扫描整个表。需要优化数据的结构来减少对Select/Match...
-    
-
-        <a href="/2017/10/15/efficiency-guide-表和数据库/" class="post-more waves-effect waves-button">
             阅读全文…
         </a>
     </div>

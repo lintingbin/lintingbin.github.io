@@ -37,7 +37,7 @@ ga('send', 'pageview');
 <meta property="og:site_name" content="Darcy&#39;s Blog">
 <meta property="og:description" content="在本地上传Git项目到远程时，本地需要对应的Git账户信息和允许连接的SSH key信息，远程才会允许上传。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-05-04T15:15:55.981Z">
+<meta property="og:updated_time" content="2018-05-20T06:58:55.762Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="git如何在本地生成多个ssh key">
 <meta name="twitter:description" content="在本地上传Git项目到远程时，本地需要对应的Git账户信息和允许连接的SSH key信息，远程才会允许上传。">
@@ -164,7 +164,7 @@ ga('send', 'pageview');
     <aside class="post-widget">
         <nav class="post-toc-wrap" id="post-toc">
             <h4>TOC</h4>
-            <ol class="post-toc"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#配置Git用户名和邮箱"><span class="post-toc-number">1.</span> <span class="post-toc-text">配置Git用户名和邮箱</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#生成SSH-key"><span class="post-toc-number">2.</span> <span class="post-toc-text">生成SSH key</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#配置config文件"><span class="post-toc-number">3.</span> <span class="post-toc-text">配置config文件</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#上传SSH-key"><span class="post-toc-number">4.</span> <span class="post-toc-text">上传SSH key</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#测试SSH-key"><span class="post-toc-number">5.</span> <span class="post-toc-text">测试SSH key</span></a></li></ol>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#生成SSH-key"><span class="post-toc-number">1.</span> <span class="post-toc-text">生成SSH key</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#配置config文件"><span class="post-toc-number">2.</span> <span class="post-toc-text">配置config文件</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#上传SSH-key"><span class="post-toc-number">3.</span> <span class="post-toc-text">上传SSH key</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#测试SSH-key"><span class="post-toc-number">4.</span> <span class="post-toc-text">测试SSH key</span></a></li></ol>
         </nav>
     </aside>
     
@@ -195,8 +195,6 @@ ga('send', 'pageview');
 <a id="more"></a>
 <p><a href="">Windows下配置SSH连接Github</a>介绍了如何生成SSH key。但当遇到需要有多个Git账户信息时怎么办呢，如果删除密钥重新创建，那每次切换账户时都要重复这样的操作，太过繁琐。</p>
 <p>这个问题我们可以通过在<code>~/.ssh</code>目录下增加<code>config</code>文件来解决。</p>
-<h3 id="配置Git用户名和邮箱"><a href="#配置Git用户名和邮箱" class="headerlink" title="配置Git用户名和邮箱"></a>配置Git用户名和邮箱</h3><p>配置Git用户名和邮箱，换成现在需要连接的Git账户信息。
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ git config user.name &lt;Git注册用户名&gt;</span><br><span class="line">$ git config user.email &lt;Git注册邮箱&gt;</span><br></pre></td></tr></table></figure></p>
 <h3 id="生成SSH-key"><a href="#生成SSH-key" class="headerlink" title="生成SSH key"></a>生成SSH key</h3><p>生成SSH key，并指定文件名，避免覆盖原有的默认<code>id_rsa</code>文件。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-keygen -t rsa -f ~/.ssh/id_rsa.another -C &lt;Git注册邮箱&gt;</span><br></pre></td></tr></table></figure>
 <blockquote>
@@ -219,7 +217,7 @@ ga('send', 'pageview');
     <div class="content">
         
 <span class="post-time">
-    最后更新时间：<time datetime="2018-05-04T15:15:55.981Z" itemprop="dateUpdated">2018-05-04 23:15:55</time>
+    最后更新时间：<time datetime="2018-05-20T06:58:55.762Z" itemprop="dateUpdated">2018-05-20 14:58:55</time>
 </span><br>
 
 
