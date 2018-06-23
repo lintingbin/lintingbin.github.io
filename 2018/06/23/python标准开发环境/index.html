@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-98287189-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>python标准开发环境 | Darcy&#39;s Blog | 不如烂笔头</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="python">
+    <meta name="description" content="很多初学python的同学可能都知道pip，通过pip可以安装自己的需要的python第三方库。但是有很多同学可能不知道pipenv，在这篇文章我将介绍如何用pipenv来构建自己的开发环境，以及用pipenv快速部署生产环境  什么是pipenv？pipenv是一个把包管理工具和虚拟环境结合的工具，使用pipenv install和使用pip install一样，可以安装任何你想安装的第三方库">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python标准开发环境">
+<meta property="og:url" content="https://lintingbin2009.github.io/2018/06/23/python标准开发环境/index.html">
+<meta property="og:site_name" content="Darcy&#39;s Blog">
+<meta property="og:description" content="很多初学python的同学可能都知道pip，通过pip可以安装自己的需要的python第三方库。但是有很多同学可能不知道pipenv，在这篇文章我将介绍如何用pipenv来构建自己的开发环境，以及用pipenv快速部署生产环境  什么是pipenv？pipenv是一个把包管理工具和虚拟环境结合的工具，使用pipenv install和使用pip install一样，可以安装任何你想安装的第三方库">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-06-23T06:32:47.297Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python标准开发环境">
+<meta name="twitter:description" content="很多初学python的同学可能都知道pip，通过pip可以安装自己的需要的python第三方库。但是有很多同学可能不知道pipenv，在这篇文章我将介绍如何用pipenv来构建自己的开发环境，以及用pipenv快速部署生产环境  什么是pipenv？pipenv是一个把包管理工具和虚拟环境结合的工具，使用pipenv install和使用pip install一样，可以安装任何你想安装的第三方库">
+    
+        <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">lintingbin2009</h5>
+          <a href="mailto:lintingbin31@gmail.com" title="lintingbin31@gmail.com" class="mail">lintingbin31@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                类别
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/lintingbin2009" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">python标准开发环境</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">python标准开发环境</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-06-23T05:44:23.000Z" itemprop="datePublished" class="page-time">
+  2018-06-23
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#什么是pipenv？"><span class="post-toc-number">1.</span> <span class="post-toc-text">什么是pipenv？</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#如何使用pipenv？"><span class="post-toc-number">2.</span> <span class="post-toc-text">如何使用pipenv？</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#使用pyenv"><span class="post-toc-number">3.</span> <span class="post-toc-text">使用pyenv</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#总结"><span class="post-toc-number">4.</span> <span class="post-toc-text">总结</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-python标准开发环境"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">python标准开发环境</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-06-23 13:44:23" datetime="2018-06-23T05:44:23.000Z"  itemprop="datePublished">2018-06-23</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>很多初学python的同学可能都知道pip，通过pip可以安装自己的需要的python第三方库。但是有很多同学可能不知道pipenv，在这篇文章我将介绍如何用pipenv来构建自己的开发环境，以及用pipenv快速部署生产环境</p>
+</blockquote>
+<h4 id="什么是pipenv？"><a href="#什么是pipenv？" class="headerlink" title="什么是pipenv？"></a>什么是pipenv？</h4><p>pipenv是一个把包管理工具和虚拟环境结合的工具，使用pipenv install和使用pip install一样，可以安装任何你想安装的第三方库，不同的是pipenv会记录你安装的库和使用的python版本，在部署生产环境的时候直接使用pipenv install就可以安装所有的依赖、甚至特定的python版本。<a href="https://github.com/pypa/pipenv" target="_blank" rel="noopener">pipenv项目地址</a></p>
+<h4 id="如何使用pipenv？"><a href="#如何使用pipenv？" class="headerlink" title="如何使用pipenv？"></a>如何使用pipenv？</h4><ol>
+<li>开发环境使用<br>项目开发的时候使用pip install在项目的目录下面安装所需要的库，pipenv会自动在项目的根目录下面产生Pipfile，Pipfile.lock这两个文件，这两个文件记录了当前项目的使用第三方库和python版本的信息，同时pipenv会为这个项目构建一个虚拟环境(pipenv –venv可以查看虚拟环境的位置)。pipenv shell可以把当前的命令行环境切换到当前项目的虚拟环境下执行。要用虚拟环境运行一个python文件的话，则使用pipenv run python a.py。</li>
+<li>生产环境使用<br>当项目开发完成以后，把项目上传到需要部署该项目的服务器。然后在项目的根目录下运行pipenv install，这时候pipenv会自动为该项目创建所依赖的python的版本的虚拟环境，同时在该虚拟环境下安装所有需要的第三方库。有一个问题需要注意的是：如果机器上没有安装项目所需要的python版本的话，这时候虚拟环境就会创建失败。要解决这个失败的话有两个办法：1.安装项目所依赖的python版本。2.安装pyenv，让pipenv在创建虚拟环境的时候使用pyenv自动安装所需要的python版本。</li>
+</ol>
+<h4 id="使用pyenv"><a href="#使用pyenv" class="headerlink" title="使用pyenv"></a>使用pyenv</h4><p>pyenv是一个python包管理工具，可以在一台机器上面安装多个python版本。我推荐至少在生产环境上面安装pyenv，这样在项目代码部署到生产环境的时候根据项目的实际需要安装不同的python版本。<a href="https://github.com/pyenv/pyenv" target="_blank" rel="noopener">pyenv项目地址</a></p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>python程序员在开发项目的时候推荐使用pipenv，这样在项目分享给别人或者部署的时候都可以无比的轻松。同时推荐使用pyenv，pipenv和pyenv配合使用不要太爽了。这篇文章只是简单的介绍pipenv和pyenv，具体的使用方法请查阅他们的官方文档。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2018-06-23T06:32:47.297Z" itemprop="dateUpdated">2018-06-23 14:32:47</time>
+</span><br>
+
+
+        
+        转载请注明出处，Darcy's Blog <br/><a href="/2018/06/23/python标准开发环境/" target="_blank" rel="external">https://lintingbin2009.github.io/2018/06/23/python标准开发环境/</a>
+        
+    </div>
+    <footer>
+        <a href="https://lintingbin2009.github.io">
+            <img src="/img/avatar.jpg" alt="lintingbin2009">
+            lintingbin2009
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2018/06/23/python标准开发环境/&title=《python标准开发环境》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2018/06/23/python标准开发环境/&title=《python标准开发环境》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2018/06/23/python标准开发环境/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《python标准开发环境》 — Darcy's Blog&url=https://lintingbin2009.github.io/2018/06/23/python标准开发环境/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2018/06/23/python标准开发环境/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/05/20/在Spark中使用Python单例的技巧/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">在Spark中使用Python单例的技巧</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'lintingbin2009';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢老板~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>lintingbin2009 &copy; 2016 - 2018</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2018/06/23/python标准开发环境/&title=《python标准开发环境》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2018/06/23/python标准开发环境/&title=《python标准开发环境》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2018/06/23/python标准开发环境/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《python标准开发环境》 — Darcy's Blog&url=https://lintingbin2009.github.io/2018/06/23/python标准开发环境/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2018/06/23/python标准开发环境/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACrElEQVR42u3aQXLCMAwF0N7/0nTLDIV8SRalnZcVE0ri54WlSvr6iq/b3XV/5/Fvkl+9/m3y+fCFh4eHN1j64/XsNQk1f3J+5WvGw8PD2+Y9O1HzI/7161/jk/cmQQIPDw/vb/GSxeXhBA8PD+9/8BJYnuxWtwwPDw/v03jVf/7nC3paPgjKxCu1Fjw8PLyYl3eRPufzSn8PDw8Pb9xVnweMKOUtlm4LK8TDw8Nb4FUP5XlhtzewlW/xD0/Dw8PDO8qrNviTAkEvQa+WgJOBWjw8PLwNXm+hk4Js9YivPqFcTcHDw8M7xKs2+PN217w4myfZeHh4eBu8pHhaLdfm31aHD8pjWHh4eHgLvPwFk2Gs3rBUzrtIr/Hw8PDWeNXEN39xfr8XhC6Scjw8PLyjvCQlrTaf8uX2ShWF5+Ph4eEt8/KhqLz5lI8d9ELOxabg4eHhvYVXbe1PRrJ6gSQPMHh4eHjbvOSonRRqe+En3/qoGIGHh4c35k2a972keTI6UA1XeHh4eHu8XgFisil5mTgpTEQlEjw8PLwFXp629koMSaMrOuKLswF4eHh4G7xeKpzfP1XUyMMDHh4e3h4vf/GxpLZYVqiWmPHw8PC2ee/pFk3S7vnW4OHh4Z3l5YdyPnZQTdAnQwaFyjQeHh7eIV6OzANJr5GWN8masQ4PDw/vEK9aYK0yet/mpZCLdeLh4eEt8HpNrElZYc7OCyh4eHh4G7xb8Zo0pZLn9Aq4F2VcPDw8vKO8/MrbTpPtmAQqPDw8vHfykkO8tzfVou1kuOriPwY8PDy8BV617XQqKT8Vx6L5CDw8PLy386oBY2NEoPocPDw8vN/l9RZ0rFPXezIeHh7eGi8vRlTT3OROknD3CsR4eHh4G7zJQvPA0AsJ+cBBs7OHh4eHV+N9A3h2ac7sMpj+AAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
