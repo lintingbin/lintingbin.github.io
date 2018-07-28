@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://lintingbin2009.github.io/"/>
-  <updated>2018-06-23T06:32:47.297Z</updated>
+  <updated>2018-07-28T06:11:00.261Z</updated>
   <id>https://lintingbin2009.github.io/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>fabric远程执行后台脚本卡住的问题</title>
+    <link href="https://lintingbin2009.github.io/2018/07/28/fabric%E8%BF%9C%E7%A8%8B%E6%89%A7%E8%A1%8C%E5%90%8E%E5%8F%B0%E8%BF%9B%E7%A8%8B%E5%8D%A1%E4%BD%8F%E9%97%AE%E9%A2%98%E5%A4%84%E7%90%86/"/>
+    <id>https://lintingbin2009.github.io/2018/07/28/fabric远程执行后台进程卡住问题处理/</id>
+    <published>2018-07-28T05:24:38.000Z</published>
+    <updated>2018-07-28T06:11:00.261Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>最近用fabric开发了一个简单的运维系统，该系统可以在远程机器上执行一些命令，在批量执行后台脚本的启动的时候，发现fabric会卡住，不能正常的返回。在fabric官方有给出一些解决方案<a href="http://www.fabfile.org/faq.html#why-can-t-i-run-programs-in-the-background-with-it-makes-fabric-hang" target="_blank" rel="noopener">Why can’t I run programs in the background with &amp;? It makes Fabric hang</a>，但是这些方案都要额外的工具，有些麻烦。接下来简单的介绍下fabric的机制和我的解决方案。</p></blockquote><h4 id="fabric是怎么在远程机器上执行命令的？"><a href="#fabric是怎么在远程机器上执行命令的？" class="headerlink" title="fabric是怎么在远程机器上执行命令的？"></a>fabric是怎么在远程机器上执行命令的？</h4><p>fabric是先用ssh连接到远程机器上，然后再执行相关的命令。</p><h4 id="fabric为什么会卡住不返回？"><a href="#fabric为什么会卡住不返回？" class="headerlink" title="fabric为什么会卡住不返回？"></a>fabric为什么会卡住不返回？</h4><p>ssh连接到远程机器上的时候会起一个session，fabric卡住不返回是因为这个session一直结束不掉，这个session之所以结束不掉是因为我们起的后台进程有输出是定向到这个session的。</p><h4 id="怎么解决？"><a href="#怎么解决？" class="headerlink" title="怎么解决？"></a>怎么解决？</h4><p>只要把后台进程的输出重定向到其他地方，fabric就可以正常返回。比如把后台脚本的启动方式改成<code>yourcommand &gt; /dev/null 2&gt;&amp;1 &amp;</code>，这样就会把yourcommand脚本的所有输出重定向到/dev/null，因此fabric就可以正常返回了。</p><h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><p>我之前后台脚本的启动方式是<code>yourcommand 2&gt;&amp;1 1&gt; /dev/null</code>，按照我本来的理解，应该是把stderr和stdout都重定向到/dev/null了，但是这个命令只是把stdout重定向到/dev/null，stderr还是没有被重定向。 </p><p>使用<code>yourcommand &amp;&gt; /dev/null</code>这种方式也可以把所有的输出重定向到/dev/null，这种方式的命令也更短一些。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;blockquote&gt;
+&lt;p&gt;最近用fabric开发了一个简单的运维系统，该系统可以在远程机器上执行一些命令，在批量执行后台脚本的启动的时候，发现fabric会卡住，不能正常的返回。在fabric官方有给出一些解决方案&lt;a href=&quot;http://www.fabfile.or
+      
+    
+    </summary>
+    
+    
+      <category term="fabric" scheme="https://lintingbin2009.github.io/tags/fabric/"/>
+    
+  </entry>
   
   <entry>
     <title>python标准开发环境</title>
@@ -523,34 +547,6 @@
     
     
       <category term="Erlang" scheme="https://lintingbin2009.github.io/tags/Erlang/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>怎么实现一个Sublime的自动补全插件</title>
-    <link href="https://lintingbin2009.github.io/2017/09/03/%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AASublime%E7%9A%84%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8%E6%8F%92%E4%BB%B6/"/>
-    <id>https://lintingbin2009.github.io/2017/09/03/怎么实现一个Sublime的自动补全插件/</id>
-    <published>2017-09-03T05:45:49.000Z</published>
-    <updated>2018-05-04T15:15:55.989Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote><p>使用Erlang开发了快三年的游戏了，一直使用的是Sublime编辑器，也就这样没有自动补全的情况下使用了三年，本来打算切换到有Erlang自动补全的Ide的，但是在Sublime上面开发了那么久，切换到其他的编辑器觉得很不习惯，所以就自己写了一个Erlang的自动补全的插件，<a href="https://github.com/lintingbin2009/Erl-AutoCompletion" target="_blank" rel="noopener">点这里可以看到我的插件</a></p></blockquote><p>Sublime插件是用Python写的，所以打算开发Sublime插件的话要稍微去学习下Python，不用学的很深入，懂得基本的语法就可以愉快的开始开发插件了。我之前的入门教程看的是<a href="https://cnpagency.com/blog/creating-sublime-text-3-plugins-part-1/" target="_blank" rel="noopener">creating-sublime-text-3-plugins-part-1</a>，如果打算开发Sublime插件的话，看这篇文章就可以写一个简单的Sublime插件的Demo。这个网址<a href="http://www.sublimetext.com/docs/3/api_reference.html" target="_blank" rel="noopener">api_reference</a>可以查看开发Sublime插件所提供的各种API。</p><p>我写Erlang自动补全代码和自动跳转的原理是在打开Sublime的时候，扫描所有Erlang的源代码和Sublime中已经打开的所有的Erlang代码，然后利用正则表达式匹配来找出所有函数和模块所在的文件和位置，把这些信息都写入到Sqlite数据库中，然后在用户在编写Erlang源代码的时候提供补全的函数和模块。当用户把鼠标指向某个函数的时候，在Sqlite数据库中查询相应的函数所在的文件和位置，当用户选中的时候打开该文件并且定位到文件的相应的位置。具体的代码可以在<a href="https://github.com/lintingbin2009/Erl-AutoCompletion" target="_blank" rel="noopener">点这里可以看到我的插件</a>这里查看。当写好一个插件后我们最好能把插件放到Package Control中，这样用户安装和升级插件就会非常的方便，通过这个<a href="https://packagecontrol.io/docs/submitting_a_package" target="_blank" rel="noopener">submitting_a_package</a>教程能够顺利的提交自己的插件到Package Control中。</p><p>自己写一个小插件有时候还是可以学到一点东西的，通过这次编写自动补全的插件，让我对正则表达式稍微熟悉了一点。</p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;blockquote&gt;
-&lt;p&gt;使用Erlang开发了快三年的游戏了，一直使用的是Sublime编辑器，也就这样没有自动补全的情况下使用了三年，本来打算切换到有Erlang自动补全的Ide的，但是在Sublime上面开发了那么久，切换到其他的编辑器觉得很不习惯，所以就自己写了一个
-      
-    
-    </summary>
-    
-      <category term="教程" scheme="https://lintingbin2009.github.io/categories/%E6%95%99%E7%A8%8B/"/>
-    
-    
-      <category term="Sublime" scheme="https://lintingbin2009.github.io/tags/Sublime/"/>
-    
-      <category term="插件" scheme="https://lintingbin2009.github.io/tags/%E6%8F%92%E4%BB%B6/"/>
     
   </entry>
   

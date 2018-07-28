@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-98287189-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>fabric远程执行后台脚本卡住的问题 | Darcy&#39;s Blog | 不如烂笔头</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="fabric">
+    <meta name="description" content="最近用fabric开发了一个简单的运维系统，该系统可以在远程机器上执行一些命令，在批量执行后台脚本的启动的时候，发现fabric会卡住，不能正常的返回。在fabric官方有给出一些解决方案Why can’t I run programs in the background with &amp;amp;? It makes Fabric hang，但是这些方案都要额外的工具，有些麻烦。接下来简单的介绍下f">
+<meta name="keywords" content="fabric">
+<meta property="og:type" content="article">
+<meta property="og:title" content="fabric远程执行后台脚本卡住的问题">
+<meta property="og:url" content="https://lintingbin2009.github.io/2018/07/28/fabric远程执行后台进程卡住问题处理/index.html">
+<meta property="og:site_name" content="Darcy&#39;s Blog">
+<meta property="og:description" content="最近用fabric开发了一个简单的运维系统，该系统可以在远程机器上执行一些命令，在批量执行后台脚本的启动的时候，发现fabric会卡住，不能正常的返回。在fabric官方有给出一些解决方案Why can’t I run programs in the background with &amp;amp;? It makes Fabric hang，但是这些方案都要额外的工具，有些麻烦。接下来简单的介绍下f">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-07-28T06:11:00.261Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="fabric远程执行后台脚本卡住的问题">
+<meta name="twitter:description" content="最近用fabric开发了一个简单的运维系统，该系统可以在远程机器上执行一些命令，在批量执行后台脚本的启动的时候，发现fabric会卡住，不能正常的返回。在fabric官方有给出一些解决方案Why can’t I run programs in the background with &amp;amp;? It makes Fabric hang，但是这些方案都要额外的工具，有些麻烦。接下来简单的介绍下f">
+    
+        <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">lintingbin2009</h5>
+          <a href="mailto:lintingbin31@gmail.com" title="lintingbin31@gmail.com" class="mail">lintingbin31@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                类别
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/lintingbin2009" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">fabric远程执行后台脚本卡住的问题</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">fabric远程执行后台脚本卡住的问题</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-07-28T05:24:38.000Z" itemprop="datePublished" class="page-time">
+  2018-07-28
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#fabric是怎么在远程机器上执行命令的？"><span class="post-toc-number">1.</span> <span class="post-toc-text">fabric是怎么在远程机器上执行命令的？</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#fabric为什么会卡住不返回？"><span class="post-toc-number">2.</span> <span class="post-toc-text">fabric为什么会卡住不返回？</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#怎么解决？"><span class="post-toc-number">3.</span> <span class="post-toc-text">怎么解决？</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#注意事项"><span class="post-toc-number">4.</span> <span class="post-toc-text">注意事项</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-fabric远程执行后台进程卡住问题处理"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">fabric远程执行后台脚本卡住的问题</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-07-28 13:24:38" datetime="2018-07-28T05:24:38.000Z"  itemprop="datePublished">2018-07-28</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>最近用fabric开发了一个简单的运维系统，该系统可以在远程机器上执行一些命令，在批量执行后台脚本的启动的时候，发现fabric会卡住，不能正常的返回。在fabric官方有给出一些解决方案<a href="http://www.fabfile.org/faq.html#why-can-t-i-run-programs-in-the-background-with-it-makes-fabric-hang" target="_blank" rel="noopener">Why can’t I run programs in the background with &amp;? It makes Fabric hang</a>，但是这些方案都要额外的工具，有些麻烦。接下来简单的介绍下fabric的机制和我的解决方案。</p>
+</blockquote>
+<h4 id="fabric是怎么在远程机器上执行命令的？"><a href="#fabric是怎么在远程机器上执行命令的？" class="headerlink" title="fabric是怎么在远程机器上执行命令的？"></a>fabric是怎么在远程机器上执行命令的？</h4><p>fabric是先用ssh连接到远程机器上，然后再执行相关的命令。</p>
+<h4 id="fabric为什么会卡住不返回？"><a href="#fabric为什么会卡住不返回？" class="headerlink" title="fabric为什么会卡住不返回？"></a>fabric为什么会卡住不返回？</h4><p>ssh连接到远程机器上的时候会起一个session，fabric卡住不返回是因为这个session一直结束不掉，这个session之所以结束不掉是因为我们起的后台进程有输出是定向到这个session的。</p>
+<h4 id="怎么解决？"><a href="#怎么解决？" class="headerlink" title="怎么解决？"></a>怎么解决？</h4><p>只要把后台进程的输出重定向到其他地方，fabric就可以正常返回。比如把后台脚本的启动方式改成<code>yourcommand &gt; /dev/null 2&gt;&amp;1 &amp;</code>，这样就会把yourcommand脚本的所有输出重定向到/dev/null，因此fabric就可以正常返回了。</p>
+<h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><p>我之前后台脚本的启动方式是<code>yourcommand 2&gt;&amp;1 1&gt; /dev/null</code>，按照我本来的理解，应该是把stderr和stdout都重定向到/dev/null了，但是这个命令只是把stdout重定向到/dev/null，stderr还是没有被重定向。 </p>
+<p>使用<code>yourcommand &amp;&gt; /dev/null</code>这种方式也可以把所有的输出重定向到/dev/null，这种方式的命令也更短一些。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2018-07-28T06:11:00.261Z" itemprop="dateUpdated">2018-07-28 14:11:00</time>
+</span><br>
+
+
+        
+        转载请注明出处，Darcy's Blog <br/><a href="/2018/07/28/fabric远程执行后台进程卡住问题处理/" target="_blank" rel="external">https://lintingbin2009.github.io/2018/07/28/fabric远程执行后台进程卡住问题处理/</a>
+        
+    </div>
+    <footer>
+        <a href="https://lintingbin2009.github.io">
+            <img src="/img/avatar.jpg" alt="lintingbin2009">
+            lintingbin2009
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fabric/">fabric</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2018/07/28/fabric远程执行后台进程卡住问题处理/&title=《fabric远程执行后台脚本卡住的问题》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2018/07/28/fabric远程执行后台进程卡住问题处理/&title=《fabric远程执行后台脚本卡住的问题》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2018/07/28/fabric远程执行后台进程卡住问题处理/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《fabric远程执行后台脚本卡住的问题》 — Darcy's Blog&url=https://lintingbin2009.github.io/2018/07/28/fabric远程执行后台进程卡住问题处理/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2018/07/28/fabric远程执行后台进程卡住问题处理/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/06/23/python标准开发环境/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">python标准开发环境</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'lintingbin2009';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢老板~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>lintingbin2009 &copy; 2016 - 2018</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2018/07/28/fabric远程执行后台进程卡住问题处理/&title=《fabric远程执行后台脚本卡住的问题》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2018/07/28/fabric远程执行后台进程卡住问题处理/&title=《fabric远程执行后台脚本卡住的问题》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2018/07/28/fabric远程执行后台进程卡住问题处理/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《fabric远程执行后台脚本卡住的问题》 — Darcy's Blog&url=https://lintingbin2009.github.io/2018/07/28/fabric远程执行后台进程卡住问题处理/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2018/07/28/fabric远程执行后台进程卡住问题处理/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYAAAD2CAAAAADAeSUUAAADJ0lEQVR42u3awW4iQQwE0Pz/T7PXSCuGKhsiaN6cIjLM9GsOJdv98xNft1/X/5/c+zx/cvLee3fm76ovbGxs7A9h3y6vBHP9revFXd9zvYbkx7i7cmxsbOzj2JsFtcj8je3aipDDxsbG/mJ2HnjX91+HUPJfbGxsbOw9O4mfWYMpbydhY2NjY88CqX3NvU/yrWmbX0/rpWFjY2O/PXsWLe/590vm29jY2NhvzL6VV35cZhOHm0ZVpMDGxsY+iJ0HQPvQtkiYDYBnZQw2Njb2Sezka/lg9QlNnFHrP2lUYWNjY5/KToqKJEiSAUD+SdvYyt8e/arY2NjYH8W+vfjah1YbjUkJhI2NjX0quw2M5w6P86LiaVmNjY2NfQQ7H6/mW/CK8HvFKBobGxv7JHbSMGrb9y2pLUjyiMXGxsY+m50sJX9ZS8o3brbdd5+DjY2NfRC7DbCkXMmLik1r6Wl4bGxs7A9nt4XE7IhPNHxdbGs93sDGxsY+iD2Lllnx0I5p2ybU7MfDxsbGPomd45OW0GyEvBkkz5pc2NjY2N/AzpfSblx7JHS2xUnJhI2Njf257E1jaD/0nU0zcvyDIzvY2NjYR7A38ZAsdFPYJJg8n4v5NjY2NvYHsvOQyCNqthGbo0LtndjY2Njfw36Qe+uRcF4ObcYDw8k2NjY29kex9w/dNIM2BcawqYSNjY19BHvT3E/Khk1jqB0eF+NebGxs7EPZfzMYaJ8zOzYUDQawsbGxj2AnDaNZ22gTfrPSpd4ybGxs7EPZSSBtiod9m6mNtAe9NGxsbOzj2MnYIB8ttEVLceAmoNbzbWxsbOzj2LNoaQuS5x4SKtaGjY2NfSi7PaCTLK4d+m4GvUXDCxsbG/sI9q28Ng2gtqGfDwzadWJjY2OfxM6vWVDtR8X5Vg4P7mBjY2Mfwd4McZPvts2gWbDVW4+NjY19HHsWLZvyph0btKn7YBOxsbGxv5idR8WsrZPEYT7MwMbGxsbO2e2xy+Rpmw39owDDxsbGfht2UjAkZUN7EPP6XbOnPbmXho2Njf327LZBMysY2sM6m/fOyidsbGzsD2T/A7t6ShXdab48AAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
