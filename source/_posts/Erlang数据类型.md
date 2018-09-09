@@ -138,7 +138,8 @@ true
 
 #### 类型转换
 Erlang提供了一些内置的类型转换函数，可以方便地进行类型转换，下面是一些类型转换的例子：
-> 1> atom_to_list(hello).
+``` erlang
+1> atom_to_list(hello).
 "hello"
 2> list_to_atom("hello").
 hello
@@ -172,3 +173,4 @@ hello
 <<"7.00000000000000000000e+00">>
 17> binary_to_float(<<"7.000e+00>>").
 7.0
+```
