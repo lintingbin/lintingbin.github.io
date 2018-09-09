@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://lintingbin2009.github.io/"/>
-  <updated>2018-07-28T06:11:00.261Z</updated>
+  <updated>2018-09-09T05:38:04.465Z</updated>
   <id>https://lintingbin2009.github.io/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Python的Iterator不能当List用</title>
+    <link href="https://lintingbin2009.github.io/2018/09/09/Python%E7%9A%84Iterator%E4%B8%8D%E8%83%BD%E5%BD%93List%E7%94%A8/"/>
+    <id>https://lintingbin2009.github.io/2018/09/09/Python的Iterator不能当List用/</id>
+    <published>2018-09-09T04:49:24.000Z</published>
+    <updated>2018-09-09T05:38:04.465Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>之前在重构流处理框架的时候，把在每个模块里面处理的数据类型从List，变成了pyspark里面foreachPartition输入的函数的参数，其实就是一个Iterator类型的参数，用来遍历整个Partition的数据。但是后面发现有些模块没有执行，最后发现竟然是误用Iterator造成的bug。</p></blockquote><h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><p>Iterator类型的数据只能遍历一次，但是List可以一直遍历，很简单的一段代码就可以说明这个问题：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">lst = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">it = iter(lst)</span><br><span class="line">print([v <span class="keyword">for</span> v <span class="keyword">in</span> lst])</span><br><span class="line">print([v <span class="keyword">for</span> v <span class="keyword">in</span> lst])</span><br><span class="line">print([v <span class="keyword">for</span> v <span class="keyword">in</span> it])</span><br><span class="line">print([v <span class="keyword">for</span> v <span class="keyword">in</span> it])</span><br></pre></td></tr></table></figure></p><p>这段代码的输出是：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">[]</span><br></pre></td></tr></table></figure></p><p>很简单的就可以看出Iterator和List的不同了，我项目中的问题就对Iterator遍历了两次，第二次遍历的代码等于没执行。这样说来Iterator是不是就都可以用List替换了，或者说Iterator就没有优势了？答案显然不是的。</p><h4 id="Iterator"><a href="#Iterator" class="headerlink" title="Iterator"></a>Iterator</h4><h5 id="什么是Iterator"><a href="#什么是Iterator" class="headerlink" title="什么是Iterator"></a>什么是Iterator</h5><p>Iterator是访问集合元素的一种方式。Iterator对象从集合的第一个元素开始访问，直到所有的元素被访问完结束。Iterator只能单向访问，且不能回退。</p><h5 id="Iterator的优势"><a href="#Iterator的优势" class="headerlink" title="Iterator的优势"></a>Iterator的优势</h5><p>我觉得Iterator的主要优势是延迟计算，他并不像List那样需要事先把所有的元素都放到List，而是访问到的时候才产生所需要的元素，访问之后的元素如果其他地方没有用到，其占用的内存也可以被回收掉，大大的减少了集合遍历所需的内存。想象一下，如果需要访问的集合是非常巨大的话，这样的话List就需要分配非常多的内存。下面的代码举个例子：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gen</span><span class="params">()</span>:</span></span><br><span class="line">    i = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> i &lt; <span class="number">1000000000</span>:</span><br><span class="line">        <span class="keyword">yield</span> random.random()</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> rand <span class="keyword">in</span> gen():</span><br><span class="line">    print(rand)</span><br></pre></td></tr></table></figure></p><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>这篇文章主要了解了下List和Iterator的区别，不过在有些方法中不管你传的是Iterator还是List都会转成List类型，用List来求集合的长度，比如进程池的map函数。当集合比较小的时候不管是使用List还是Iterator，都行。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;blockquote&gt;
+&lt;p&gt;之前在重构流处理框架的时候，把在每个模块里面处理的数据类型从List，变成了pyspark里面foreachPartition输入的函数的参数，其实就是一个Iterator类型的参数，用来遍历整个Partition的数据。但是后面发现有些模块没有执
+      
+    
+    </summary>
+    
+    
+      <category term="python" scheme="https://lintingbin2009.github.io/tags/python/"/>
+    
+  </entry>
   
   <entry>
     <title>fabric远程执行后台脚本卡住的问题</title>
@@ -87,9 +111,9 @@
       <category term="python使用" scheme="https://lintingbin2009.github.io/categories/python%E4%BD%BF%E7%94%A8/"/>
     
     
-      <category term="spark" scheme="https://lintingbin2009.github.io/tags/spark/"/>
-    
       <category term="python" scheme="https://lintingbin2009.github.io/tags/python/"/>
+    
+      <category term="spark" scheme="https://lintingbin2009.github.io/tags/spark/"/>
     
       <category term="单例" scheme="https://lintingbin2009.github.io/tags/%E5%8D%95%E4%BE%8B/"/>
     
@@ -513,32 +537,6 @@
 &lt;p&gt;这些内容是有些是由于Erlang版本变化做的一些优化，和之前的有些要点有些出入，快速的扫一下即可&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h4 id=&quot;尾递归总是比普通递归来的快&quot;&gt;&lt;a href=&quot;#尾递归总是比普通递归来的快&quot; class=&quot;he
-      
-    
-    </summary>
-    
-      <category term="Erlang Efficiency Guide" scheme="https://lintingbin2009.github.io/categories/Erlang-Efficiency-Guide/"/>
-    
-    
-      <category term="Erlang" scheme="https://lintingbin2009.github.io/tags/Erlang/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang文档的efficiency_guide总结</title>
-    <link href="https://lintingbin2009.github.io/2017/10/13/Erlang%E6%96%87%E6%A1%A3%E7%9A%84efficiency-guide%E6%80%BB%E7%BB%93/"/>
-    <id>https://lintingbin2009.github.io/2017/10/13/Erlang文档的efficiency-guide总结/</id>
-    <published>2017-10-13T15:07:04.000Z</published>
-    <updated>2018-05-04T15:15:55.981Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote><p>之前刚开始学习的Erlang的时候稍微看过这个教程，但是没有看全，发现这个教程还涵盖了挺多的信息的，今天把这个教程看完，顺便做一下总结，<a href="http://erlang.org/doc/efficiency_guide/introduction.html" target="_blank" rel="noopener">教程原版地址</a></p></blockquote><p>本来是想把所有的总结写在一篇文章里面的，但是由于篇幅比较大，所以就把所有的总结分为以下几篇文章：</p><ul><li><a href="/2017/10/14/efficiency-guide-七个Erlang性能的误区/" title="efficiency_guide:七个Erlang性能的误区">efficiency_guide:七个Erlang性能的误区</a></li><li><a href="/2017/10/14/efficiency-guide-需要注意的模块和BIF/" title="efficiency_guide:需要注意的模块和BIF">efficiency_guide:需要注意的模块和BIF</a></li><li><a href="/2017/10/14/efficiency-guide-Binary的构建和匹配/" title="efficiency-guide:Binary的构建和匹配">efficiency-guide:Binary的构建和匹配</a></li><li><a href="/2017/10/14/efficiency-guide-List处理/" title="efficiency-guide:List处理">efficiency-guide:List处理</a></li><li><a href="/2017/10/15/efficiency-guide-函数/" title="efficiency-guide:函数">efficiency-guide:函数</a></li><li><a href="/2017/10/15/efficiency-guide-表和数据库/" title="efficiency-guide:表和数据库">efficiency-guide:表和数据库</a></li><li><a href="/2017/10/15/efficiency-guide-进程/" title="efficiency-guide:进程">efficiency-guide:进程</a></li></ul><p>最后再提两个误区：</p><ul><li>匿名函数很慢匿名函数过去很慢，慢于apply/3。最初，使用编译器技巧，普通元组，apply/​3和大量的精巧方法实现了匿名函数。但那是历史。匿名函数在R6B中给出了自己的数据类型，并在R7B中进一步优化。现在，一个匿名函数的调用开销大概在调用本地函数和apply/3的开销之间。</li><li>列表推导很慢以前通过匿名函数实现列表推导，而在过去匿名函数确实很慢。 如今，编译器将列表推导重写成一个普通的递归函数。</li></ul>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;blockquote&gt;
-&lt;p&gt;之前刚开始学习的Erlang的时候稍微看过这个教程，但是没有看全，发现这个教程还涵盖了挺多的信息的，今天把这个教程看完，顺便做一下总结，&lt;a href=&quot;http://erlang.org/doc/efficiency_guide/introduc
       
     
     </summary>

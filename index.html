@@ -155,6 +155,56 @@ ga('send', 'pageview');
     <ul class="post-list">
     
         <li class="post-list-item fade">
+            <article id="post-Python的Iterator不能当List用"
+  class="article-card article-type-post" itemprop="blogPost">
+
+    <div class="post-meta">
+        <time class="post-time" title="2018-09-09 12:49:24" datetime="2018-09-09T04:49:24.000Z"  itemprop="datePublished">2018-09-09</time>
+
+        
+
+
+        
+
+    </div>
+
+    
+
+
+  
+    <h3 class="post-title" itemprop="name">
+      <a class="post-title-link" href="/2018/09/09/Python的Iterator不能当List用/">Python的Iterator不能当List用</a>
+    </h3>
+  
+
+
+
+
+    <div class="post-content" id="post-content" itemprop="postContent">
+
+    
+        
+之前在重构流处理框架的时候，把在每个模块里面处理的数据类型从List，变成了pyspark里面foreachPartition输入的函数的参数，其实就是一个Iterator类型的参数，用来遍历整个Partition的数据。但是后面发现有些模块没有执行，最后发现竟然是误用Iterator造成的bug。
+
+问题Iterator类型的数据只能遍历一次，但是List可以一直遍历，很简单的一段代码就...
+    
+
+        <a href="/2018/09/09/Python的Iterator不能当List用/" class="post-more waves-effect waves-button">
+            阅读全文…
+        </a>
+    </div>
+    
+    <div class="post-footer">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+    </div>
+    
+</article>
+
+        </li>
+    
+        <li class="post-list-item fade">
             <article id="post-fabric远程执行后台进程卡住问题处理"
   class="article-card article-type-post" itemprop="blogPost">
 
@@ -613,55 +663,6 @@ Python用来写各种小工具简直是神器，昨天晚上花了点时间实�
     
 
         <a href="/2018/03/11/Git远程推送时记住用户名和密码/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Git/">Git</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-Git如何在本地生成多个SSH-key"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2018-03-11 17:03:15" datetime="2018-03-11T09:03:15.000Z"  itemprop="datePublished">2018-03-11</time>
-
-        
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/教程/">教程</a></li></ul>
-
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2018/03/11/Git如何在本地生成多个SSH-key/">git如何在本地生成多个ssh key</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        在本地上传Git项目到远程时，本地需要对应的Git账户信息和允许连接的SSH key信息，远程才会允许上传。
-    
-
-        <a href="/2018/03/11/Git如何在本地生成多个SSH-key/" class="post-more waves-effect waves-button">
             阅读全文…
         </a>
     </div>

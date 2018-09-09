@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>Python的Iterator不能当List用</title>
+      <link href="/2018/09/09/Python%E7%9A%84Iterator%E4%B8%8D%E8%83%BD%E5%BD%93List%E7%94%A8/"/>
+      <url>/2018/09/09/Python%E7%9A%84Iterator%E4%B8%8D%E8%83%BD%E5%BD%93List%E7%94%A8/</url>
+      <content type="html"><![CDATA[<blockquote><p>之前在重构流处理框架的时候，把在每个模块里面处理的数据类型从List，变成了pyspark里面foreachPartition输入的函数的参数，其实就是一个Iterator类型的参数，用来遍历整个Partition的数据。但是后面发现有些模块没有执行，最后发现竟然是误用Iterator造成的bug。</p></blockquote><h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><p>Iterator类型的数据只能遍历一次，但是List可以一直遍历，很简单的一段代码就可以说明这个问题：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">lst = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">it = iter(lst)</span><br><span class="line">print([v <span class="keyword">for</span> v <span class="keyword">in</span> lst])</span><br><span class="line">print([v <span class="keyword">for</span> v <span class="keyword">in</span> lst])</span><br><span class="line">print([v <span class="keyword">for</span> v <span class="keyword">in</span> it])</span><br><span class="line">print([v <span class="keyword">for</span> v <span class="keyword">in</span> it])</span><br></pre></td></tr></table></figure></p><p>这段代码的输出是：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">[]</span><br></pre></td></tr></table></figure></p><p>很简单的就可以看出Iterator和List的不同了，我项目中的问题就对Iterator遍历了两次，第二次遍历的代码等于没执行。这样说来Iterator是不是就都可以用List替换了，或者说Iterator就没有优势了？答案显然不是的。</p><h4 id="Iterator"><a href="#Iterator" class="headerlink" title="Iterator"></a>Iterator</h4><h5 id="什么是Iterator"><a href="#什么是Iterator" class="headerlink" title="什么是Iterator"></a>什么是Iterator</h5><p>Iterator是访问集合元素的一种方式。Iterator对象从集合的第一个元素开始访问，直到所有的元素被访问完结束。Iterator只能单向访问，且不能回退。</p><h5 id="Iterator的优势"><a href="#Iterator的优势" class="headerlink" title="Iterator的优势"></a>Iterator的优势</h5><p>我觉得Iterator的主要优势是延迟计算，他并不像List那样需要事先把所有的元素都放到List，而是访问到的时候才产生所需要的元素，访问之后的元素如果其他地方没有用到，其占用的内存也可以被回收掉，大大的减少了集合遍历所需的内存。想象一下，如果需要访问的集合是非常巨大的话，这样的话List就需要分配非常多的内存。下面的代码举个例子：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gen</span><span class="params">()</span>:</span></span><br><span class="line">    i = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> i &lt; <span class="number">1000000000</span>:</span><br><span class="line">        <span class="keyword">yield</span> random.random()</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> rand <span class="keyword">in</span> gen():</span><br><span class="line">    print(rand)</span><br></pre></td></tr></table></figure></p><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>这篇文章主要了解了下List和Iterator的区别，不过在有些方法中不管你传的是Iterator还是List都会转成List类型，用List来求集合的长度，比如进程池的map函数。当集合比较小的时候不管是使用List还是Iterator，都行。</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> python </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>fabric远程执行后台脚本卡住的问题</title>
       <link href="/2018/07/28/fabric%E8%BF%9C%E7%A8%8B%E6%89%A7%E8%A1%8C%E5%90%8E%E5%8F%B0%E8%BF%9B%E7%A8%8B%E5%8D%A1%E4%BD%8F%E9%97%AE%E9%A2%98%E5%A4%84%E7%90%86/"/>
       <url>/2018/07/28/fabric%E8%BF%9C%E7%A8%8B%E6%89%A7%E8%A1%8C%E5%90%8E%E5%8F%B0%E8%BF%9B%E7%A8%8B%E5%8D%A1%E4%BD%8F%E9%97%AE%E9%A2%98%E5%A4%84%E7%90%86/</url>
@@ -47,9 +62,9 @@
       
         <tags>
             
-            <tag> spark </tag>
-            
             <tag> python </tag>
+            
+            <tag> spark </tag>
             
             <tag> 单例 </tag>
             
