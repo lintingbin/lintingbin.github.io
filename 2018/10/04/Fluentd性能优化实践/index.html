@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+<!-- Google Analytics -->
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-98287189-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+<!-- End Google Analytics -->
+
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    <title>Fluentd性能优化实践 | Darcy&#39;s Blog | 不如烂笔头</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Fluentd">
+    <meta name="description" content="我们的日志收集系统使用的是Fluentd，使用Fluentd的原因大概是因为配置简单、插件比较多、而且能够比较容易的定制自己的插件。但是随着日志越来越多以后，Fluentd会出现性能上的问题，以下的文章将回顾我们进行Fluentd性能优化的操作。  Fluentd 性能问题的主要原因？抛开自己配置错误的一些原因，Fluentd性能问题的最主要原因是因为Fluentd是使用Ruby写的，而Ruby">
+<meta name="keywords" content="Fluentd">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fluentd性能优化实践">
+<meta property="og:url" content="https://lintingbin2009.github.io/2018/10/04/Fluentd性能优化实践/index.html">
+<meta property="og:site_name" content="Darcy&#39;s Blog">
+<meta property="og:description" content="我们的日志收集系统使用的是Fluentd，使用Fluentd的原因大概是因为配置简单、插件比较多、而且能够比较容易的定制自己的插件。但是随着日志越来越多以后，Fluentd会出现性能上的问题，以下的文章将回顾我们进行Fluentd性能优化的操作。  Fluentd 性能问题的主要原因？抛开自己配置错误的一些原因，Fluentd性能问题的最主要原因是因为Fluentd是使用Ruby写的，而Ruby">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://lintingbin2009.github.io/images/fluentd_multi_process_1.jpg">
+<meta property="og:image" content="https://lintingbin2009.github.io/images/fluentd_multi_process_2.jpg">
+<meta property="og:updated_time" content="2018-10-04T15:06:46.030Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Fluentd性能优化实践">
+<meta name="twitter:description" content="我们的日志收集系统使用的是Fluentd，使用Fluentd的原因大概是因为配置简单、插件比较多、而且能够比较容易的定制自己的插件。但是随着日志越来越多以后，Fluentd会出现性能上的问题，以下的文章将回顾我们进行Fluentd性能优化的操作。  Fluentd 性能问题的主要原因？抛开自己配置错误的一些原因，Fluentd性能问题的最主要原因是因为Fluentd是使用Ruby写的，而Ruby">
+<meta name="twitter:image" content="https://lintingbin2009.github.io/images/fluentd_multi_process_1.jpg">
+    
+        <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">lintingbin2009</h5>
+          <a href="mailto:lintingbin31@gmail.com" title="lintingbin31@gmail.com" class="mail">lintingbin31@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                类别
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/lintingbin2009" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Fluentd性能优化实践</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Fluentd性能优化实践</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-10-04T10:51:56.000Z" itemprop="datePublished" class="page-time">
+  2018-10-04
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/日志收集/">日志收集</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#Fluentd-性能问题的主要原因？"><span class="post-toc-number">1.</span> <span class="post-toc-text">Fluentd 性能问题的主要原因？</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#Fluentd-多进程优化一"><span class="post-toc-number">2.</span> <span class="post-toc-text">Fluentd 多进程优化一</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#多进程架构"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">多进程架构</span></a></li><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#主要问题"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">主要问题</span></a></li></ol></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#Fluentd-多进程优化二"><span class="post-toc-number">3.</span> <span class="post-toc-text">Fluentd 多进程优化二</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#新的多进程架构"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">新的多进程架构</span></a></li><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#注意事项"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">注意事项</span></a></li></ol></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#总结"><span class="post-toc-number">4.</span> <span class="post-toc-text">总结</span></a></li></ol>
+        </nav>
+    </aside>
+    
+<article id="post-Fluentd性能优化实践"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Fluentd性能优化实践</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-10-04 18:51:56" datetime="2018-10-04T10:51:56.000Z"  itemprop="datePublished">2018-10-04</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/日志收集/">日志收集</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+            
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <blockquote>
+<p>我们的日志收集系统使用的是Fluentd，使用Fluentd的原因大概是因为配置简单、插件比较多、而且能够比较容易的定制自己的插件。但是随着日志越来越多以后，Fluentd会出现性能上的问题，以下的文章将回顾我们进行Fluentd性能优化的操作。</p>
+</blockquote>
+<h4 id="Fluentd-性能问题的主要原因？"><a href="#Fluentd-性能问题的主要原因？" class="headerlink" title="Fluentd 性能问题的主要原因？"></a>Fluentd 性能问题的主要原因？</h4><p>抛开自己配置错误的一些原因，Fluentd性能问题的最主要原因是因为Fluentd是使用Ruby写的，而Ruby有全局锁(GIL)，因而在一个Ruby进程里面同时最多只有一个线程在运行。这样的话，Ruby的多线程对需要更多计算资源的操作显得无能为力，具体的体现可以用top查看进程的运行情况，如果Fluentd到达性能瓶颈的话，Fluentd的进程会一直占用100%左右的计算资源，再也不能提升，对于有四个核的计算机来说，最多也就使用的1/4的计算能力，这是极其浪费的。而且当Fluentd进程到达瓶颈后，数据会处理不完，导致数据收集的速度落后于数据产生的速度。</p>
+<h4 id="Fluentd-多进程优化一"><a href="#Fluentd-多进程优化一" class="headerlink" title="Fluentd 多进程优化一"></a>Fluentd 多进程优化一</h4><p>既然已经知道了Fluentd性能瓶颈的问题主要是因为单进程不能使用多核的计算能力，那解决的方法也是很简单的，可以把收集的日志按照不同的类型来拆分成不同的进程，这样就能充分的利用多核的计算能力了。</p>
+<h5 id="多进程架构"><a href="#多进程架构" class="headerlink" title="多进程架构"></a>多进程架构</h5><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="/images/fluentd_multi_process_1.jpg" alt="Fluentd多进程架构一" title="">
+                </div>
+                <div class="image-caption">Fluentd多进程架构一</div>
+            </figure>
+<p>如上图所示，之前单进程的架构可以改成如上的多进程架构，这样每个进程最多可以使用100%的cpu资源，理论上四核的机器起四个Fluentd进程就可以充分的利用机器的计算资源的了，但是实际上这个架构还有一些问题未能解决。</p>
+<h5 id="主要问题"><a href="#主要问题" class="headerlink" title="主要问题"></a>主要问题</h5><p>这个多进程的架构相比于单进程的架构在性能上已经有很大的提升了，不过还有如下两个问题：</p>
+<ol>
+<li>该架构要求Log的拆分要比较均衡，这样每个进程都能合理的利用计算资源，不然会出现有些进程非常繁忙，但是有些进程却非常的空闲。然而Log的拆分是按照之前的经验来拆分的，不可能做到绝对的均衡，而且拆分完后是直接写到配置文件里面的，也不能进行实时调整。</li>
+<li>即使是按照现在的架构进行日志拆分了，但是有些日志的计算任务比较繁重，有可能导致即使一个进程只处理一个类型的Log也会到达性能瓶颈。如上图的Process3只处理Log5，但是在top中却看到Process3的cpu使用率一直是100%，这说明Process3已经到达了性能瓶颈，但是Log5已经不能再进行拆分了。</li>
+</ol>
+<p>基于上面的这两个问题，这种多进程架构还是会遇到性能瓶颈，因此需要对架构再继续进行优化，接下来介绍新的架构来优化Fluentd的性能。</p>
+<h4 id="Fluentd-多进程优化二"><a href="#Fluentd-多进程优化二" class="headerlink" title="Fluentd 多进程优化二"></a>Fluentd 多进程优化二</h4><p>上面的日志拆分架构其实在我们的系统中已经用过了一段时间了，但是我们发现有些Fluentd进程一直很繁忙，我们本来是想着怎么把日志拆分的更加均衡一些，但是无意中在Fluentd官网中看到了他们推荐的架构，觉得这才是真正正确的做法，之前走的是弯路。</p>
+<h5 id="新的多进程架构"><a href="#新的多进程架构" class="headerlink" title="新的多进程架构"></a>新的多进程架构</h5><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="/images/fluentd_multi_process_2.jpg" alt="Fluentd多进程架构二" title="">
+                </div>
+                <div class="image-caption">Fluentd多进程架构二</div>
+            </figure>
+<p>这是Fluentd官网给出的多进程架构图，该架构采用两层的结构，前面的一层只负责数据的路由，把数据按照一定的比例路由到第二层，然后第二层才对数据进行处理。第二层可以根据机器的资源起不同个数的进程，甚至可以把第二层部署到不同的机器上去。这样就能解决旧的架构的分配不均和计算瓶颈的问题了，每种日志都能很均衡的使用机器的计算资源，甚至可以分布式扩展。同时也不用苦恼于怎么拆分Log来让进程的计算资源更加的均衡。</p>
+<h5 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h5><p>新的架构虽然在理论上是非常好的架构，但是在配置的过程中需要注意一些问题：</p>
+<ol>
+<li>新架构第一层使用的是forward插件把log路由到第二层的，需要注意的是forward的插件也是需要把buffer_type配置成文件的，不然如果第二层的处理能力不够的话，就会导致第一层的buffer数据一直堆在内存里面，导致内存不够。还会造成在停Fluentd进程的时候，如果是第二层进程先停的话，那么第一层的数据会不能发送的到第二层，第一层的进程会一直停不掉。如果机器不小心关掉的话，还会造成数据丢失。</li>
+<li>新架构第一层的flush_interval（推荐1秒）和buffer_chunk_size（推荐1M）要配置的尽量小，这样数据才能尽快的发送到第二层进行处理。其实如果配置的比较大的话，到时候第二层会有报警的。</li>
+<li>新架构的缺点是同一种Log会有多个处理进程，这样的话就会导致一些只能单进程处理的操作变得不那么优美了。比如webhdfs插件，现在使用新的多进程架构后，因为每个hdfs文件只能由一个进程写入，所以现在同一种Log是由多个进程写入的，只能写入到多个不同的文件，这样会造成hdfs文件数量成倍的增加。</li>
+</ol>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>通过这次架构的升级，Fluentd的性能已经得到了很大的提升，而且配置也变得更加简单了，好的架构往往能够事半功倍。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2018-10-04T15:06:46.030Z" itemprop="dateUpdated">2018-10-04 23:06:46</time>
+</span><br>
+
+
+        
+        转载请注明出处，Darcy's Blog <br/><a href="/2018/10/04/Fluentd性能优化实践/" target="_blank" rel="external">https://lintingbin2009.github.io/2018/10/04/Fluentd性能优化实践/</a>
+        
+    </div>
+    <footer>
+        <a href="https://lintingbin2009.github.io">
+            <img src="/img/avatar.jpg" alt="lintingbin2009">
+            lintingbin2009
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fluentd/">Fluentd</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2018/10/04/Fluentd性能优化实践/&title=《Fluentd性能优化实践》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2018/10/04/Fluentd性能优化实践/&title=《Fluentd性能优化实践》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2018/10/04/Fluentd性能优化实践/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Fluentd性能优化实践》 — Darcy's Blog&url=https://lintingbin2009.github.io/2018/10/04/Fluentd性能优化实践/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2018/10/04/Fluentd性能优化实践/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/09/09/Python的Iterator不能当List用/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Python的Iterator不能当List用</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+<section class="comments" id="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    var disqus_shortname = 'lintingbin2009';
+    lazyScripts.push('//' + disqus_shortname + '.disqus.com/embed.js')
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢老板~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <ul class="reward-items">
+        
+        <li>
+            <img src="/img/wechat.png" title="微信打赏二维码" alt="微信打赏二维码">
+            <p>微信</p>
+        </li>
+        
+
+        
+        <li>
+            <img src="/img/alipay.png" title="支付宝打赏二维码" alt="支付宝打赏二维码">
+            <p>支付宝</p>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p>
+            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
+            <span>lintingbin2009 &copy; 2016 - 2018</span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/2018/10/04/Fluentd性能优化实践/&title=《Fluentd性能优化实践》 — Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/2018/10/04/Fluentd性能优化实践/&title=《Fluentd性能优化实践》 — Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/2018/10/04/Fluentd性能优化实践/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Fluentd性能优化实践》 — Darcy's Blog&url=https://lintingbin2009.github.io/2018/10/04/Fluentd性能优化实践/&via=https://lintingbin2009.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/2018/10/04/Fluentd性能优化实践/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACqElEQVR42u3aW27jMAwF0Ox/05kFDOJevooUOP4KUtnWUQFRIfl6xdf78UrGPN/7/7s+PfN1ceHh4eH9ytTz53ya+qdvkqcVlgwPDw/vjJds0J9eXx3zjMzHPM8ZDw8P73t4z5v1ZMmSUzEeHh7e3+Xlnyf4yfLh4eHhXfOSH//VLbs63Ul6dyHXgoeHh1erOkWH2u/5fFLfw8PDwxtX1fMNtzehajK3PFs8PDy8A16+4U4SqflEq2WzZJ54eHh4F7zJtpts/XehovAWPDw8vFVer4Q/aUjNF+UZE80cDw8Pb5XXLMYPtuzec5LD+g+/FfDw8PCWeM2hq3f1Rq4Vw/Dw8PCKvHfryjfxJIVRbdLK08F4eHh4F7zqoTmfxCQnUE3+/jAGDw8P74D3nB7NN/deCKki1+p7eHh4eC1eftitJhSS9EQvqBTuwsPDwzvjVX/qb5Wpqi0CeYENDw8P74631SbVS+Dm4af3ZDw8PLw7Xr6tJwfiapkqD0ULjQt4eHh4Y16eYM0LZtWDch4S8uLcx1wLHh4e3pg3SSLkd1UP0/MyGx4eHt7v8OYH67x8lRe3qmmLw5QEHh4eXhHWSxw0S1YHbQp4eHh4W7yCexBnqq1dvSaD1+jfioeHh1er+/fannJY75tJaS0qg+Hh4eGNefOkQL5x5wncZ1IUovDw8PCOeb1jd96Ylb8lX/RCYMDDw8Nb5fWKVb2kxsJ2P8ma4OHh4Q147+K1W3OrAqptCnh4eHgXvHnwyO9NUgy7n/Hw8PDueL32qQmm+tfeeDw8PLxrXjLReTipLkpvQfHw8PC+jZekKvJUQgJLUg9rgQEPDw/vjNc7lOeYvI2g2XSFh4eHN+b12p7yMZMnTFIeeHh4eBe83eRsEmx6gaSXqsDDw8Nb5f0DNifkKei/UxoAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
