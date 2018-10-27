@@ -2,7 +2,7 @@
 title: 在Spark中使用Python单例的技巧
 date: 2018-05-20 22:33:03
 tags: [spark, python, 单例]
-categories: python使用
+categories: python
 ---
 > 在使用spark编程的时候，我们需要知道我们编写的某一段代码是在driver端执行，还是在executor端执行。如果是在executor端执行的话，就要注意这些代码是否是可以序列化发送到executor端执行，如果不行的话就会报错。接下来这篇文章主要讨论Python单例在使用Spark的时候解决的问题。
 
