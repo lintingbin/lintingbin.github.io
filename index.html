@@ -340,6 +340,188 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/10/27/写HDFS文件失败的问题处理/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/10/27/写HDFS文件失败的问题处理/" itemprop="url">
+                  写HDFS文件失败的问题处理
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-10-27 17:52:23 / 修改时间：19:54:44" itemprop="dateCreated datePublished" datetime="2018-10-27T17:52:23+08:00">2018-10-27</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/错误处理/" itemprop="url" rel="index"><span itemprop="name">错误处理</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/10/27/写HDFS文件失败的问题处理/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/10/27/写HDFS文件失败的问题处理/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>我们的集群在用fluentd写入hdfs的时候经常会遇到写入失败的问题，失败的特点是写入失败的那个文件的备份数只有2个（我们集群设置的是3个），然后就再也不能成功的往这个文件写入任何内容了。</p>
+</blockquote>
+<h4 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h4><p>在集群负载比较高的时候，写hdfs文件有时会发生写入错误，写入错误的文件只有两个备份，该文件之后再也不能被写入了。</p>
+<h4 id="临时解决"><a href="#临时解决" class="headerlink" title="临时解决"></a>临时解决</h4><p>之前还不知道产生这个问题的具体原因，但是出现了文件写入不进去的情况，又要及时的修复问题，我们的做法是先把该文件从hdfs上下载到本地，然后再把该文件从hdfs上删除，最后把本地的文件上传到hdfs中，这样就能把出问题的文件给修复好。<br>上述的解决方法，毕竟治标不治本，如果出错的文件比较少的话，还可以及时的修复，但是如果错误的文件数很多的话，那修复起来就非常的麻烦了。</p>
+<h4 id="彻底解决"><a href="#彻底解决" class="headerlink" title="彻底解决"></a>彻底解决</h4><h5 id="产生该问题的原因"><a href="#产生该问题的原因" class="headerlink" title="产生该问题的原因"></a>产生该问题的原因</h5><p>之前还不知道具体是什么原因造成的写入失败，后面在研究了hdfs写入过程的时候发现一个问题：那就是我们集群的机器数量比较少，只有四台机器，在写入hdfs文件pipeline的时候，如果有一台机器出现问题了时候，这时候就会把这台机器排除掉，去寻找新的可用的机器，但是我们的集群只有四台机器，如果刚好有两台机器出现问题的话，这时候文件的备份数永远也到达不了3。</p>
+<h5 id="解决问题的思路"><a href="#解决问题的思路" class="headerlink" title="解决问题的思路"></a>解决问题的思路</h5><p>解决问题的方法无非就下面几个：</p>
+<ul>
+<li>增加集群的机器数量。比如把集群的机器增加到10台，这样只有同时有8台机器出现问题的情况下，才会出现文件写入失败的问题。这样出现写入失败的问题的概率就会大大的减少。</li>
+<li>减少文件备份的数量。这个方法对我们不适用，因为我们现在使用的只有3个备份，这个应该是hdfs最低的要求了。</li>
+<li>修改配置，让写入的行为发生改变。dfs.client.block.write.replace-datanode-on-failure.enable配置默认是true，表示如果在写入的pipeline有datanode失败的时候是否要切换到新的机器，但是如果集群比较小的话，有两台机器失败的话，就没有其他机器可以切换了，所以把该配置设置成false后就能解决问题。</li>
+</ul>
+<h5 id="最后的解决方法"><a href="#最后的解决方法" class="headerlink" title="最后的解决方法"></a>最后的解决方法</h5><p>由于我们的集群不可能一下子就扩大，所以我们当前的解决方法是先把dfs.client.block.write.replace-datanode-on-failure.enable配置项设置成false，等后面集群变大后再把该配置项改成true。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>现在集群已经很久没有发生上述的错误了，说明配置的修改已经起到效果了。解决问题最重要的一步还是找到问题的原因，然后一次性解决掉，不然问题还是会时不时的光顾你的。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/10/04/Fluentd性能优化实践/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -2006,201 +2188,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/03/29/使用erlang-get-stacktrace注意避开的坑/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/29/使用erlang-get-stacktrace注意避开的坑/" itemprop="url">
-                  使用erlang:get_stacktrace注意避开的坑
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-03-29 11:03:03" itemprop="dateCreated datePublished" datetime="2018-03-29T11:03:03+08:00">2018-03-29</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang/" itemprop="url" rel="index"><span itemprop="name">Erlang</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/03/29/使用erlang-get-stacktrace注意避开的坑/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/03/29/使用erlang-get-stacktrace注意避开的坑/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>之前在使用erlang:get_stacktrace()函数的时候发现不能正确的获取发生异常的栈内容，但是错误类型和原因却是正常，感觉非常奇怪，下面是具体的代码：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">dispatch_cmd</span><span class="params">(User, Mod, Msg)</span> -&gt;</span></span><br><span class="line">  <span class="keyword">try</span> Mod:req(User, Msg) <span class="keyword">of</span></span><br><span class="line">    Result -&gt;</span><br><span class="line">      Result</span><br><span class="line">  <span class="keyword">catch</span></span><br><span class="line">    Class:Reason -&gt;</span><br><span class="line">      monitor:notify(ws_dispatch_crash, io_lib:format(<span class="string">"&lt;error-info: ~p:req ~p:~p&gt;"</span>, [Mod, Class, Reason])),</span><br><span class="line">      ?ERROR(<span class="string">"Req Msg: ~p.~nStacktrace: ~s"</span>, [?PR(Msg), ?PR_ST(erlang:get_stacktrace(), &#123;Class, Reason&#125;)]),</span><br><span class="line">      ?ERR_AT_DISPATCH_CMD</span><br><span class="line">  <span class="keyword">end</span>.</span><br></pre></td></tr></table></figure></p>
-<p><strong>上面的代码有什么问题呢？</strong>
-主要的问题是在调用erlang:get_stacktrace()之前执行了其他有可能会有异常捕获的语句，而在io_lib:format里面会有catch函数，如果io_lib:format函数里面的catch被调用的话，erlang:get_stacktrace()返回的就不是我们想要打印的异常栈，而是io_lib:format里面的异常栈。
-<strong>如何解决？</strong>
-在catch之后里面立马调用erlang:get_stacktrace()
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">dispatch_cmd</span><span class="params">(User, Mod, Msg)</span> -&gt;</span></span><br><span class="line">  <span class="keyword">try</span> Mod:req(User, Msg) <span class="keyword">of</span></span><br><span class="line">    Result -&gt;</span><br><span class="line">      Result</span><br><span class="line">  <span class="keyword">catch</span></span><br><span class="line">    Class:Reason -&gt;</span><br><span class="line">      Stacktrace = erlang:get_stacktrace(),</span><br><span class="line">      monitor:notify(ws_dispatch_crash, io_lib:format(<span class="string">"&lt;error-info: ~p:req ~p:~p&gt;"</span>, [Mod, Class, Reason])),</span><br><span class="line">      ?ERROR(<span class="string">"Req Msg: ~p.~nStacktrace: ~s"</span>, [?PR(Msg), ?PR_ST(Stacktrace, &#123;Class, Reason&#125;)]),</span><br><span class="line">      ?ERR_AT_DISPATCH_CMD</span><br><span class="line">  <span class="keyword">end</span>.</span><br></pre></td></tr></table></figure></p>
-<p>据说erlang的开发团队也认为erlang:get_stacktrace()是一个不好的东西，会在OTP 21中把它废弃掉，有一位叫@peterdmv的开发人员是这样说的：
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">erlang:get_stacktrace/0 is deprecated in OTP 21, you can use the following expression instead:</span><br><span class="line"></span><br><span class="line">try Expr</span><br><span class="line">catch</span><br><span class="line">  Class:Reason:Stacktrace -&gt;</span><br><span class="line">   &#123;Class,Reason,Stacktrace&#125;</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
-<p>我试了下这个新语法，在OTP 20.3上面还不行，应该在接下来的OTP 21中能够使用它吧~</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -2245,7 +2237,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">40</span>
+                    <span class="site-state-item-count">41</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2347,7 +2339,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">24</span>
+                      
+                    
+                    <span class="site-state-item-count">25</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

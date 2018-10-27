@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://lintingbin2009.github.io/"/>
-  <updated>2018-10-04T15:06:46.030Z</updated>
+  <updated>2018-10-27T11:54:44.355Z</updated>
   <id>https://lintingbin2009.github.io/</id>
   
   <author>
@@ -15,6 +15,34 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>写HDFS文件失败的问题处理</title>
+    <link href="https://lintingbin2009.github.io/2018/10/27/%E5%86%99HDFS%E6%96%87%E4%BB%B6%E5%A4%B1%E8%B4%A5%E7%9A%84%E9%97%AE%E9%A2%98%E5%A4%84%E7%90%86/"/>
+    <id>https://lintingbin2009.github.io/2018/10/27/写HDFS文件失败的问题处理/</id>
+    <published>2018-10-27T09:52:23.000Z</published>
+    <updated>2018-10-27T11:54:44.355Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>我们的集群在用fluentd写入hdfs的时候经常会遇到写入失败的问题，失败的特点是写入失败的那个文件的备份数只有2个（我们集群设置的是3个），然后就再也不能成功的往这个文件写入任何内容了。</p></blockquote><h4 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h4><p>在集群负载比较高的时候，写hdfs文件有时会发生写入错误，写入错误的文件只有两个备份，该文件之后再也不能被写入了。</p><h4 id="临时解决"><a href="#临时解决" class="headerlink" title="临时解决"></a>临时解决</h4><p>之前还不知道产生这个问题的具体原因，但是出现了文件写入不进去的情况，又要及时的修复问题，我们的做法是先把该文件从hdfs上下载到本地，然后再把该文件从hdfs上删除，最后把本地的文件上传到hdfs中，这样就能把出问题的文件给修复好。<br>上述的解决方法，毕竟治标不治本，如果出错的文件比较少的话，还可以及时的修复，但是如果错误的文件数很多的话，那修复起来就非常的麻烦了。</p><h4 id="彻底解决"><a href="#彻底解决" class="headerlink" title="彻底解决"></a>彻底解决</h4><h5 id="产生该问题的原因"><a href="#产生该问题的原因" class="headerlink" title="产生该问题的原因"></a>产生该问题的原因</h5><p>之前还不知道具体是什么原因造成的写入失败，后面在研究了hdfs写入过程的时候发现一个问题：那就是我们集群的机器数量比较少，只有四台机器，在写入hdfs文件pipeline的时候，如果有一台机器出现问题了时候，这时候就会把这台机器排除掉，去寻找新的可用的机器，但是我们的集群只有四台机器，如果刚好有两台机器出现问题的话，这时候文件的备份数永远也到达不了3。</p><h5 id="解决问题的思路"><a href="#解决问题的思路" class="headerlink" title="解决问题的思路"></a>解决问题的思路</h5><p>解决问题的方法无非就下面几个：</p><ul><li>增加集群的机器数量。比如把集群的机器增加到10台，这样只有同时有8台机器出现问题的情况下，才会出现文件写入失败的问题。这样出现写入失败的问题的概率就会大大的减少。</li><li>减少文件备份的数量。这个方法对我们不适用，因为我们现在使用的只有3个备份，这个应该是hdfs最低的要求了。</li><li>修改配置，让写入的行为发生改变。dfs.client.block.write.replace-datanode-on-failure.enable配置默认是true，表示如果在写入的pipeline有datanode失败的时候是否要切换到新的机器，但是如果集群比较小的话，有两台机器失败的话，就没有其他机器可以切换了，所以把该配置设置成false后就能解决问题。</li></ul><h5 id="最后的解决方法"><a href="#最后的解决方法" class="headerlink" title="最后的解决方法"></a>最后的解决方法</h5><p>由于我们的集群不可能一下子就扩大，所以我们当前的解决方法是先把dfs.client.block.write.replace-datanode-on-failure.enable配置项设置成false，等后面集群变大后再把该配置项改成true。</p><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>现在集群已经很久没有发生上述的错误了，说明配置的修改已经起到效果了。解决问题最重要的一步还是找到问题的原因，然后一次性解决掉，不然问题还是会时不时的光顾你的。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;blockquote&gt;
+&lt;p&gt;我们的集群在用fluentd写入hdfs的时候经常会遇到写入失败的问题，失败的特点是写入失败的那个文件的备份数只有2个（我们集群设置的是3个），然后就再也不能成功的往这个文件写入任何内容了。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4 id=&quot;问题
+      
+    
+    </summary>
+    
+      <category term="错误处理" scheme="https://lintingbin2009.github.io/categories/%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/"/>
+    
+    
+      <category term="hdfs" scheme="https://lintingbin2009.github.io/tags/hdfs/"/>
+    
+  </entry>
   
   <entry>
     <title>Fluentd性能优化实践</title>
@@ -507,34 +535,6 @@
 &lt;p&gt;这篇文章非常详细的介绍了Binary是怎么样构造和匹配的，同时介绍了一些优化的技巧，没看过的一定要仔细看下。&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;以下代码可以高效的构建Binary(有点奇怪，和List不一样，下面构造Binary的段落会有解
-      
-    
-    </summary>
-    
-      <category term="Erlang Efficiency Guide" scheme="https://lintingbin2009.github.io/categories/Erlang-Efficiency-Guide/"/>
-    
-    
-      <category term="Erlang" scheme="https://lintingbin2009.github.io/tags/Erlang/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>efficiency_guide:需要注意的模块和BIF</title>
-    <link href="https://lintingbin2009.github.io/2017/10/14/efficiency-guide-%E9%9C%80%E8%A6%81%E6%B3%A8%E6%84%8F%E7%9A%84%E6%A8%A1%E5%9D%97%E5%92%8CBIF/"/>
-    <id>https://lintingbin2009.github.io/2017/10/14/efficiency-guide-需要注意的模块和BIF/</id>
-    <published>2017-10-14T04:38:02.000Z</published>
-    <updated>2018-05-04T15:15:55.984Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote><p>以下就是要注意的模块和BIF，这些内容之前大多数知道，就setelement/3和size/1的使用优化是不知道的，值得一读</p></blockquote><h4 id="Timer模块"><a href="#Timer模块" class="headerlink" title="Timer模块"></a>Timer模块</h4><p>使用erlang:send_after/3和erlang:start_timer/3创建定时器比使用Timer模块更有效率。Timer模块使用单独的进程来管理定时器。如果许多进程在同时创建和取消定时器，这个进程很容易成为瓶颈。此外Timer模块的有些函数是不通过单一的进程实现的（如定时器：tc/3或定时器：sleep/1），因此这些函数是可以放心使用的。</p><h4 id="list-to-atom-1"><a href="#list-to-atom-1" class="headerlink" title="list_to_atom/1"></a>list_to_atom/1</h4><p>Atom是不进行内存回收的，一旦一个Atom被创建，它永远不会被移除。如果Atom的数量到达虚拟机的上限（默认1,048,576）的话，虚拟机将会奔溃。因此，在一个连续运行的系统中，将任意输入字符串转换成Atom是危险的。如果只允许某些定义好的原子作为输入，使用list_to_existing_atom/1可以用来防范拒绝服务攻击。使用list_to_atom/1构建一个可以被传入apply/3函数的atom，效率是比较低的，不推荐在需要运行很快的代码中使用:<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">apply</span><span class="params">(list_to_atom(“some_prefix”+ + Var), foo, Args)</span></span></span><br></pre></td></tr></table></figure></p><h4 id="length-1"><a href="#length-1" class="headerlink" title="length/1"></a>length/1</h4><p>与tuple_size/1、byte_size/1和bit_size/1的O(1)时间复杂度不同，length/1执行的时间与List的长度成正比为O(n)。通常，没有必要担心length/1的速度，因为它是用C语言很高效的实现的，但是如果List很长，为了避免O(n)的时间复杂度。在一些使用场景中length/1可以被模式匹配来代替,如下：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">foo</span><span class="params">(L)</span> <span class="title">when</span> <span class="title">length</span><span class="params">(L)</span> &gt;= 3 -&gt;</span></span><br><span class="line">    ...</span><br></pre></td></tr></table></figure></p><p>  可以被写成模式匹配的方式<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">foo</span><span class="params">([_,_,_|_]=L)</span> -&gt;</span></span><br><span class="line">   ...</span><br></pre></td></tr></table></figure></p><p>  上面两段代码的区别是：如果L不是的列表，length(L)将会出错，而第二段代码中将不能正确匹配。</p><h4 id="setelement-3"><a href="#setelement-3" class="headerlink" title="setelement/3"></a>setelement/3</h4><p>setelement/3会复制其修改的tuple。因此，使用setelement/3循环更新一个tuple的不同字段，会每次创建一个tuple的新副本。有一种情况是可以例外的，如果编译器清楚地知道，破坏性地更新tuple会产生tuple复制相同的结果，那么对setelement/3的调用将被替换为一个特殊的破坏性设置指令。在以下代码中，第一个setelement/3调用复制该tuple并修改第9个元素：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">multiple_setelement</span><span class="params">(T0)</span> -&gt;</span></span><br><span class="line">    T1 = setelement(<span class="number">9</span>, T0, bar),</span><br><span class="line">    T2 = setelement(<span class="number">7</span>, T1, foobar),</span><br><span class="line">    setelement(<span class="number">5</span>, T2, new_value).</span><br></pre></td></tr></table></figure></p><p>  后面两个setelement/3调用将该复制的tuple的d第7和第5个元素也修改了，不再复制新的tuple。要实现上述的优化，必须满足以下条件：</p><ul><li>索引必须是整数文字，而不是变量或表达式。</li><li>索引必须按降序给出。 </li><li>在连续的setelement/3调用之间不能有任何其他函数调用。 </li><li><p>从一个setelement/3调用返回的元组只能在随后的setelement/3调用中使用。</p><p>如果代码不能像multi_setelement/1示例中那样被构造，那么修改大元组中的多个元素的最好方法是将元组转换为列表，修改列表，并将其转换回元组。</p></li></ul><h4 id="size-1"><a href="#size-1" class="headerlink" title="size/1"></a>size/1</h4><p>size/1可以用来返回tuple和binary的大小。但是如果使用tuple_size/1和byte_size/1的话，能为编译器和运行时系统提供了更多优化机会。另一个优点是能给了Dialyzer提供更多的类型信息。</p><h4 id="split-binary-2"><a href="#split-binary-2" class="headerlink" title="split_binary/2"></a>split_binary/2</h4><p>使用模式匹配而不是调用split_binary/2函数来分割二进制通常更有效率。此外，混合使用比特语法匹配和split_binary/2会使比特语法匹配的一些优化失效。<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;Bin1:Num/binary,Bin2/binary&gt;&gt; = Bin <span class="comment">%% 推荐</span></span><br><span class="line">&#123;Bin1,Bin2&#125; = split_binary(Bin, Num) <span class="comment">%% 不推荐</span></span><br></pre></td></tr></table></figure></p><h4 id="运算符-“-“"><a href="#运算符-“-“" class="headerlink" title="运算符 “- -“"></a>运算符 “- -“</h4><p>“- -“ 运算符具有与其操作数长度乘积成比例的时间复杂度（O(m*n)）。这意味着如果该操作符的两个操作数都是长列表，那么操作者非常慢：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">HugeList1 -- HugeList2</span><br><span class="line"><span class="comment">%% 上述操作应该被替换成下面的操作</span></span><br><span class="line">HugeSet1 = ordsets:from_list(HugeList1),</span><br><span class="line">HugeSet2 = ordsets:from_list(HugeList2),</span><br><span class="line">ordsets:subtract(HugeSet1, HugeSet2)</span><br><span class="line"><span class="comment">%% 如果在意列表的原始顺序的话，可以退换成如下的操作</span></span><br><span class="line">Set = gb_sets:from_list(HugeList2),</span><br><span class="line">[E || E &lt;- HugeList1, <span class="keyword">not</span> gb_sets:is_element(E, Set)]</span><br></pre></td></tr></table></figure></p><p>  注意：如果列表包含重复的元素(HugeList2中出现一个元素在HugeList1中删除了所有出现的元素)，则该代码的行为与“- -”不同。另外，这个代码比较了使用“==”运算符的列表元素，而“- -”使用“=:=”运算符。如果这个区别很重要，那么可以使用set代替gb_set，但是在长列表中set:from_list/1比gb_sets:from_list/1慢得多。使用“- -”运算符从列表中删除一个元素不会有性能问题：HugeList1 – [Element] 。</p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;blockquote&gt;
-&lt;p&gt;以下就是要注意的模块和BIF，这些内容之前大多数知道，就setelement/3和size/1的使用优化是不知道的，值得一读&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h4 id=&quot;Timer模块&quot;&gt;&lt;a href=&quot;#Timer模块&quot; class=&quot;
       
     
     </summary>

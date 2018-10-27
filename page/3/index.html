@@ -340,6 +340,220 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/10/14/efficiency-guide-需要注意的模块和BIF/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/10/14/efficiency-guide-需要注意的模块和BIF/" itemprop="url">
+                  efficiency_guide:需要注意的模块和BIF
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-10-14 12:38:02" itemprop="dateCreated datePublished" datetime="2017-10-14T12:38:02+08:00">2017-10-14</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang-Efficiency-Guide/" itemprop="url" rel="index"><span itemprop="name">Erlang Efficiency Guide</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/10/14/efficiency-guide-需要注意的模块和BIF/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/10/14/efficiency-guide-需要注意的模块和BIF/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>以下就是要注意的模块和BIF，这些内容之前大多数知道，就setelement/3和size/1的使用优化是不知道的，值得一读</p>
+</blockquote>
+<h4 id="Timer模块"><a href="#Timer模块" class="headerlink" title="Timer模块"></a>Timer模块</h4><p>使用erlang:send_after/3和erlang:start_timer/3创建定时器比使用Timer模块更有效率。Timer模块使用单独的进程来管理定时器。如果许多进程在同时创建和取消定时器，这个进程很容易成为瓶颈。此外Timer模块的有些函数是不通过单一的进程实现的（如定时器：tc/3或定时器：sleep/1），因此这些函数是可以放心使用的。</p>
+<h4 id="list-to-atom-1"><a href="#list-to-atom-1" class="headerlink" title="list_to_atom/1"></a>list_to_atom/1</h4><p>Atom是不进行内存回收的，一旦一个Atom被创建，它永远不会被移除。如果Atom的数量到达虚拟机的上限（默认1,048,576）的话，虚拟机将会奔溃。
+因此，在一个连续运行的系统中，将任意输入字符串转换成Atom是危险的。如果只允许某些定义好的原子作为输入，使用list_to_existing_atom/1可以用来防范拒绝服务攻击。
+使用list_to_atom/1构建一个可以被传入apply/3函数的atom，效率是比较低的，不推荐在需要运行很快的代码中使用:
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">apply</span><span class="params">(list_to_atom(“some_prefix”+ + Var), foo, Args)</span></span></span><br></pre></td></tr></table></figure></p>
+<h4 id="length-1"><a href="#length-1" class="headerlink" title="length/1"></a>length/1</h4><p>与tuple_size/1、byte_size/1和bit_size/1的O(1)时间复杂度不同，length/1执行的时间与List的长度成正比为O(n)
+。通常，没有必要担心length/1的速度，因为它是用C语言很高效的实现的，但是如果List很长，为了避免O(n)的时间复杂度。在一些使用场景中length/1可以被模式匹配来代替,如下：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">foo</span><span class="params">(L)</span> <span class="title">when</span> <span class="title">length</span><span class="params">(L)</span> &gt;= 3 -&gt;</span></span><br><span class="line">    ...</span><br></pre></td></tr></table></figure></p>
+<p>  可以被写成模式匹配的方式
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">foo</span><span class="params">([_,_,_|_]=L)</span> -&gt;</span></span><br><span class="line">   ...</span><br></pre></td></tr></table></figure></p>
+<p>  上面两段代码的区别是：如果L不是的列表，length(L)将会出错，而第二段代码中将不能正确匹配。</p>
+<h4 id="setelement-3"><a href="#setelement-3" class="headerlink" title="setelement/3"></a>setelement/3</h4><p>setelement/3会复制其修改的tuple。因此，使用setelement/3循环更新一个tuple的不同字段，会每次创建一个tuple的新副本。
+有一种情况是可以例外的，如果编译器清楚地知道，破坏性地更新tuple会产生tuple复制相同的结果，那么对setelement/3的调用将被替换为一个特殊的破坏性设置指令。在以下代码中，第一个setelement/3调用复制该tuple并修改第9个元素：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">multiple_setelement</span><span class="params">(T0)</span> -&gt;</span></span><br><span class="line">    T1 = setelement(<span class="number">9</span>, T0, bar),</span><br><span class="line">    T2 = setelement(<span class="number">7</span>, T1, foobar),</span><br><span class="line">    setelement(<span class="number">5</span>, T2, new_value).</span><br></pre></td></tr></table></figure></p>
+<p>  后面两个setelement/3调用将该复制的tuple的d第7和第5个元素也修改了，不再复制新的tuple。
+要实现上述的优化，必须满足以下条件：</p>
+<ul>
+<li>索引必须是整数文字，而不是变量或表达式。</li>
+<li>索引必须按降序给出。 </li>
+<li>在连续的setelement/3调用之间不能有任何其他函数调用。 </li>
+<li><p>从一个setelement/3调用返回的元组只能在随后的setelement/3调用中使用。</p>
+<p>如果代码不能像multi_setelement/1示例中那样被构造，那么修改大元组中的多个元素的最好方法是将元组转换为列表，修改列表，并将其转换回元组。</p>
+</li>
+</ul>
+<h4 id="size-1"><a href="#size-1" class="headerlink" title="size/1"></a>size/1</h4><p>size/1可以用来返回tuple和binary的大小。但是如果使用tuple_size/1和byte_size/1的话，能为编译器和运行时系统提供了更多优化机会。另一个优点是能给了Dialyzer提供更多的类型信息。</p>
+<h4 id="split-binary-2"><a href="#split-binary-2" class="headerlink" title="split_binary/2"></a>split_binary/2</h4><p>使用模式匹配而不是调用split_binary/2函数来分割二进制通常更有效率。此外，混合使用比特语法匹配和split_binary/2会使比特语法匹配的一些优化失效。
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;Bin1:Num/binary,Bin2/binary&gt;&gt; = Bin <span class="comment">%% 推荐</span></span><br><span class="line">&#123;Bin1,Bin2&#125; = split_binary(Bin, Num) <span class="comment">%% 不推荐</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="运算符-“-“"><a href="#运算符-“-“" class="headerlink" title="运算符 “- -“"></a>运算符 “- -“</h4><p>“- -“ 运算符具有与其操作数长度乘积成比例的时间复杂度（O(m*n)）。这意味着如果该操作符的两个操作数都是长列表，那么操作者非常慢：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">HugeList1 -- HugeList2</span><br><span class="line"><span class="comment">%% 上述操作应该被替换成下面的操作</span></span><br><span class="line">HugeSet1 = ordsets:from_list(HugeList1),</span><br><span class="line">HugeSet2 = ordsets:from_list(HugeList2),</span><br><span class="line">ordsets:subtract(HugeSet1, HugeSet2)</span><br><span class="line"><span class="comment">%% 如果在意列表的原始顺序的话，可以退换成如下的操作</span></span><br><span class="line">Set = gb_sets:from_list(HugeList2),</span><br><span class="line">[E || E &lt;- HugeList1, <span class="keyword">not</span> gb_sets:is_element(E, Set)]</span><br></pre></td></tr></table></figure></p>
+<p>  注意：如果列表包含重复的元素(HugeList2中出现一个元素在HugeList1中删除了所有出现的元素)，则该代码的行为与“- -”不同。另外，这个代码比较了使用“==”运算符的列表元素，而“- -”使用“=:=”运算符。如果这个区别很重要，那么可以使用set代替gb_set，但是在长列表中set:from_list/1比gb_sets:from_list/1慢得多。
+使用“- -”运算符从列表中删除一个元素不会有性能问题：HugeList1 – [Element] 。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/10/14/efficiency-guide-七个Erlang性能的误区/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -2127,206 +2341,11 @@ set -e</p>
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/" itemprop="url">
-                  使用lager为什么要加入编译选项{parse_transform,lager_transform}
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-05-30 13:03:05" itemprop="dateCreated datePublished" datetime="2017-05-30T13:03:05+08:00">2017-05-30</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang深入/" itemprop="url" rel="index"><span itemprop="name">Erlang深入</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>在使用的lager的时候我们需要加入一行编译选项——{parse_transform,lager_transform}，或者是在每个使用lager的文件模块的头部加入一行-compile([{parse_transform, lager_transform}]).，这通常会让我们感觉非常的麻烦，但是大家有没有觉得好奇，为什么使用这个参数呢？</p>
-<p>首先我们看下Erlang文档，在compile模块中有parse_transform参数的相关说明：</p>
-<blockquote>
-<p><strong>{parse_transform,Module}</strong>
-Causes the parse transformation function Module:parse_transform/2 to be applied to the parsed code before the code is checked for errors.</p>
-</blockquote>
-<p>通过上面的文档我们知道，在编译的时候使用{parse_transform,Module}参数，会使用Module:parse_transform/2函数对代码进行一次解析转换。接下来我们在lager的源代码目录下可以看到lager_transform.erl的代码文件，里面也有一个parse_transform/2的函数。
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">parse_transform</span><span class="params">(AST, Options)</span> -&gt;</span></span><br><span class="line">    TruncSize = proplists:get_value(lager_truncation_size, Options, ?DEFAULT_TRUNCATION),</span><br><span class="line">    Enable = proplists:get_value(lager_print_records_flag, Options, true),</span><br><span class="line">    Sinks = [lager] ++ proplists:get_value(lager_extra_sinks, Options, []),</span><br><span class="line">    put(print_records_flag, Enable),</span><br><span class="line">    put(truncation_size, TruncSize),</span><br><span class="line">    put(sinks, Sinks),</span><br><span class="line">    erlang:put(records, []),</span><br><span class="line">    <span class="comment">%% .app file should either be in the outdir, or the same dir as the source file</span></span><br><span class="line">    guess_application(proplists:get_value(outdir, Options), hd(AST)),</span><br><span class="line">    walk_ast([], AST).</span><br></pre></td></tr></table></figure></p>
-<p>parse_transform/2函数的第一个参数是AST，这个是代码在被编译成二进制前的一种格式<a href="http://erlang.org/doc/apps/erts/absform.html" target="_blank" rel="noopener">The Abstract Format</a>,第二个参数是在编译的时候传入的编译参数，比如要加入一个sink的话不单单要在配置文件里面加入配置，还要在编译参数里面加入{lager_extra_sinks, [audit]}，这样parse_transform/2函数才能在proplists:get_value(lager_extra_sinks, Options, [])的时候获得audit这个sink。</p>
-<p>顺着代码往下走，我们看到只有调用的函数的模块名是Sinks中之一的才会被解析转换（lists:member(Module, Sinks)），比如lager:info、lager:error、audit:info、audit:error等函数（audit为我们配置的sink）。
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">walk_body</span><span class="params">(Acc, [])</span> -&gt;</span></span><br><span class="line">    lists:reverse(Acc);</span><br><span class="line"><span class="function"><span class="title">walk_body</span><span class="params">(Acc, [H|T])</span> -&gt;</span></span><br><span class="line">    walk_body([transform_statement(H, get(sinks))|Acc], T).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">transform_statement</span><span class="params">(&#123;call, Line, &#123;remote, _Line1, &#123;atom, _Line2, Module&#125;,</span></span></span><br><span class="line"><span class="function"><span class="params">                                  &#123;atom, _Line3, Function&#125;&#125;, Arguments0&#125; = Stmt,</span></span></span><br><span class="line"><span class="function"><span class="params">                    Sinks)</span> -&gt;</span></span><br><span class="line">    <span class="keyword">case</span> lists:member(Module, Sinks) <span class="keyword">of</span></span><br><span class="line">        <span class="literal">true</span> -&gt;</span><br><span class="line">            <span class="keyword">case</span> lists:member(Function, ?LEVELS) <span class="keyword">of</span></span><br><span class="line">                <span class="literal">true</span> -&gt;</span><br><span class="line">                    SinkName = lager_util:make_internal_sink_name(Module),</span><br><span class="line">                    do_transform(Line, SinkName, Function, Arguments0);</span><br><span class="line">                <span class="literal">false</span> -&gt;</span><br><span class="line">                    <span class="keyword">case</span> lists:keyfind(Function, <span class="number">1</span>, ?LEVELS_UNSAFE) <span class="keyword">of</span></span><br><span class="line">                        &#123;Function, Severity&#125; -&gt;</span><br><span class="line">                            SinkName = lager_util:make_internal_sink_name(Module),</span><br><span class="line">                            do_transform(Line, SinkName, Severity, Arguments0, unsafe);</span><br><span class="line">                        <span class="literal">false</span> -&gt;</span><br><span class="line">                            Stmt</span><br><span class="line">                    <span class="keyword">end</span></span><br><span class="line">            <span class="keyword">end</span>;</span><br><span class="line">        <span class="literal">false</span> -&gt;</span><br><span class="line">            list_to_tuple(transform_statement(tuple_to_list(Stmt), Sinks))</span><br><span class="line">    <span class="keyword">end</span>;</span><br></pre></td></tr></table></figure></p>
-<p>最后来到解析转换真正起作用的地方，这边的注释写的很清楚，下面的解析转换等于就是lager:dispatch_log/6里面的内容，如果直接调用lager:dispatch_log/6函数的话，是不需要这样的解析转换的，我对此特地问了下lager的开发者，这样做的话能够提高多少的性能，对方给的答复是能快一倍（图 1-1），因为在log不需要输出的情况下就不需要拷贝内容到外部的函数了，个人觉得一次外部函数调用应该费不了多少时间吧。
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% Wrap the call to lager:dispatch_log/6 in case that will avoid doing any work if this message is not elegible for logging</span></span><br><span class="line"><span class="comment">%% See lager.erl (lines 89-100) for lager:dispatch_log/6</span></span><br><span class="line"><span class="comment">%% case &#123;whereis(Sink), whereis(?DEFAULT_SINK), lager_config:get(&#123;Sink, loglevel&#125;, &#123;?LOG_NONE, []&#125;)&#125; of</span></span><br><span class="line">&#123;'<span class="keyword">case</span>',Line,</span><br><span class="line">     &#123;tuple,Line,</span><br><span class="line">            [&#123;call,Line,&#123;atom,Line,whereis&#125;,[&#123;atom,Line,SinkName&#125;]&#125;,</span><br><span class="line">             &#123;call,Line,&#123;atom,Line,whereis&#125;,[&#123;atom,Line,?DEFAULT_SINK&#125;]&#125;, </span><br><span class="line">             &#123;call,Line,</span><br><span class="line">                   &#123;remote,Line,&#123;atom,Line,lager_config&#125;,&#123;atom,Line,get&#125;&#125;,</span><br><span class="line">                   [&#123;tuple,Line,[&#123;atom,Line,SinkName&#125;,&#123;atom,Line,loglevel&#125;]&#125;,</span><br><span class="line">                    &#123;tuple,Line,[&#123;integer,Line,0&#125;,&#123;nil,Line&#125;]&#125;]&#125;]&#125;,</span><br><span class="line">     %% &#123;undefined, undefined, _&#125; -&gt; &#123;error, lager_not_running&#125;;</span><br><span class="line">     [&#123;clause,Line,</span><br><span class="line">              [&#123;tuple,Line,</span><br><span class="line">                      [&#123;atom,Line,undefined&#125;,&#123;atom,Line,undefined&#125;,&#123;var,Line,'_'&#125;]&#125;],</span><br><span class="line">              [],</span><br><span class="line">              %% trick the linter into avoiding a 'term constructed but <span class="keyword">not</span> used' error:</span><br><span class="line">              %% (fun() -&gt; &#123;error, lager_not_running&#125; end)()</span><br><span class="line">              [&#123;call, Line, &#123;'<span class="keyword">fun</span>', Line, &#123;clauses, [&#123;clause, Line, [],[], [&#123;tuple, Line, [&#123;atom, Line, error&#125;,&#123;atom, Line, lager_not_running&#125;]&#125;]&#125;]&#125;&#125;, []&#125;]</span><br><span class="line">      &#125;,</span><br><span class="line">      %% &#123;undefined, _, _&#125; -&gt; &#123;error, &#123;sink_not_configured, Sink&#125;&#125;;</span><br><span class="line">      &#123;clause,Line,</span><br><span class="line">              [&#123;tuple,Line,</span><br><span class="line">                      [&#123;atom,Line,undefined&#125;,&#123;var,Line,'_'&#125;,&#123;var,Line,'_'&#125;]&#125;],</span><br><span class="line">              [],</span><br><span class="line">              %% same trick as above to avoid linter error</span><br><span class="line">              [&#123;call, Line, &#123;'<span class="keyword">fun</span>', Line, &#123;clauses, [&#123;clause, Line, [],[], [&#123;tuple,Line, [&#123;atom,Line,error&#125;, &#123;tuple,Line,[&#123;atom,Line,sink_not_configured&#125;,&#123;atom,Line,SinkName&#125;]&#125;]&#125;]&#125;]&#125;&#125;, []&#125;] </span><br><span class="line">      &#125;,</span><br><span class="line">      %% &#123;SinkPid, _, &#123;Level, Traces&#125;&#125; when ... -&gt; lager:do_log/9;</span><br></pre></td></tr></table></figure></p>
-<p><img src="/images/lager_issue.png" alt="图 1-1"></p>
-<p>总结一下，我们平时在用Erlang编程的时候应该不会涉及到自己编写parse_transform函数的需求，这个函数的功能非常强大，可以理解成是一个功能非常强大的宏，但是我觉得编写这个函数的话也会非常容易出错的，看下lager_transform.erl文件里面的代码就知道了。其实不单单lager使用了parse_transform函数的功能，ets也使用了这个功能，由于ets的select和match匹配的可读性实在太差了，所以可以使用ets:fun2ms/1模拟函数的写法来写匹配规则（当然不是真正的函数了，写起来有很多限制的），然后在编译的时候转化成select和match的匹配格式。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -2371,7 +2390,7 @@ Causes the parse transformation function Module:parse_transform/2 to be applied 
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">40</span>
+                    <span class="site-state-item-count">41</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2473,7 +2492,9 @@ Causes the parse transformation function Module:parse_transform/2 to be applied 
                     
                       
                     
-                    <span class="site-state-item-count">24</span>
+                      
+                    
+                    <span class="site-state-item-count">25</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

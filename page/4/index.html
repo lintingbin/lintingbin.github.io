@@ -340,6 +340,201 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/" itemprop="url">
+                  使用lager为什么要加入编译选项{parse_transform,lager_transform}
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-05-30 13:03:05" itemprop="dateCreated datePublished" datetime="2017-05-30T13:03:05+08:00">2017-05-30</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang深入/" itemprop="url" rel="index"><span itemprop="name">Erlang深入</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/05/30/使用lager为什么要加入编译选项-parse-transform-lager-transform/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>在使用的lager的时候我们需要加入一行编译选项——{parse_transform,lager_transform}，或者是在每个使用lager的文件模块的头部加入一行-compile([{parse_transform, lager_transform}]).，这通常会让我们感觉非常的麻烦，但是大家有没有觉得好奇，为什么使用这个参数呢？</p>
+<p>首先我们看下Erlang文档，在compile模块中有parse_transform参数的相关说明：</p>
+<blockquote>
+<p><strong>{parse_transform,Module}</strong>
+Causes the parse transformation function Module:parse_transform/2 to be applied to the parsed code before the code is checked for errors.</p>
+</blockquote>
+<p>通过上面的文档我们知道，在编译的时候使用{parse_transform,Module}参数，会使用Module:parse_transform/2函数对代码进行一次解析转换。接下来我们在lager的源代码目录下可以看到lager_transform.erl的代码文件，里面也有一个parse_transform/2的函数。
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">parse_transform</span><span class="params">(AST, Options)</span> -&gt;</span></span><br><span class="line">    TruncSize = proplists:get_value(lager_truncation_size, Options, ?DEFAULT_TRUNCATION),</span><br><span class="line">    Enable = proplists:get_value(lager_print_records_flag, Options, true),</span><br><span class="line">    Sinks = [lager] ++ proplists:get_value(lager_extra_sinks, Options, []),</span><br><span class="line">    put(print_records_flag, Enable),</span><br><span class="line">    put(truncation_size, TruncSize),</span><br><span class="line">    put(sinks, Sinks),</span><br><span class="line">    erlang:put(records, []),</span><br><span class="line">    <span class="comment">%% .app file should either be in the outdir, or the same dir as the source file</span></span><br><span class="line">    guess_application(proplists:get_value(outdir, Options), hd(AST)),</span><br><span class="line">    walk_ast([], AST).</span><br></pre></td></tr></table></figure></p>
+<p>parse_transform/2函数的第一个参数是AST，这个是代码在被编译成二进制前的一种格式<a href="http://erlang.org/doc/apps/erts/absform.html" target="_blank" rel="noopener">The Abstract Format</a>,第二个参数是在编译的时候传入的编译参数，比如要加入一个sink的话不单单要在配置文件里面加入配置，还要在编译参数里面加入{lager_extra_sinks, [audit]}，这样parse_transform/2函数才能在proplists:get_value(lager_extra_sinks, Options, [])的时候获得audit这个sink。</p>
+<p>顺着代码往下走，我们看到只有调用的函数的模块名是Sinks中之一的才会被解析转换（lists:member(Module, Sinks)），比如lager:info、lager:error、audit:info、audit:error等函数（audit为我们配置的sink）。
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">walk_body</span><span class="params">(Acc, [])</span> -&gt;</span></span><br><span class="line">    lists:reverse(Acc);</span><br><span class="line"><span class="function"><span class="title">walk_body</span><span class="params">(Acc, [H|T])</span> -&gt;</span></span><br><span class="line">    walk_body([transform_statement(H, get(sinks))|Acc], T).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">transform_statement</span><span class="params">(&#123;call, Line, &#123;remote, _Line1, &#123;atom, _Line2, Module&#125;,</span></span></span><br><span class="line"><span class="function"><span class="params">                                  &#123;atom, _Line3, Function&#125;&#125;, Arguments0&#125; = Stmt,</span></span></span><br><span class="line"><span class="function"><span class="params">                    Sinks)</span> -&gt;</span></span><br><span class="line">    <span class="keyword">case</span> lists:member(Module, Sinks) <span class="keyword">of</span></span><br><span class="line">        <span class="literal">true</span> -&gt;</span><br><span class="line">            <span class="keyword">case</span> lists:member(Function, ?LEVELS) <span class="keyword">of</span></span><br><span class="line">                <span class="literal">true</span> -&gt;</span><br><span class="line">                    SinkName = lager_util:make_internal_sink_name(Module),</span><br><span class="line">                    do_transform(Line, SinkName, Function, Arguments0);</span><br><span class="line">                <span class="literal">false</span> -&gt;</span><br><span class="line">                    <span class="keyword">case</span> lists:keyfind(Function, <span class="number">1</span>, ?LEVELS_UNSAFE) <span class="keyword">of</span></span><br><span class="line">                        &#123;Function, Severity&#125; -&gt;</span><br><span class="line">                            SinkName = lager_util:make_internal_sink_name(Module),</span><br><span class="line">                            do_transform(Line, SinkName, Severity, Arguments0, unsafe);</span><br><span class="line">                        <span class="literal">false</span> -&gt;</span><br><span class="line">                            Stmt</span><br><span class="line">                    <span class="keyword">end</span></span><br><span class="line">            <span class="keyword">end</span>;</span><br><span class="line">        <span class="literal">false</span> -&gt;</span><br><span class="line">            list_to_tuple(transform_statement(tuple_to_list(Stmt), Sinks))</span><br><span class="line">    <span class="keyword">end</span>;</span><br></pre></td></tr></table></figure></p>
+<p>最后来到解析转换真正起作用的地方，这边的注释写的很清楚，下面的解析转换等于就是lager:dispatch_log/6里面的内容，如果直接调用lager:dispatch_log/6函数的话，是不需要这样的解析转换的，我对此特地问了下lager的开发者，这样做的话能够提高多少的性能，对方给的答复是能快一倍（图 1-1），因为在log不需要输出的情况下就不需要拷贝内容到外部的函数了，个人觉得一次外部函数调用应该费不了多少时间吧。
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% Wrap the call to lager:dispatch_log/6 in case that will avoid doing any work if this message is not elegible for logging</span></span><br><span class="line"><span class="comment">%% See lager.erl (lines 89-100) for lager:dispatch_log/6</span></span><br><span class="line"><span class="comment">%% case &#123;whereis(Sink), whereis(?DEFAULT_SINK), lager_config:get(&#123;Sink, loglevel&#125;, &#123;?LOG_NONE, []&#125;)&#125; of</span></span><br><span class="line">&#123;'<span class="keyword">case</span>',Line,</span><br><span class="line">     &#123;tuple,Line,</span><br><span class="line">            [&#123;call,Line,&#123;atom,Line,whereis&#125;,[&#123;atom,Line,SinkName&#125;]&#125;,</span><br><span class="line">             &#123;call,Line,&#123;atom,Line,whereis&#125;,[&#123;atom,Line,?DEFAULT_SINK&#125;]&#125;, </span><br><span class="line">             &#123;call,Line,</span><br><span class="line">                   &#123;remote,Line,&#123;atom,Line,lager_config&#125;,&#123;atom,Line,get&#125;&#125;,</span><br><span class="line">                   [&#123;tuple,Line,[&#123;atom,Line,SinkName&#125;,&#123;atom,Line,loglevel&#125;]&#125;,</span><br><span class="line">                    &#123;tuple,Line,[&#123;integer,Line,0&#125;,&#123;nil,Line&#125;]&#125;]&#125;]&#125;,</span><br><span class="line">     %% &#123;undefined, undefined, _&#125; -&gt; &#123;error, lager_not_running&#125;;</span><br><span class="line">     [&#123;clause,Line,</span><br><span class="line">              [&#123;tuple,Line,</span><br><span class="line">                      [&#123;atom,Line,undefined&#125;,&#123;atom,Line,undefined&#125;,&#123;var,Line,'_'&#125;]&#125;],</span><br><span class="line">              [],</span><br><span class="line">              %% trick the linter into avoiding a 'term constructed but <span class="keyword">not</span> used' error:</span><br><span class="line">              %% (fun() -&gt; &#123;error, lager_not_running&#125; end)()</span><br><span class="line">              [&#123;call, Line, &#123;'<span class="keyword">fun</span>', Line, &#123;clauses, [&#123;clause, Line, [],[], [&#123;tuple, Line, [&#123;atom, Line, error&#125;,&#123;atom, Line, lager_not_running&#125;]&#125;]&#125;]&#125;&#125;, []&#125;]</span><br><span class="line">      &#125;,</span><br><span class="line">      %% &#123;undefined, _, _&#125; -&gt; &#123;error, &#123;sink_not_configured, Sink&#125;&#125;;</span><br><span class="line">      &#123;clause,Line,</span><br><span class="line">              [&#123;tuple,Line,</span><br><span class="line">                      [&#123;atom,Line,undefined&#125;,&#123;var,Line,'_'&#125;,&#123;var,Line,'_'&#125;]&#125;],</span><br><span class="line">              [],</span><br><span class="line">              %% same trick as above to avoid linter error</span><br><span class="line">              [&#123;call, Line, &#123;'<span class="keyword">fun</span>', Line, &#123;clauses, [&#123;clause, Line, [],[], [&#123;tuple,Line, [&#123;atom,Line,error&#125;, &#123;tuple,Line,[&#123;atom,Line,sink_not_configured&#125;,&#123;atom,Line,SinkName&#125;]&#125;]&#125;]&#125;]&#125;&#125;, []&#125;] </span><br><span class="line">      &#125;,</span><br><span class="line">      %% &#123;SinkPid, _, &#123;Level, Traces&#125;&#125; when ... -&gt; lager:do_log/9;</span><br></pre></td></tr></table></figure></p>
+<p><img src="/images/lager_issue.png" alt="图 1-1"></p>
+<p>总结一下，我们平时在用Erlang编程的时候应该不会涉及到自己编写parse_transform函数的需求，这个函数的功能非常强大，可以理解成是一个功能非常强大的宏，但是我觉得编写这个函数的话也会非常容易出错的，看下lager_transform.erl文件里面的代码就知道了。其实不单单lager使用了parse_transform函数的功能，ets也使用了这个功能，由于ets的select和match匹配的可读性实在太差了，所以可以使用ets:fun2ms/1模拟函数的写法来写匹配规则（当然不是真正的函数了，写起来有很多限制的），然后在编译的时候转化成select和match的匹配格式。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/05/21/Erlang垃圾回收/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -2298,243 +2493,11 @@ Erlang的进程是Erlang虚拟机内部自己实现的进程，非常轻量级�
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/04/29/使用HEXO在github上搭建个人博客/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/04/29/使用HEXO在github上搭建个人博客/" itemprop="url">
-                  使用HEXO在Github上搭建个人博客
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-04-29 15:40:51" itemprop="dateCreated datePublished" datetime="2017-04-29T15:40:51+08:00">2017-04-29</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/教程/" itemprop="url" rel="index"><span itemprop="name">教程</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/04/29/使用HEXO在github上搭建个人博客/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/04/29/使用HEXO在github上搭建个人博客/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>在平时的工作中经常会遇到一些问题，在解决问题的时候如果能够及时记录下来是最好不过的，所以一直想维护一个自己的博客。虽然国内有各种技术博客（比如：CSDN，博客园）之类的第三方博客平台，但是作为一个程序员，不搭建一个自己的博客感觉不够酷。所以我就选择使用HEXO在Github上面搭建自己的个人博客。</p>
-<p>下面的安装教程都是在Window x64的环境下进行的</p>
-<h4 id="安装步骤"><a href="#安装步骤" class="headerlink" title="安装步骤"></a>安装步骤</h4><blockquote>
-<p>申请Github账户</p>
-</blockquote>
-<p>由于博客是要搭建在Github上面的，所有必须要有一个Github账号来上传代码，这样才能最终显示自己的博客内容。在建立完Github账号后，需要创建一个Repositories，这个Repositories的名字的格式是:your_user_name.github.io这样的。</p>
-<blockquote>
-<p>安装Git软件</p>
-</blockquote>
-<p>有了Github账号后还需要有软件能把本地的代码上传到Github上面，所就安装Git软件，安装Git也非常简单，直接下一步就行了。</p>
-<blockquote>
-<p>安装NodeJs</p>
-</blockquote>
-<p>由于Hexo是基于NodeJs的框架，所以使用Hexo前要先安装NodeJs，安装NodeJs也非常简单，只需要下载软件，点下一步就行了。现在新的版本的NodeJs，会同时安装npm（Node包管理软件），所以安装起来非常简单。</p>
-<blockquote>
-<p>安装Hexo</p>
-</blockquote>
-<p>把上面的软件都安装好了之后就可以开始安装Hexo了，打开window的终端，在终端中输入下面的命令开始安装Hexo</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g hexo</span><br></pre></td></tr></table></figure>
-<h4 id="使用步骤"><a href="#使用步骤" class="headerlink" title="使用步骤"></a>使用步骤</h4><blockquote>
-<p>初始化</p>
-</blockquote>
-<p>创建一个文件夹，如：MyBlog之类，然后进到MyBlog文件夹下执行以下初始化命令</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo init</span><br></pre></td></tr></table></figure>
-<p>到了这一步之后，Hexo算初始化完成，可以正常的使用了。</p>
-<blockquote>
-<p>生成静态页面</p>
-</blockquote>
-<p>继续在MyBlog目录下执行如下命令，生成静态页面</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo generate // 简写 hexo g</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>本地启动</p>
-</blockquote>
-<p>启动本地服务，进行文章预览调试，命令：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo server   // 动态启动，有修改发生会自动检测，简写 hexo s</span><br></pre></td></tr></table></figure>
-<p>然后在浏览器输入 <a href="http://localhost:4000" target="_blank" rel="noopener">http://localhost:4000</a> 就可以看到博客的页面，当然也在服务器启动的时候加上-p来指定自己想要的端口</p>
-<h4 id="部署步骤"><a href="#部署步骤" class="headerlink" title="部署步骤"></a>部署步骤</h4><blockquote>
-<p>安装 hexo-deployer-git</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>配置部署环境</p>
-</blockquote>
-<p>在MyBlog的目录下会有一个_config.yml的文件，该文件为Hexo项目的配置文件，打开该文件然后把deploy部分改成下列格式</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repository: https://github.com/lintingbin2009/lintingbin2009.github.io.git  // lintingbin2009替换成你自己的名字</span><br><span class="line">  branch: master</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>开始部署</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
-<p>部署完成之后就可以使用your_username.github.io来访问你的个人博客了, 之后的部署命令应该是</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hexo clean</span><br><span class="line">hexo generate</span><br><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>总的来说用Hexo在Github上搭建个人博客还是比较简单的，当然这边只是涉及到最简单的搭建，还没有涉及到主题的更换、评论系统，统计系统。更多关于Hexo的使用文档可以浏览Hexo的中文官网，里面有详细的使用教程和很多可选的精美主题。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span>
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -2579,7 +2542,7 @@ Erlang的进程是Erlang虚拟机内部自己实现的进程，非常轻量级�
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">40</span>
+                    <span class="site-state-item-count">41</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2681,7 +2644,9 @@ Erlang的进程是Erlang虚拟机内部自己实现的进程，非常轻量级�
                     
                       
                     
-                    <span class="site-state-item-count">24</span>
+                      
+                    
+                    <span class="site-state-item-count">25</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
