@@ -108,16 +108,18 @@
 
 
 
-  <meta name="description" content="欢迎来到我的个人站">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Darcy&#39;s Blog">
-<meta property="og:url" content="https://lintingbin2009.github.io/categories/python使用/index.html">
+  <meta name="description" content="用django框架来做一些后台管理的web页面简直太方便了，django自带模块级的权限系统，用来做一些内部的系统非常合适，可以大大的减少开发量。但是django自带的权限系统还不支持行级的权限控制，如果要实现行级的权限控制，需要依赖第三方的app来开发，或者自己重新写一个。  需求描述我们项目组开发的一些系统通常会用mysql数据库来存储一些配置，但是如果每次有配置修改的时候都去手动修改mys">
+<meta name="keywords" content="django,guardian">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用django-guardian实现django-admin的行级权限控制">
+<meta property="og:url" content="https://lintingbin2009.github.io/2018/10/27/使用django-guardian实现django-admin的行级权限控制/index.html">
 <meta property="og:site_name" content="Darcy&#39;s Blog">
-<meta property="og:description" content="欢迎来到我的个人站">
+<meta property="og:description" content="用django框架来做一些后台管理的web页面简直太方便了，django自带模块级的权限系统，用来做一些内部的系统非常合适，可以大大的减少开发量。但是django自带的权限系统还不支持行级的权限控制，如果要实现行级的权限控制，需要依赖第三方的app来开发，或者自己重新写一个。  需求描述我们项目组开发的一些系统通常会用mysql数据库来存储一些配置，但是如果每次有配置修改的时候都去手动修改mys">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-10-27T13:19:45.754Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Darcy&#39;s Blog">
-<meta name="twitter:description" content="欢迎来到我的个人站">
+<meta name="twitter:title" content="使用django-guardian实现django-admin的行级权限控制">
+<meta name="twitter:description" content="用django框架来做一些后台管理的web页面简直太方便了，django自带模块级的权限系统，用来做一些内部的系统非常合适，可以大大的减少开发量。但是django自带的权限系统还不支持行级的权限控制，如果要实现行级的权限控制，需要依赖第三方的app来开发，或者自己重新写一个。  需求描述我们项目组开发的一些系统通常会用mysql数据库来存储一些配置，但是如果每次有配置修改的时候都去手动修改mys">
 
 
 
@@ -126,7 +128,7 @@
 
 
 
-  <link rel="canonical" href="https://lintingbin2009.github.io/categories/python使用/">
+  <link rel="canonical" href="https://lintingbin2009.github.io/2018/10/27/使用django-guardian实现django-admin的行级权限控制/">
 
 
 
@@ -136,7 +138,7 @@
   };
 </script>
 
-  <title>分类: python使用 | Darcy's Blog</title>
+  <title>使用django-guardian实现django-admin的行级权限控制 | Darcy's Blog</title>
   
 
 
@@ -192,7 +194,7 @@
     
   
 
-  <div class="container sidebar-position-left ">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
@@ -249,7 +251,7 @@
         
         
           
-          <li class="menu-item menu-item-categories menu-item-active">
+          <li class="menu-item menu-item-categories">
     <a href="/categories/" rel="section">
       <i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
   </li>
@@ -277,25 +279,6 @@
 
   
     
-
-    
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
 
   
 
@@ -342,57 +325,219 @@
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block category">
+  <div id="posts" class="posts-expand">
+    
 
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1>python使用<small>分类</small>
-        </h1>
-      </div>
+  
 
-      
-        
+  
+  
+  
+
+  
 
   <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/10/27/使用django-guardian实现django-admin的行级权限控制/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/2018/05/20/在Spark中使用Python单例的技巧/" itemprop="url">
-              
-                <span itemprop="name">在Spark中使用Python单例的技巧</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">使用django-guardian实现django-admin的行级权限控制
+              
+            
+          </h1>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2018-05-20T22:33:03+08:00" content="2018-05-20">
-          05-20
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
 
-    </header>
-  </article>
+            
+            
+            
 
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-10-27 20:03:29 / 修改时间：21:19:45" itemprop="dateCreated datePublished" datetime="2018-10-27T20:03:29+08:00">2018-10-27</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/python/" itemprop="url" rel="index"><span itemprop="name">python</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/10/27/使用django-guardian实现django-admin的行级权限控制/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/10/27/使用django-guardian实现django-admin的行级权限控制/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>用django框架来做一些后台管理的web页面简直太方便了，django自带模块级的权限系统，用来做一些内部的系统非常合适，可以大大的减少开发量。但是django自带的权限系统还不支持行级的权限控制，如果要实现行级的权限控制，需要依赖第三方的app来开发，或者自己重新写一个。</p>
+</blockquote>
+<h4 id="需求描述"><a href="#需求描述" class="headerlink" title="需求描述"></a>需求描述</h4><p>我们项目组开发的一些系统通常会用mysql数据库来存储一些配置，但是如果每次有配置修改的时候都去手动修改mysql数据的话，会挺麻烦的，同时也比较容易出错。django-admin能够根据定义的model自动的生成相应的页面，同时还能提供权限的管理，所以我们就把一些系统到的配置放到django中。但是到现在，随着系统的需求越来越多，该系统已经不止我们自己项目组的人员使用，也要开放给其他项目组的同事使用，所以就产生了一些更细粒度的权限需求。因此，我们要在现有的系统上支持行级的权限控制。</p>
+<h4 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4><p>当然可以自己写一套权限系统了，但是自己写的成本比较高，而且自己写的不一定比较好。所以我就先在网上找了一些现成的解决方案，<a href="https://djangopackages.org/grids/g/perms/" target="_blank" rel="noopener">https://djangopackages.org/grids/g/perms/</a> 该链接列出了现有的一些第三方的权限系统解决方案。从该页面来看，django-guardian是最受欢迎的第三方权限系统，而且支持行级的权限系统，同时还可以整合到django-admin里面，所以我就选择了django-guardian。</p>
+<h4 id="关键步骤"><a href="#关键步骤" class="headerlink" title="关键步骤"></a>关键步骤</h4><h5 id="安装配置django-guardian"><a href="#安装配置django-guardian" class="headerlink" title="安装配置django-guardian"></a>安装配置django-guardian</h5><p>安装配置django-guardian比较简单，按照她项目提供的<a href="https://django-guardian.readthedocs.io/en/stable/" target="_blank" rel="noopener">文档</a>进行安装就可以了，安装完成后会在数据库里面创建两张权限相关的表。</p>
+<h5 id="把django-guardian整合到django-admin"><a href="#把django-guardian整合到django-admin" class="headerlink" title="把django-guardian整合到django-admin"></a>把django-guardian整合到django-admin</h5><p>首先把admin.py文件里面需要用到行级权限的类，由原来的继承admin.ModelAdmin，改成继承GuardedModelAdmin，这时候打开某个数据行的页面的时候，在该页面的右上角的历史旁边会显示编辑对象权限的按钮，点击该按钮进去相应的页面就可以编辑该行数据的具体权限。<br>配置完权限的时候，用一个新的用户测试的话，会发现该用户没有权限来访问任何的数据，这是因为GuardedModelAdmin还有很多事情没有帮我们做，我们还需要重写一些函数来实现admin后台页面的显示。具体的信息看下面的代码注释。
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> guardian.admin <span class="keyword">import</span> GuardedModelAdmin</span><br><span class="line"><span class="keyword">from</span> guardian.shortcuts <span class="keyword">import</span> get_objects_for_user, assign_perm, remove_perm, get_users_with_perms, \</span><br><span class="line">    get_groups_with_perms</span><br><span class="line">    </span><br><span class="line"><span class="comment"># 需改前</span></span><br><span class="line"><span class="meta">@admin.register(DataAssistantJob)</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DataAssistantJobAdmin</span><span class="params">(admin.ModelAdmin)</span>:</span></span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改后</span></span><br><span class="line"><span class="meta">@admin.register(DataAssistantJob)</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DataAssistantJobAdmin</span><span class="params">(GuardedModelAdmin)</span>:</span></span><br><span class="line">    <span class="comment"># app是否在主页面中显示的话由该函数决定</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">has_module_permission</span><span class="params">(self, request)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> super().has_module_permission(request):</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">True</span></span><br><span class="line">        <span class="keyword">return</span> self.get_model_objs(request).exists()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 在显示数据列表额时候，哪些数据显示，哪些不显示，由该函数控制</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_queryset</span><span class="params">(self, request)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> request.user.is_superuser:</span><br><span class="line">            <span class="keyword">return</span> super().get_queryset(request)</span><br><span class="line"></span><br><span class="line">        data = self.get_model_objs(request)</span><br><span class="line">        <span class="keyword">return</span> data</span><br><span class="line">        </span><br><span class="line">    <span class="comment"># 内部用来获取某个用户有权限访问的数据行</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_model_objs</span><span class="params">(self, request, action=None, klass=None)</span>:</span></span><br><span class="line">        opts = self.opts</span><br><span class="line">        actions = [action] <span class="keyword">if</span> action <span class="keyword">else</span> [<span class="string">'view'</span>, <span class="string">'change'</span>, <span class="string">'delete'</span>]</span><br><span class="line">        klass = klass <span class="keyword">if</span> klass <span class="keyword">else</span> opts.model</span><br><span class="line">        model_name = klass._meta.model_name</span><br><span class="line">        <span class="keyword">return</span> get_objects_for_user(user=request.user, perms=[<span class="string">f'<span class="subst">&#123;perm&#125;</span>_<span class="subst">&#123;model_name&#125;</span>'</span> <span class="keyword">for</span> perm <span class="keyword">in</span> actions],</span><br><span class="line">                                    klass=klass, any_perm=<span class="keyword">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 用来判断某个用户是否有某个数据行的权限</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">has_perm</span><span class="params">(self, request, obj, action)</span>:</span></span><br><span class="line">        opts = self.opts</span><br><span class="line">        codename = <span class="string">f'<span class="subst">&#123;action&#125;</span>_<span class="subst">&#123;opts.model_name&#125;</span>'</span></span><br><span class="line">        <span class="keyword">if</span> obj:</span><br><span class="line">            <span class="keyword">return</span> request.user.has_perm(<span class="string">f'<span class="subst">&#123;opts.app_label&#125;</span>.<span class="subst">&#123;codename&#125;</span>'</span>, obj)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> self.get_model_objs(request, action).exists()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 是否有查看某个数据行的权限</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">has_view_permission</span><span class="params">(self, request, obj=None)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> self.has_perm(request, obj, <span class="string">'view'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 是否有修改某个数据行的权限</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">has_change_permission</span><span class="params">(self, request, obj=None)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> self.has_perm(request, obj, <span class="string">'change'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 是否有删除某个数据行的权限</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">has_delete_permission</span><span class="params">(self, request, obj=None)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> self.has_perm(request, obj, <span class="string">'delete'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 用户应该拥有他新增的数据行的所有权限</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">save_model</span><span class="params">(self, request, obj, form, change)</span>:</span></span><br><span class="line">        result = super().save_model(request, obj, form, change)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> request.user.is_superuser <span class="keyword">and</span> <span class="keyword">not</span> change:</span><br><span class="line">            opts = self.opts</span><br><span class="line">            actions = [<span class="string">'view'</span>, <span class="string">'add'</span>, <span class="string">'change'</span>, <span class="string">'delete'</span>]</span><br><span class="line">            [assign_perm(<span class="string">f'<span class="subst">&#123;opts.app_label&#125;</span>.<span class="subst">&#123;action&#125;</span>_<span class="subst">&#123;opts.model_name&#125;</span>'</span>, request.user, obj) <span class="keyword">for</span> action <span class="keyword">in</span> actions]</span><br><span class="line">        <span class="keyword">return</span> result</span><br></pre></td></tr></table></figure></p>
+<p>通过上面的修改，django-admin中的模块就能够支持行级的权限，并能够正确的在后台页面中显示出来，当然如果有很多的模块需要支持行级的权限控制，则可以把上面的这些修改写到一个新的类中，然后其他想支持行级权限的模块再从该模块继承就可以了。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>感觉django-guardian和django-admin整合，实现的不是很好。如果开发者对django内部的代码不怎么了解，那么用django-guardian来实现行级权限控制的话会挺麻烦的，个人认为django-guardian完全可以把和django-admin的整合做到开箱即用的效果，就像django自带的权限系统一样。</p>
 
       
     </div>
 
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/django/" rel="tag"># django</a>
+          
+            <a href="/tags/guardian/" rel="tag"># guardian</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/27/写HDFS文件失败的问题处理/" rel="next" title="写HDFS文件失败的问题处理">
+                <i class="fa fa-chevron-left"></i> 写HDFS文件失败的问题处理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+  </div>
 
 
           </div>
           
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
 
         </div>
         
@@ -413,8 +558,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
             
@@ -431,7 +585,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">42</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -470,9 +624,7 @@
                     
                       
                     
-                      
-                    
-                    <span class="site-state-item-count">14</span>
+                    <span class="site-state-item-count">13</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -535,7 +687,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">25</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">27</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -582,6 +738,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#需求描述"><span class="nav-number">1.</span> <span class="nav-text">需求描述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解决方案"><span class="nav-number">2.</span> <span class="nav-text">解决方案</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#关键步骤"><span class="nav-number">3.</span> <span class="nav-text">关键步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#安装配置django-guardian"><span class="nav-number">3.1.</span> <span class="nav-text">安装配置django-guardian</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#把django-guardian整合到django-admin"><span class="nav-number">3.2.</span> <span class="nav-text">把django-guardian整合到django-admin</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -712,6 +884,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.4.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.4.2"></script>
+
+
 
   
 
@@ -726,6 +902,23 @@
     <script id="dsq-count-scr" src="https://lintingbin2009.disqus.com/count.js" async></script>
   
 
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://lintingbin2009.github.io/2018/10/27/使用django-guardian实现django-admin的行级权限控制/';
+        this.page.identifier = '2018/10/27/使用django-guardian实现django-admin的行级权限控制/';
+        this.page.title = '使用django-guardian实现django-admin的行级权限控制';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://lintingbin2009.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        loadComments();
+      
+    </script>
   
 
 

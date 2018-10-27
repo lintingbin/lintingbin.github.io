@@ -340,6 +340,194 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/03/30/图片转像素风实现/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/30/图片转像素风实现/" itemprop="url">
+                  图片转像素风实现
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-03-30 12:13:27" itemprop="dateCreated datePublished" datetime="2018-03-30T12:13:27+08:00">2018-03-30</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-10-27 20:05:43" itemprop="dateModified" datetime="2018-10-27T20:05:43+08:00">2018-10-27</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/python/" itemprop="url" rel="index"><span itemprop="name">python</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/03/30/图片转像素风实现/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/03/30/图片转像素风实现/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>Python用来写各种小工具简直是神器，昨天晚上花了点时间实现了一个图片转像素风的小工具，下面附上图片Demo和代码</p>
+</blockquote>
+<p><div style="width: 400px">
+<img src="/images/pixel_demo.png" alt="">
+</div>
+下面是实现的具体代码：
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image  </span><br><span class="line"><span class="keyword">import</span> argparse  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># 命令行输入参数处理  </span></span><br><span class="line">parser = argparse.ArgumentParser()  </span><br><span class="line">  </span><br><span class="line">parser.add_argument(<span class="string">'file'</span>)     <span class="comment"># 输入文件  </span></span><br><span class="line">parser.add_argument(<span class="string">'-o'</span>, <span class="string">'--output'</span>)   <span class="comment"># 输出文件  </span></span><br><span class="line">parser.add_argument(<span class="string">'--maxlen'</span>, type=int, default=<span class="number">150</span>)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># 获取参数  </span></span><br><span class="line">args = parser.parse_args()  </span><br><span class="line">  </span><br><span class="line">IMG = args.file  </span><br><span class="line">MAXLEN = args.maxlen  </span><br><span class="line">OUTPUT = args.output</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">resize_image</span><span class="params">(im)</span>:</span></span><br><span class="line">    (width, height) = im.size</span><br><span class="line">    max_len = max(width, height)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> max_len &lt;= MAXLEN:</span><br><span class="line">        <span class="keyword">return</span> im</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        scale = max_len / MAXLEN</span><br><span class="line">        size = (int(width//scale), int(height//scale))</span><br><span class="line">        <span class="keyword">return</span>  im.resize(size, Image.NEAREST) </span><br><span class="line">  </span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:  </span><br><span class="line"></span><br><span class="line">    im = Image.open(IMG)  </span><br><span class="line">    im = resize_image(im) </span><br><span class="line">  </span><br><span class="line">    txt = <span class="string">""</span>  </span><br><span class="line">    (width, height) = im.size</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(height):  </span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> range(width):  </span><br><span class="line">            (r, b, g) = im.getpixel((j, i))</span><br><span class="line">            txt += <span class="string">"&lt;font style='background:rgb(&#123;&#125;,&#123;&#125;,&#123;&#125;);display:inline-block;width:3px;height:3px;margin:1px;'&gt;&lt;/font&gt;"</span>.format(r, b, g)</span><br><span class="line">        txt += <span class="string">'&lt;/br&gt;'</span>  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> OUTPUT:</span><br><span class="line">        OUTPUT =  <span class="string">"output.txt"</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">with</span> open(OUTPUT,<span class="string">'w'</span>) <span class="keyword">as</span> f:  </span><br><span class="line">        f.write(txt)</span><br></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/03/29/使用erlang-get-stacktrace注意避开的坑/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -2165,273 +2353,6 @@ apply/3必须在哈希表中查找执行的函数的代码。因此，总是比�
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/10/14/efficiency-guide-Binary的构建和匹配/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/10/14/efficiency-guide-Binary的构建和匹配/" itemprop="url">
-                  efficiency-guide:Binary的构建和匹配
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-10-14 13:11:44" itemprop="dateCreated datePublished" datetime="2017-10-14T13:11:44+08:00">2017-10-14</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang-Efficiency-Guide/" itemprop="url" rel="index"><span itemprop="name">Erlang Efficiency Guide</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/10/14/efficiency-guide-Binary的构建和匹配/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/10/14/efficiency-guide-Binary的构建和匹配/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>这篇文章非常详细的介绍了Binary是怎么样构造和匹配的，同时介绍了一些优化的技巧，没看过的一定要仔细看下。</p>
-</blockquote>
-<p>以下代码可以高效的构建Binary(有点奇怪，和List不一样，下面构造Binary的段落会有解释):
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">my_list_to_binary</span><span class="params">(List)</span> -&gt;</span></span><br><span class="line">    my_list_to_binary(List, &lt;&lt;&gt;&gt;).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">my_list_to_binary</span><span class="params">([H|T], Acc)</span> -&gt;</span></span><br><span class="line">    my_list_to_binary(T, &lt;&lt;Acc/binary,H&gt;&gt;);</span><br><span class="line"><span class="function"><span class="title">my_list_to_binary</span><span class="params">([], Acc)</span> -&gt;</span></span><br><span class="line">    Acc.</span><br></pre></td></tr></table></figure></p>
-<p>以下代码可以高效的匹配Binary:
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">my_binary_to_list</span><span class="params">(&lt;&lt;H,T/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    [H|my_binary_to_list(T)];</span><br><span class="line"><span class="function"><span class="title">my_binary_to_list</span><span class="params">(&lt;&lt;&gt;&gt;)</span> -&gt;</span> [].</span><br></pre></td></tr></table></figure></p>
-<h4 id="Binary类型是怎么实现的"><a href="#Binary类型是怎么实现的" class="headerlink" title="Binary类型是怎么实现的?"></a>Binary类型是怎么实现的?</h4><p>Binary和Bitstring在虚拟机的内部实现是一样的。在虚拟机的源代码中都叫做Binary。Binary类型在虚拟机内部由四种Binary对象实现:</p>
-<ul>
-<li><p><strong>Refc Binaries</strong>
-Refc Binaries由两部分组成：</p>
-<ul>
-<li>存储在进程堆上的对象，称为ProcBin </li>
-<li>Binary对象本身,它存储在所有进程堆之外 </li>
-</ul>
-<p>Binary对象可以由任意数量的进程引用任意数量的ProcBin。该对象包含一个引用计数器，用于跟踪引用数量，以便在最后一个引用消失时可以将其删除。进程中的所有ProcBin对象都是链表的一部分，因此当ProcBin消失时，垃圾回收器可以跟踪它们并减少二进制中的引用计数器。当构建的Binary大于64Byte的时候就会使用这种类型，此时进程之间发送Binary只是发送一个ProcBin。</p>
-</li>
-<li><strong>Heap Binaries</strong>
-Heap binaries是小型Binary，最多64Byte，并直接存储在进程堆中。当Heap Binary被进程垃圾回收或者是作为消息发送时，都需要被复制。垃圾收集器不需要特殊处理。</li>
-<li><strong>Sub Binaries</strong>
-Sub Binaries和match contexts对象能引用refc binary和heap binary对象的部分内容。
-Sub Binary是由split_binary/2创建的。一个Sub Binary引用另一个Binary的部分内容（只能引用Refc和Heap Binary，不能引用另一个Sub Binary）。因此，匹配一个Binary类型是比较高效的，因为实际的Binary数据是不会被复制的。</li>
-<li><strong>Match Context</strong>
-Match context和Sub binary比较类似，但是Match context专门为Binary匹配优化。（原文比较拗口，这里不做解释了，我也没太看懂）</li>
-</ul>
-<h4 id="构建Binary"><a href="#构建Binary" class="headerlink" title="构建Binary"></a>构建Binary</h4><p>Binary和Bitstring的append操作是被运行时系统特别优化的，只有在极少数的情况下优化是不起作用的。
-如下代码可以解释优化是如何起作用的:
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Bin0 = &lt;&lt;<span class="number">0</span>&gt;&gt;,</span><br><span class="line">Bin1 = &lt;&lt;Bin0/binary,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&gt;&gt;,</span><br><span class="line">Bin2 = &lt;&lt;Bin1/binary,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>&gt;&gt;,</span><br><span class="line">Bin3 = &lt;&lt;Bin2/binary,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>&gt;&gt;,</span><br><span class="line">Bin4 = &lt;&lt;Bin1/binary,<span class="number">17</span>&gt;&gt;,</span><br><span class="line">&#123;Bin4,Bin3&#125;</span><br></pre></td></tr></table></figure></p>
-<ul>
-<li>第1行分配一个Heap Binary给Bin0变量</li>
-<li>第2行是append操作。由于Bin0没有涉及append操作，所以创建一个新的Refc Binary，并将Bin0的内容复制到其中。Refc Binary的ProcBin部分存有Binary对象的数据大小，而Binary对象还分配了额外的空间。Binary对象的大小是Bin1或256的大小的两倍，以较大者为准。在这个例子中是256。</li>
-<li>第3行更有意思。Bin1已被用于append操作，最后有252字节的未使用内存，因此3个新的字节会被存储在这些空闲的内存中。</li>
-<li>第4行。和第3行一样。剩下249个字节，所以存储另外3个新字节没有问题。</li>
-<li>第5行。有趣的事情发生。请注意，Bin4是用Bin1来append值17。Bin4将被赋值为&lt;&lt;0,1,2,3,17&gt;&gt;。Bin3将保留其价值&lt;&lt;0,1,2,3,4,5,6,7,8,9&gt;&gt;。显然，运行时系统不能将字节17写入上述的Refc Binary中，因为这会将Bin3的值更改为&lt;&lt;0,1,2,3,4,17,6,7,8,9&gt;&gt;。
-运行时系统知道Bin1是先前append操作的结果，所以它将Bin1的内容复制到一个新的Binary，预留额外的存储空间等等类似上面的操作。（这里没有解释为什么运行时系统知道不能写入到Bin1中，如果有兴趣的话可以阅读erl_bits.c源代码）</li>
-</ul>
-<h5 id="强制拷贝的情况"><a href="#强制拷贝的情况" class="headerlink" title="强制拷贝的情况"></a>强制拷贝的情况</h5><p>Binary的append操作优化要求对于Binary:只有一个ProcBin指向一个Refc Binary的Binary对象。原因是优化需要在append操作期间移动（重新分配）Binary对象，并且同时更新ProcBin中的指针。如果有多个ProcBin指向Binary对象，则无法找到并更新它们。
-因此，对Binary的某些操作会被做标记，以便在将来做append操作的时候知道是否要强制拷贝Binary。在大多数情况下，Binary额外分配的空间也会在这个时候也被回收掉。
-如果将Binary作为消息发送到其他进程或端口，则binary对象会缩小，任何进一步的append操作都会将Binary数据复制到新的Binary中。例如，在下面的代码，第3行的Bin1将会被复制：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Bin1 = &lt;&lt;Bin0,...&gt;&gt;,</span><br><span class="line">PortOrPid ! Bin1,</span><br><span class="line">Bin = &lt;&lt;Bin1,...&gt;&gt;  <span class="comment">%% Bin1 will be COPIED</span></span><br></pre></td></tr></table></figure></p>
-<p>同样的情况一样会发生，如果将Binary插入到Ets表中、使用erlangport_command/2将其发送到端口、或者将其传递给NIF中的enif_inspect_binary。
-匹配Binary也会导致其缩小，下一个append操作将会复制Binary数据：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Bin1 = &lt;&lt;Bin0,...&gt;&gt;,</span><br><span class="line">&lt;&lt;X,Y,Z,T/binary&gt;&gt; = Bin1,</span><br><span class="line">Bin = &lt;&lt;Bin1,...&gt;&gt;  <span class="comment">%% Bin1 will be COPIED</span></span><br></pre></td></tr></table></figure></p>
-<p>原因是match context包含直接指向二进制数据的指针。
-如果一个进程简单地保留Binary（在“循环数据”或进程字典中），垃圾回收器最终可以收缩这个Binary。如果只保留一个这样的Binary，则不会收缩。如果该进程后续append到已收缩的Binary中，则Binary对象将被重新分配，以使数据被加上。</p>
-<h4 id="匹配Binary"><a href="#匹配Binary" class="headerlink" title="匹配Binary"></a>匹配Binary</h4><p>重新看下文章开头的匹配例子：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">my_binary_to_list</span><span class="params">(&lt;&lt;H,T/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    [H|my_binary_to_list(T)];</span><br><span class="line"><span class="function"><span class="title">my_binary_to_list</span><span class="params">(&lt;&lt;&gt;&gt;)</span> -&gt;</span> [].</span><br></pre></td></tr></table></figure></p>
-<p>第一次调用my_binary_to_list/1时，会创建match context。match context指向Binary的第一个字节。匹配1个字节，并更新match context以指向Binary的第二个字节。
-在此时，创建一个sub binary似乎是有意义的，但是在这个特定的例子中编译器知道每次匹配后会马上调用一个函数（在这个例子中，是my_binary_to_list/1本身），这会导致要创建一个新的match context然后丢弃sub binary。
-因此，my_binary_to_list/1使用match context而不是使用sub binary调用自身。初始化匹配操作的指令当它看到它被传递给match context而不是sub binary时基本上什么都不做。
-当到达Binary的末尾并且第二个子句匹配时，match context将被简单地丢弃（在下一个垃圾回收中被移除，因为不再有任何引用）。
-总而言之，my_binary_to_list/1只需要创建一个match context，而不需要sub binary。
-注意，当遍历完整个Binary后，my_binary_to_list/1中的match context被丢弃。如果迭代在Binary结束之前停止，会发生什么？优化还会生效吗？
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;<span class="number">0</span>,T/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    T;</span><br><span class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;_,T/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    after_zero(T);</span><br><span class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    &lt;&lt;&gt;&gt;.</span><br></pre></td></tr></table></figure></p>
-<p>答案是依然生效，编译器将在第二个子句中删除sub binary的构建：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;_,T/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    after_zero(T);</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
-<p>但是它会生成在第一个子句中构建sub binary的代码：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;<span class="number">0</span>,T/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    T;</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
-<p>因此，after_zero/1将构建一个match context和一个sub binary（如果它传进一个包含0的binary）。
-以下代码也将进行优化：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">all_but_zeroes_to_list</span><span class="params">(Buffer, Acc, <span class="number">0</span>)</span> -&gt;</span></span><br><span class="line">    &#123;lists:reverse(Acc),Buffer&#125;;</span><br><span class="line"><span class="function"><span class="title">all_but_zeroes_to_list</span><span class="params">(&lt;&lt;<span class="number">0</span>,T/binary&gt;&gt;, Acc, Remaining)</span> -&gt;</span></span><br><span class="line">    all_but_zeroes_to_list(T, Acc, Remaining-<span class="number">1</span>);</span><br><span class="line"><span class="function"><span class="title">all_but_zeroes_to_list</span><span class="params">(&lt;&lt;Byte,T/binary&gt;&gt;, Acc, Remaining)</span> -&gt;</span></span><br><span class="line">    all_but_zeroes_to_list(T, [Byte|Acc], Remaining-<span class="number">1</span>).</span><br></pre></td></tr></table></figure></p>
-<p>编译器将删除第二和第三个子句中的sub binary的构建，并向第一个子句添加一个指令，该指令将Buffer从match context转换成sub binary（如果Buffer已经是binary，则不执行任何操作）。
-在开始认为编译器可以优化任何Binary模式匹配之前，以下函数不能由编译器进行优化（至少当前是这样的）：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([H|T1], &lt;&lt;H,T2/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    non_opt_eq(T1, T2);</span><br><span class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([_|_], &lt;&lt;_,_/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    <span class="literal">false</span>;</span><br><span class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([], &lt;&lt;&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    <span class="literal">true</span>.</span><br></pre></td></tr></table></figure></p>
-<p>之前提到，如果编译器知道Binary不会被共享，则会延迟创建sub binary。在当前的这种情况下，编译器无法知道。
-很快，下面的章节将解释如何重写non_opt_eq/2，以便可以应用延迟sub binary的优化，更重要的是，还能发现你的代码是否可以优化。</p>
-<h5 id="bin-opt-info选项"><a href="#bin-opt-info选项" class="headerlink" title="bin_opt_info选项"></a>bin_opt_info选项</h5><p>使用bin_opt_info选项可以让编译器打印大量有关二进制优化的信息。</p>
-<blockquote>
-<p>erlc +bin_opt_info Mod.erl</p>
-</blockquote>
-<p>请注意，bin_opt_info不能是能永久添加到Makefile中的选项，因为它生成的所有信息都不能被删除。因此，通过环境选择在大多数情况下是最实际的方法。
-为了更准确地说明警告所引用的代码，以下示例中的警告将作为注释引用到它们所引用的子句之后插入，例如：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;<span class="number">0</span>,T/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">         <span class="comment">%% NOT OPTIMIZED: sub binary is used or returned</span></span><br><span class="line">    T;</span><br><span class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;_,T/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">         <span class="comment">%% OPTIMIZED: creation of sub binary delayed</span></span><br><span class="line">    after_zero(T);</span><br><span class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    &lt;&lt;&gt;&gt;.</span><br></pre></td></tr></table></figure></p>
-<p>上述代码说明第一个匹配没有优化，第二个匹配会被优化。
-让我们重新回顾一下无法优化的代码的例子，并找出原因：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([H|T1], &lt;&lt;H,T2/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">        <span class="comment">%% INFO: matching anything else but a plain variable to</span></span><br><span class="line">    <span class="comment">%%    the left of binary pattern will prevent delayed </span></span><br><span class="line">    <span class="comment">%%    sub binary optimization;</span></span><br><span class="line">    <span class="comment">%%    SUGGEST changing argument order</span></span><br><span class="line">        <span class="comment">%% NOT OPTIMIZED: called function non_opt_eq/2 does not</span></span><br><span class="line">    <span class="comment">%%    begin with a suitable binary matching instruction</span></span><br><span class="line">    non_opt_eq(T1, T2);</span><br><span class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([_|_], &lt;&lt;_,_/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    <span class="literal">false</span>;</span><br><span class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([], &lt;&lt;&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    <span class="literal">true</span>.</span><br></pre></td></tr></table></figure></p>
-<p>编译器发出两个警告。INFO警告指的是函数non_opt_eq/2作为被调用者，表示任何调用non_opt_eq/2的函数都不能进行延迟sub binary优化。还有一个建议来改变参数顺序。第二个警告（恰好是指同一行）是指sub binary本身的构造。
-下面的另一个例子将显示INFO和NOT OPTIMIZED警告之间的区别，这些警告有些清晰，但是让我们先来试一下改变参数顺序的建议：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">opt_eq</span><span class="params">(&lt;&lt;H,T1/binary&gt;&gt;, [H|T2])</span> -&gt;</span></span><br><span class="line">        <span class="comment">%% OPTIMIZED: creation of sub binary delayed</span></span><br><span class="line">    opt_eq(T1, T2);</span><br><span class="line"><span class="function"><span class="title">opt_eq</span><span class="params">(&lt;&lt;_,_/binary&gt;&gt;, [_|_])</span> -&gt;</span></span><br><span class="line">    <span class="literal">false</span>;</span><br><span class="line"><span class="function"><span class="title">opt_eq</span><span class="params">(&lt;&lt;&gt;&gt;, [])</span> -&gt;</span></span><br><span class="line">    <span class="literal">true</span>.</span><br></pre></td></tr></table></figure></p>
-<p>编译器给出以下代码片段的警告：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">match_body</span><span class="params">([<span class="number">0</span>|_], &lt;&lt;H,_/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">        <span class="comment">%% INFO: matching anything else but a plain variable to</span></span><br><span class="line">    <span class="comment">%%    the left of binary pattern will prevent delayed </span></span><br><span class="line">    <span class="comment">%%    sub binary optimization;</span></span><br><span class="line">    <span class="comment">%%    SUGGEST changing argument order</span></span><br><span class="line">    done;</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
-<p>这个警告意味着如果有一个对match_body/2的调用（来自match_body/2中的另一个子句或另一个函数），那么延迟的子二进制优化是不可能的。在二进制匹配结束处的任何地方将发生更多警告，并作为match_body/2的第二个参数传递，例如：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">match_head</span><span class="params">(List, &lt;&lt;_:<span class="number">10</span>,Data/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">        <span class="comment">%% NOT OPTIMIZED: called function match_body/2 does not</span></span><br><span class="line">    <span class="comment">%%     begin with a suitable binary matching instruction</span></span><br><span class="line">    match_body(List, Data).</span><br></pre></td></tr></table></figure></p>
-<h5 id="未使用的变量"><a href="#未使用的变量" class="headerlink" title="未使用的变量"></a>未使用的变量</h5><p>编译器能够算出一个变量是否未被使用。然后为以下每个功能生成相同的代码：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">count1</span><span class="params">(&lt;&lt;_,T/binary&gt;&gt;, Count)</span> -&gt;</span> count1(T, Count+<span class="number">1</span>);</span><br><span class="line"><span class="function"><span class="title">count1</span><span class="params">(&lt;&lt;&gt;&gt;, Count)</span> -&gt;</span> Count.</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">count2</span><span class="params">(&lt;&lt;H,T/binary&gt;&gt;, Count)</span> -&gt;</span> count2(T, Count+<span class="number">1</span>);</span><br><span class="line"><span class="function"><span class="title">count2</span><span class="params">(&lt;&lt;&gt;&gt;, Count)</span> -&gt;</span> Count.</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">count3</span><span class="params">(&lt;&lt;_H,T/binary&gt;&gt;, Count)</span> -&gt;</span> count3(T, Count+<span class="number">1</span>);</span><br><span class="line"><span class="function"><span class="title">count3</span><span class="params">(&lt;&lt;&gt;&gt;, Count)</span> -&gt;</span> Count.</span><br></pre></td></tr></table></figure></p>
-<p>在每次迭代中，二进制中的前8位将被跳过，不匹配。</p>
-<h4 id="历史笔记"><a href="#历史笔记" class="headerlink" title="历史笔记"></a>历史笔记</h4><p>R12的Binary处理显着改善。因此R11B中执行高效的代码在R12B中可能不是那么高效，反之亦然，此efficiency-guide的较早版本包含了有关R11B中二进制处理的一些信息。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2481,7 +2402,7 @@ Match context和Sub binary比较类似，但是Match context专门为Binary匹�
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">42</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2520,9 +2441,7 @@ Match context和Sub binary比较类似，但是Match context专门为Binary匹�
                     
                       
                     
-                      
-                    
-                    <span class="site-state-item-count">14</span>
+                    <span class="site-state-item-count">13</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -2585,7 +2504,11 @@ Match context和Sub binary比较类似，但是Match context专门为Binary匹�
                     
                       
                     
-                    <span class="site-state-item-count">25</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">27</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

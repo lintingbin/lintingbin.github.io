@@ -340,6 +340,273 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/10/14/efficiency-guide-Binary的构建和匹配/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/10/14/efficiency-guide-Binary的构建和匹配/" itemprop="url">
+                  efficiency-guide:Binary的构建和匹配
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-10-14 13:11:44" itemprop="dateCreated datePublished" datetime="2017-10-14T13:11:44+08:00">2017-10-14</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang-Efficiency-Guide/" itemprop="url" rel="index"><span itemprop="name">Erlang Efficiency Guide</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/10/14/efficiency-guide-Binary的构建和匹配/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/10/14/efficiency-guide-Binary的构建和匹配/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>这篇文章非常详细的介绍了Binary是怎么样构造和匹配的，同时介绍了一些优化的技巧，没看过的一定要仔细看下。</p>
+</blockquote>
+<p>以下代码可以高效的构建Binary(有点奇怪，和List不一样，下面构造Binary的段落会有解释):
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">my_list_to_binary</span><span class="params">(List)</span> -&gt;</span></span><br><span class="line">    my_list_to_binary(List, &lt;&lt;&gt;&gt;).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">my_list_to_binary</span><span class="params">([H|T], Acc)</span> -&gt;</span></span><br><span class="line">    my_list_to_binary(T, &lt;&lt;Acc/binary,H&gt;&gt;);</span><br><span class="line"><span class="function"><span class="title">my_list_to_binary</span><span class="params">([], Acc)</span> -&gt;</span></span><br><span class="line">    Acc.</span><br></pre></td></tr></table></figure></p>
+<p>以下代码可以高效的匹配Binary:
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">my_binary_to_list</span><span class="params">(&lt;&lt;H,T/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    [H|my_binary_to_list(T)];</span><br><span class="line"><span class="function"><span class="title">my_binary_to_list</span><span class="params">(&lt;&lt;&gt;&gt;)</span> -&gt;</span> [].</span><br></pre></td></tr></table></figure></p>
+<h4 id="Binary类型是怎么实现的"><a href="#Binary类型是怎么实现的" class="headerlink" title="Binary类型是怎么实现的?"></a>Binary类型是怎么实现的?</h4><p>Binary和Bitstring在虚拟机的内部实现是一样的。在虚拟机的源代码中都叫做Binary。Binary类型在虚拟机内部由四种Binary对象实现:</p>
+<ul>
+<li><p><strong>Refc Binaries</strong>
+Refc Binaries由两部分组成：</p>
+<ul>
+<li>存储在进程堆上的对象，称为ProcBin </li>
+<li>Binary对象本身,它存储在所有进程堆之外 </li>
+</ul>
+<p>Binary对象可以由任意数量的进程引用任意数量的ProcBin。该对象包含一个引用计数器，用于跟踪引用数量，以便在最后一个引用消失时可以将其删除。进程中的所有ProcBin对象都是链表的一部分，因此当ProcBin消失时，垃圾回收器可以跟踪它们并减少二进制中的引用计数器。当构建的Binary大于64Byte的时候就会使用这种类型，此时进程之间发送Binary只是发送一个ProcBin。</p>
+</li>
+<li><strong>Heap Binaries</strong>
+Heap binaries是小型Binary，最多64Byte，并直接存储在进程堆中。当Heap Binary被进程垃圾回收或者是作为消息发送时，都需要被复制。垃圾收集器不需要特殊处理。</li>
+<li><strong>Sub Binaries</strong>
+Sub Binaries和match contexts对象能引用refc binary和heap binary对象的部分内容。
+Sub Binary是由split_binary/2创建的。一个Sub Binary引用另一个Binary的部分内容（只能引用Refc和Heap Binary，不能引用另一个Sub Binary）。因此，匹配一个Binary类型是比较高效的，因为实际的Binary数据是不会被复制的。</li>
+<li><strong>Match Context</strong>
+Match context和Sub binary比较类似，但是Match context专门为Binary匹配优化。（原文比较拗口，这里不做解释了，我也没太看懂）</li>
+</ul>
+<h4 id="构建Binary"><a href="#构建Binary" class="headerlink" title="构建Binary"></a>构建Binary</h4><p>Binary和Bitstring的append操作是被运行时系统特别优化的，只有在极少数的情况下优化是不起作用的。
+如下代码可以解释优化是如何起作用的:
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Bin0 = &lt;&lt;<span class="number">0</span>&gt;&gt;,</span><br><span class="line">Bin1 = &lt;&lt;Bin0/binary,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&gt;&gt;,</span><br><span class="line">Bin2 = &lt;&lt;Bin1/binary,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>&gt;&gt;,</span><br><span class="line">Bin3 = &lt;&lt;Bin2/binary,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>&gt;&gt;,</span><br><span class="line">Bin4 = &lt;&lt;Bin1/binary,<span class="number">17</span>&gt;&gt;,</span><br><span class="line">&#123;Bin4,Bin3&#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>第1行分配一个Heap Binary给Bin0变量</li>
+<li>第2行是append操作。由于Bin0没有涉及append操作，所以创建一个新的Refc Binary，并将Bin0的内容复制到其中。Refc Binary的ProcBin部分存有Binary对象的数据大小，而Binary对象还分配了额外的空间。Binary对象的大小是Bin1或256的大小的两倍，以较大者为准。在这个例子中是256。</li>
+<li>第3行更有意思。Bin1已被用于append操作，最后有252字节的未使用内存，因此3个新的字节会被存储在这些空闲的内存中。</li>
+<li>第4行。和第3行一样。剩下249个字节，所以存储另外3个新字节没有问题。</li>
+<li>第5行。有趣的事情发生。请注意，Bin4是用Bin1来append值17。Bin4将被赋值为&lt;&lt;0,1,2,3,17&gt;&gt;。Bin3将保留其价值&lt;&lt;0,1,2,3,4,5,6,7,8,9&gt;&gt;。显然，运行时系统不能将字节17写入上述的Refc Binary中，因为这会将Bin3的值更改为&lt;&lt;0,1,2,3,4,17,6,7,8,9&gt;&gt;。
+运行时系统知道Bin1是先前append操作的结果，所以它将Bin1的内容复制到一个新的Binary，预留额外的存储空间等等类似上面的操作。（这里没有解释为什么运行时系统知道不能写入到Bin1中，如果有兴趣的话可以阅读erl_bits.c源代码）</li>
+</ul>
+<h5 id="强制拷贝的情况"><a href="#强制拷贝的情况" class="headerlink" title="强制拷贝的情况"></a>强制拷贝的情况</h5><p>Binary的append操作优化要求对于Binary:只有一个ProcBin指向一个Refc Binary的Binary对象。原因是优化需要在append操作期间移动（重新分配）Binary对象，并且同时更新ProcBin中的指针。如果有多个ProcBin指向Binary对象，则无法找到并更新它们。
+因此，对Binary的某些操作会被做标记，以便在将来做append操作的时候知道是否要强制拷贝Binary。在大多数情况下，Binary额外分配的空间也会在这个时候也被回收掉。
+如果将Binary作为消息发送到其他进程或端口，则binary对象会缩小，任何进一步的append操作都会将Binary数据复制到新的Binary中。例如，在下面的代码，第3行的Bin1将会被复制：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Bin1 = &lt;&lt;Bin0,...&gt;&gt;,</span><br><span class="line">PortOrPid ! Bin1,</span><br><span class="line">Bin = &lt;&lt;Bin1,...&gt;&gt;  <span class="comment">%% Bin1 will be COPIED</span></span><br></pre></td></tr></table></figure></p>
+<p>同样的情况一样会发生，如果将Binary插入到Ets表中、使用erlangport_command/2将其发送到端口、或者将其传递给NIF中的enif_inspect_binary。
+匹配Binary也会导致其缩小，下一个append操作将会复制Binary数据：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Bin1 = &lt;&lt;Bin0,...&gt;&gt;,</span><br><span class="line">&lt;&lt;X,Y,Z,T/binary&gt;&gt; = Bin1,</span><br><span class="line">Bin = &lt;&lt;Bin1,...&gt;&gt;  <span class="comment">%% Bin1 will be COPIED</span></span><br></pre></td></tr></table></figure></p>
+<p>原因是match context包含直接指向二进制数据的指针。
+如果一个进程简单地保留Binary（在“循环数据”或进程字典中），垃圾回收器最终可以收缩这个Binary。如果只保留一个这样的Binary，则不会收缩。如果该进程后续append到已收缩的Binary中，则Binary对象将被重新分配，以使数据被加上。</p>
+<h4 id="匹配Binary"><a href="#匹配Binary" class="headerlink" title="匹配Binary"></a>匹配Binary</h4><p>重新看下文章开头的匹配例子：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">my_binary_to_list</span><span class="params">(&lt;&lt;H,T/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    [H|my_binary_to_list(T)];</span><br><span class="line"><span class="function"><span class="title">my_binary_to_list</span><span class="params">(&lt;&lt;&gt;&gt;)</span> -&gt;</span> [].</span><br></pre></td></tr></table></figure></p>
+<p>第一次调用my_binary_to_list/1时，会创建match context。match context指向Binary的第一个字节。匹配1个字节，并更新match context以指向Binary的第二个字节。
+在此时，创建一个sub binary似乎是有意义的，但是在这个特定的例子中编译器知道每次匹配后会马上调用一个函数（在这个例子中，是my_binary_to_list/1本身），这会导致要创建一个新的match context然后丢弃sub binary。
+因此，my_binary_to_list/1使用match context而不是使用sub binary调用自身。初始化匹配操作的指令当它看到它被传递给match context而不是sub binary时基本上什么都不做。
+当到达Binary的末尾并且第二个子句匹配时，match context将被简单地丢弃（在下一个垃圾回收中被移除，因为不再有任何引用）。
+总而言之，my_binary_to_list/1只需要创建一个match context，而不需要sub binary。
+注意，当遍历完整个Binary后，my_binary_to_list/1中的match context被丢弃。如果迭代在Binary结束之前停止，会发生什么？优化还会生效吗？
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;<span class="number">0</span>,T/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    T;</span><br><span class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;_,T/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    after_zero(T);</span><br><span class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    &lt;&lt;&gt;&gt;.</span><br></pre></td></tr></table></figure></p>
+<p>答案是依然生效，编译器将在第二个子句中删除sub binary的构建：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;_,T/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    after_zero(T);</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<p>但是它会生成在第一个子句中构建sub binary的代码：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;<span class="number">0</span>,T/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    T;</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<p>因此，after_zero/1将构建一个match context和一个sub binary（如果它传进一个包含0的binary）。
+以下代码也将进行优化：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">all_but_zeroes_to_list</span><span class="params">(Buffer, Acc, <span class="number">0</span>)</span> -&gt;</span></span><br><span class="line">    &#123;lists:reverse(Acc),Buffer&#125;;</span><br><span class="line"><span class="function"><span class="title">all_but_zeroes_to_list</span><span class="params">(&lt;&lt;<span class="number">0</span>,T/binary&gt;&gt;, Acc, Remaining)</span> -&gt;</span></span><br><span class="line">    all_but_zeroes_to_list(T, Acc, Remaining-<span class="number">1</span>);</span><br><span class="line"><span class="function"><span class="title">all_but_zeroes_to_list</span><span class="params">(&lt;&lt;Byte,T/binary&gt;&gt;, Acc, Remaining)</span> -&gt;</span></span><br><span class="line">    all_but_zeroes_to_list(T, [Byte|Acc], Remaining-<span class="number">1</span>).</span><br></pre></td></tr></table></figure></p>
+<p>编译器将删除第二和第三个子句中的sub binary的构建，并向第一个子句添加一个指令，该指令将Buffer从match context转换成sub binary（如果Buffer已经是binary，则不执行任何操作）。
+在开始认为编译器可以优化任何Binary模式匹配之前，以下函数不能由编译器进行优化（至少当前是这样的）：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([H|T1], &lt;&lt;H,T2/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    non_opt_eq(T1, T2);</span><br><span class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([_|_], &lt;&lt;_,_/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    <span class="literal">false</span>;</span><br><span class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([], &lt;&lt;&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    <span class="literal">true</span>.</span><br></pre></td></tr></table></figure></p>
+<p>之前提到，如果编译器知道Binary不会被共享，则会延迟创建sub binary。在当前的这种情况下，编译器无法知道。
+很快，下面的章节将解释如何重写non_opt_eq/2，以便可以应用延迟sub binary的优化，更重要的是，还能发现你的代码是否可以优化。</p>
+<h5 id="bin-opt-info选项"><a href="#bin-opt-info选项" class="headerlink" title="bin_opt_info选项"></a>bin_opt_info选项</h5><p>使用bin_opt_info选项可以让编译器打印大量有关二进制优化的信息。</p>
+<blockquote>
+<p>erlc +bin_opt_info Mod.erl</p>
+</blockquote>
+<p>请注意，bin_opt_info不能是能永久添加到Makefile中的选项，因为它生成的所有信息都不能被删除。因此，通过环境选择在大多数情况下是最实际的方法。
+为了更准确地说明警告所引用的代码，以下示例中的警告将作为注释引用到它们所引用的子句之后插入，例如：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;<span class="number">0</span>,T/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">         <span class="comment">%% NOT OPTIMIZED: sub binary is used or returned</span></span><br><span class="line">    T;</span><br><span class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;_,T/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">         <span class="comment">%% OPTIMIZED: creation of sub binary delayed</span></span><br><span class="line">    after_zero(T);</span><br><span class="line"><span class="function"><span class="title">after_zero</span><span class="params">(&lt;&lt;&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    &lt;&lt;&gt;&gt;.</span><br></pre></td></tr></table></figure></p>
+<p>上述代码说明第一个匹配没有优化，第二个匹配会被优化。
+让我们重新回顾一下无法优化的代码的例子，并找出原因：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([H|T1], &lt;&lt;H,T2/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">        <span class="comment">%% INFO: matching anything else but a plain variable to</span></span><br><span class="line">    <span class="comment">%%    the left of binary pattern will prevent delayed </span></span><br><span class="line">    <span class="comment">%%    sub binary optimization;</span></span><br><span class="line">    <span class="comment">%%    SUGGEST changing argument order</span></span><br><span class="line">        <span class="comment">%% NOT OPTIMIZED: called function non_opt_eq/2 does not</span></span><br><span class="line">    <span class="comment">%%    begin with a suitable binary matching instruction</span></span><br><span class="line">    non_opt_eq(T1, T2);</span><br><span class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([_|_], &lt;&lt;_,_/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    <span class="literal">false</span>;</span><br><span class="line"><span class="function"><span class="title">non_opt_eq</span><span class="params">([], &lt;&lt;&gt;&gt;)</span> -&gt;</span></span><br><span class="line">    <span class="literal">true</span>.</span><br></pre></td></tr></table></figure></p>
+<p>编译器发出两个警告。INFO警告指的是函数non_opt_eq/2作为被调用者，表示任何调用non_opt_eq/2的函数都不能进行延迟sub binary优化。还有一个建议来改变参数顺序。第二个警告（恰好是指同一行）是指sub binary本身的构造。
+下面的另一个例子将显示INFO和NOT OPTIMIZED警告之间的区别，这些警告有些清晰，但是让我们先来试一下改变参数顺序的建议：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">opt_eq</span><span class="params">(&lt;&lt;H,T1/binary&gt;&gt;, [H|T2])</span> -&gt;</span></span><br><span class="line">        <span class="comment">%% OPTIMIZED: creation of sub binary delayed</span></span><br><span class="line">    opt_eq(T1, T2);</span><br><span class="line"><span class="function"><span class="title">opt_eq</span><span class="params">(&lt;&lt;_,_/binary&gt;&gt;, [_|_])</span> -&gt;</span></span><br><span class="line">    <span class="literal">false</span>;</span><br><span class="line"><span class="function"><span class="title">opt_eq</span><span class="params">(&lt;&lt;&gt;&gt;, [])</span> -&gt;</span></span><br><span class="line">    <span class="literal">true</span>.</span><br></pre></td></tr></table></figure></p>
+<p>编译器给出以下代码片段的警告：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">match_body</span><span class="params">([<span class="number">0</span>|_], &lt;&lt;H,_/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">        <span class="comment">%% INFO: matching anything else but a plain variable to</span></span><br><span class="line">    <span class="comment">%%    the left of binary pattern will prevent delayed </span></span><br><span class="line">    <span class="comment">%%    sub binary optimization;</span></span><br><span class="line">    <span class="comment">%%    SUGGEST changing argument order</span></span><br><span class="line">    done;</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<p>这个警告意味着如果有一个对match_body/2的调用（来自match_body/2中的另一个子句或另一个函数），那么延迟的子二进制优化是不可能的。在二进制匹配结束处的任何地方将发生更多警告，并作为match_body/2的第二个参数传递，例如：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">match_head</span><span class="params">(List, &lt;&lt;_:<span class="number">10</span>,Data/binary&gt;&gt;)</span> -&gt;</span></span><br><span class="line">        <span class="comment">%% NOT OPTIMIZED: called function match_body/2 does not</span></span><br><span class="line">    <span class="comment">%%     begin with a suitable binary matching instruction</span></span><br><span class="line">    match_body(List, Data).</span><br></pre></td></tr></table></figure></p>
+<h5 id="未使用的变量"><a href="#未使用的变量" class="headerlink" title="未使用的变量"></a>未使用的变量</h5><p>编译器能够算出一个变量是否未被使用。然后为以下每个功能生成相同的代码：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">count1</span><span class="params">(&lt;&lt;_,T/binary&gt;&gt;, Count)</span> -&gt;</span> count1(T, Count+<span class="number">1</span>);</span><br><span class="line"><span class="function"><span class="title">count1</span><span class="params">(&lt;&lt;&gt;&gt;, Count)</span> -&gt;</span> Count.</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">count2</span><span class="params">(&lt;&lt;H,T/binary&gt;&gt;, Count)</span> -&gt;</span> count2(T, Count+<span class="number">1</span>);</span><br><span class="line"><span class="function"><span class="title">count2</span><span class="params">(&lt;&lt;&gt;&gt;, Count)</span> -&gt;</span> Count.</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">count3</span><span class="params">(&lt;&lt;_H,T/binary&gt;&gt;, Count)</span> -&gt;</span> count3(T, Count+<span class="number">1</span>);</span><br><span class="line"><span class="function"><span class="title">count3</span><span class="params">(&lt;&lt;&gt;&gt;, Count)</span> -&gt;</span> Count.</span><br></pre></td></tr></table></figure></p>
+<p>在每次迭代中，二进制中的前8位将被跳过，不匹配。</p>
+<h4 id="历史笔记"><a href="#历史笔记" class="headerlink" title="历史笔记"></a>历史笔记</h4><p>R12的Binary处理显着改善。因此R11B中执行高效的代码在R12B中可能不是那么高效，反之亦然，此efficiency-guide的较早版本包含了有关R11B中二进制处理的一些信息。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/10/14/efficiency-guide-需要注意的模块和BIF/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -2128,219 +2395,6 @@ set -e</p>
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/" itemprop="url">
-                  Erlang中由rpc:cast错误引起的对error_logger的研究
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-06-15 22:45:28" itemprop="dateCreated datePublished" datetime="2017-06-15T22:45:28+08:00">2017-06-15</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang深入/" itemprop="url" rel="index"><span itemprop="name">Erlang深入</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/15/Erlang中由rpc-cast错误引起的对error-logger的研究/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>之所以会写这篇文章，是因为rpc:cast函数的使用超出了我的理解范围，本来我的理解是：如果rpc:cast执行失败的话，是不会有任何报错的。但是由于最近的线上存在两个版本的代码进行的互相调用引发了一些报警，让我好奇rpc:cast和error_logger是怎么工作的。</p>
-</blockquote>
-<h4 id="rpc-cast-是怎么工作的？"><a href="#rpc-cast-是怎么工作的？" class="headerlink" title="rpc:cast 是怎么工作的？"></a>rpc:cast 是怎么工作的？</h4><p>我们在查阅rpc的源代码的时候可以发现以下代码：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">-define</span><span class="params">(NAME, rex)</span>.</span><br><span class="line">...</span><br><span class="line"><span class="function"><span class="title">handle_cast</span><span class="params">(&#123;cast, Mod, Fun, Args, Gleader&#125;, S)</span> -&gt;</span></span><br><span class="line">    spawn(<span class="keyword">fun</span>() -&gt;</span><br><span class="line">		  set_group_leader(Gleader),</span><br><span class="line">		  apply(Mod, Fun, Args)</span><br><span class="line">	  <span class="keyword">end</span>),</span><br><span class="line">    &#123;noreply, S&#125;;</span><br><span class="line">...</span><br><span class="line">cast(Node, Mod, Fun, Args) when Node =:= node() -&gt;</span><br><span class="line">    <span class="keyword">catch</span> spawn(Mod, Fun, Args),</span><br><span class="line">    <span class="literal">true</span>;</span><br><span class="line"><span class="function"><span class="title">cast</span><span class="params">(Node, Mod, Fun, Args)</span> -&gt;</span></span><br><span class="line">    gen_server:cast(&#123;?NAME,Node&#125;, &#123;cast,Mod,Fun,Args,group_leader()&#125;),</span><br><span class="line">    <span class="literal">true</span>.</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
-<p>从上面的代码我们可以看到，rpc:cast的时候如果目标node和本地node一样的话就会直接spawn一个进程处理，如果是远程的话，则会调用一个名字为rex的gen_server到远程的服务器上执行，远程的服务器同样也是spawn一个进程来处理。如果一个服务器是为其他服务器提供服务的（通过rpc模块），那么这个服务器的rex应该会是最繁忙的。通过上面的分析我们知道rpc:cast的错误是spawn函数通知error_logger的。</p>
-<h4 id="spawn出来的进程执行遇到错误怎么处理？"><a href="#spawn出来的进程执行遇到错误怎么处理？" class="headerlink" title="spawn出来的进程执行遇到错误怎么处理？"></a>spawn出来的进程执行遇到错误怎么处理？</h4><p>我自己试验了下，比如我自己在shell里面执行spawn(fun() -&gt; 1 = 2 end).语句的话，error_logger就会收到如下的一个错误事件：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;error,&lt;<span class="number">113291.32</span>.<span class="number">0</span>&gt;,</span><br><span class="line">  &#123;emulator,<span class="string">"~s~n"</span>,</span><br><span class="line">  [<span class="string">"Error in process &lt;0.13313.2075&gt; on node 'all_in_one_33000@192.168.1.102' with exit value: &#123;&#123;badmatch,2&#125;,[&#123;erl_eval,expr,3,[]&#125;]&#125;\n"</span>]&#125;&#125;</span><br></pre></td></tr></table></figure></p>
-<p>为了明白上述的情况为什么会发生，我在Erlang邮件列表里面找到两个类似的问题，可以解答我的疑问：</p>
-<p><a href="http://erlang.org/pipermail/erlang-questions/2013-October/075867.html" target="_blank" rel="noopener">[erlang-questions] An answer: how does SASL know that a process    died?</a></p>
-<p><a href="http://erlang.org/pipermail/erlang-questions/2014-April/078792.html" target="_blank" rel="noopener">[erlang-questions] error_logger events sent by emulator</a></p>
-<p>简单的总结上面的两个问题，spawn执行的程序遇到异常的话，是由虚拟机的C语言代码向error_logger发送的错误事件。</p>
-<h4 id="error-logger-是怎么工作的？"><a href="#error-logger-是怎么工作的？" class="headerlink" title="error_logger 是怎么工作的？"></a>error_logger 是怎么工作的？</h4><p><a href="http://erlang.org/doc/man/error_logger.html" target="_blank" rel="noopener">error_logger</a>是Erlang的错误记录器，由<a href="http://erlang.org/doc/man/gen_event.html" target="_blank" rel="noopener">gen_event</a>实现，在Erlang系统中会有一个注册名为error_logger的事件管理器(event manager)，可以在事件管理器中加入各种处理模块来处理事件。默认的系统中会加入以下两个错误处理模块：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ erl</span><br><span class="line">Erlang R16B03 (erts-<span class="number">5.10</span>.<span class="number">4</span>) [source] [<span class="number">64</span>-bit] [smp:<span class="number">12</span>:<span class="number">12</span>] </span><br><span class="line">[async-threads:<span class="number">10</span>] [hipe] [kernel-poll:<span class="literal">false</span>]</span><br><span class="line"></span><br><span class="line">Eshell V5.<span class="number">10.4</span>  (abort with ^G)</span><br><span class="line"><span class="number">1</span>&gt; gen_event:which_handlers(error_logger).</span><br><span class="line">[error_logger,error_logger_tty_h]</span><br></pre></td></tr></table></figure></p>
-<p>简单的说下这两个错误处理模块，首先是error_logger模块，以下是该模块的处理事件的部分代码：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">handle_event</span><span class="params">(&#123;Type, GL, Msg&#125;, State)</span> <span class="title">when</span> <span class="title">node</span><span class="params">(GL)</span> =/= <span class="title">node</span><span class="params">()</span> -&gt;</span></span><br><span class="line">    gen_event:notify(&#123;error_logger, node(GL)&#125;,&#123;Type, GL, Msg&#125;),</span><br><span class="line">    <span class="comment">%% handle_event2(&#123;Type, GL, Msg&#125;, State);  %% Shall we do something</span></span><br><span class="line">    &#123;ok, State&#125;;                               <span class="comment">%% at this node too ???</span></span><br><span class="line"><span class="function"><span class="title">handle_event</span><span class="params">(&#123;info_report, _, &#123;_, Type, _&#125;&#125;, State)</span> <span class="title">when</span> T<span class="title">ype</span> =/= <span class="title">std_info</span> -&gt;</span></span><br><span class="line">    &#123;ok, State&#125;;   <span class="comment">%% Ignore other info reports here</span></span><br><span class="line"><span class="function"><span class="title">handle_event</span><span class="params">(Event, State)</span> -&gt;</span></span><br><span class="line">    handle_event2(Event, State).</span><br><span class="line">...</span><br><span class="line"><span class="function"><span class="title">handle_event2</span><span class="params">(Event, &#123;<span class="number">1</span>, Lost, Buff&#125;)</span> -&gt;</span></span><br><span class="line">    display(tag_event(Event)),</span><br><span class="line">    &#123;ok, &#123;<span class="number">1</span>, Lost+<span class="number">1</span>, Buff&#125;&#125;;</span><br><span class="line"><span class="function"><span class="title">handle_event2</span><span class="params">(Event, &#123;N, Lost, Buff&#125;)</span> -&gt;</span></span><br><span class="line">    Tagged = tag_event(Event),</span><br><span class="line">    display(Tagged),</span><br><span class="line">    &#123;ok, &#123;N-<span class="number">1</span>, Lost, [Tagged|Buff]&#125;&#125;;</span><br><span class="line"><span class="function"><span class="title">handle_event2</span><span class="params">(_, State)</span> -&gt;</span></span><br><span class="line">    &#123;ok, State&#125;.</span><br><span class="line">...</span><br><span class="line"><span class="function"><span class="title">display2</span><span class="params">(Tag,F,A)</span> -&gt;</span></span><br><span class="line">    erlang:display(&#123;error_logger,Tag,F,A&#125;).</span><br></pre></td></tr></table></figure></p>
-<p>该模块把是本node产生的事件调用erlang:display()输出，把不是本node产生的事件发送到目标node上面，由目标node的error_logger进行处理。</p>
-<p>接着是error_logger_tty_h模块，以下是该模块的处理事件的部分代码：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">handle_event</span><span class="params">(&#123;_Type, GL, _Msg&#125;, State)</span> <span class="title">when</span> <span class="title">node</span><span class="params">(GL)</span> =/= <span class="title">node</span><span class="params">()</span> -&gt;</span></span><br><span class="line">    &#123;ok, State&#125;;</span><br><span class="line"><span class="function"><span class="title">handle_event</span><span class="params">(Event, State)</span> -&gt;</span></span><br><span class="line">    write_event(tag_event(Event),io),</span><br><span class="line">    &#123;ok, State&#125;.</span><br><span class="line">...</span><br><span class="line"><span class="function"><span class="title">write_event</span><span class="params">(&#123;Time, &#123;error, _GL, &#123;Pid, Format, Args&#125;&#125;&#125;,IOMod)</span> -&gt;</span></span><br><span class="line">    T = write_time(maybe_utc(Time)),</span><br><span class="line">    <span class="keyword">case</span> <span class="keyword">catch</span> io_lib:format(add_node(Format,Pid), Args) <span class="keyword">of</span></span><br><span class="line">	S <span class="keyword">when</span> is_list(S) -&gt;</span><br><span class="line">	    format(IOMod, T ++ S);</span><br><span class="line">	_ -&gt;</span><br><span class="line">	    F = add_node(<span class="string">"ERROR: ~p - ~p~n"</span>, Pid),</span><br><span class="line">	    format(IOMod, T ++ F, [Format,Args])</span><br><span class="line">    <span class="keyword">end</span>;</span><br><span class="line">...</span><br><span class="line"><span class="function"><span class="title">format</span><span class="params">(IOMod, String)</span>       -&gt;</span> format(IOMod, String, []).</span><br><span class="line"><span class="function"><span class="title">format</span><span class="params">(io_lib, String, Args)</span> -&gt;</span> io_lib:format(String, Args);</span><br><span class="line"><span class="function"><span class="title">format</span><span class="params">(io, String, Args)</span> -&gt;</span> io:format(user, String, Args).</span><br></pre></td></tr></table></figure></p>
-<p>该模块把不是该node的事件直接忽略，然后把本node的事件调用io:format输出到终端上面。</p>
-<p>除了这两个处理模块，Erlang的<a href="http://erlang.org/doc/man/sasl_app.html" target="_blank" rel="noopener">sasl</a>应用还提供了三个模块：sasl_report_tty_h、sasl_report_file_h、log_mf_h。log_mf_h模块的功能最为强大，能够把错误写入指定个数的文件中，当文件用完后会自动删除最老的事件以腾出空间记录最新的事件。但是log_mf_h的缺点是记录的是二进制的格式，要查看记录的事件的话，还需要使用sasl提供的rb模块来解析，颇为繁琐。而且该模块没有对单事件的最大上限做保护，如果有超大的事件写入的话，就会导致文件错乱，看不了事件（这个可以自己写代码做保护，我们项目之前就是这样做的）。</p>
-<p>当然除了官方提供的处理模块，也可以使用第三方提供的模块。现在我们项目就把所有官方提供的模块都删除掉了，只使用lager提供的error_logger_lager_h模块来处理事件，然后自己编写了一个alarm_handle_error模块用来发送报警。error_logger_lager_h使用文本的方式来记录事件，查看起来比较方便，而且对Erlang内部一些比较难以理解的错误进行翻译，比较容易理解；但是由于使用文本的方式进行记录，没有对事件消息进行格式化，如果消息比较大的话，读起来比较费劲。</p>
-<h4 id="error-logger-添加处理模块的注意事项"><a href="#error-logger-添加处理模块的注意事项" class="headerlink" title="error_logger 添加处理模块的注意事项"></a>error_logger 添加处理模块的注意事项</h4><p>当使用sasl提供的log_mf_h处理模块的时候不能删除系统提供的error_logger模块，不然像rpc:cast通知的事件就不能正常的捕获了，原因如下：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% 当NodeA执行以下函数的时候，在NodeB会接收到一个错误，</span></span><br><span class="line"><span class="comment">%% 由于NodeB只有log_mf_h模块，log_mf_h模块会对接收的事件使用sasl:pred/1函数进行过滤</span></span><br><span class="line"><span class="comment">%% sasl:pred/1会过滤不是本node的产生的事件，因此该错误被过滤</span></span><br><span class="line"><span class="comment">%% 如果这时候NodeB有error_logger模块的话，error_logger模块就会将事件通知NodeA</span></span><br><span class="line"><span class="comment">%% 然后NodeA就能使用log_mf_h模块正确记录该错误，该错误记录在NodeA的机器上</span></span><br><span class="line">NodeA: rpc:cast(NodeB, M, ErrorFun, []).</span><br></pre></td></tr></table></figure></p>
-<p>lager的error_logger_lager_h模块默认会记录所有的事件，不管该事件是属于哪个Node的，如下：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% 当NodeA执行以下函数的时候，在NodeB会接收到一个错误，</span></span><br><span class="line"><span class="comment">%% error_logger_lager_h直接记录错误在NodeB的机器上</span></span><br><span class="line">NodeA: rpc:cast(NodeB, M, ErrorFun, []).</span><br></pre></td></tr></table></figure></p>
-<h4 id="最后说两句"><a href="#最后说两句" class="headerlink" title="最后说两句"></a>最后说两句</h4><p>之前项目使用log_mf_h模块处理事件的配置文件如下：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[&#123;sasl, [</span><br><span class="line">          &#123;sasl_error_logger, false&#125;,</span><br><span class="line">          &#123;errlog_type, error&#125;,</span><br><span class="line">          &#123;error_logger_mf_dir, <span class="string">"logs"</span>&#125;,</span><br><span class="line">          &#123;error_logger_mf_maxbytes, <span class="number">1073741824</span>&#125;, <span class="comment">% 1GB</span></span><br><span class="line">          &#123;error_logger_mf_maxfiles, <span class="number">10</span>&#125;</span><br><span class="line">    ]&#125;].</span><br></pre></td></tr></table></figure></p>
-<p>之前一直觉得errlog_type是控制log_mf_h模块的处理事件级别的参数，这边设置的参数是error，为什么info的信息还会记录下来呢？后面看了下sasl.erl模块的代码，errlog_type和log_mf_h模块根本没有关系，然后回头再看了一下sasl的文档:</p>
-<p>log_mf_h</p>
-<p>This error logger writes <strong>all</strong> events sent to the error logger to disk. Multiple files and log rotation are used. For efficiency reasons, each event is written as a binary. For more information about this handler, see the STDLIB Reference Manual.</p>
-<p>To activate this event handler, three SASL configuration parameters must be set, error_logger_mf_dir, error_logger_mf_maxbytes, and error_logger_mf_maxfiles. The next section provides more information about the configuration parameters.</p>
-<p>文档中<strong>all</strong>已经加黑了，我居然没看到，以后还得好好认真看文档！</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2390,7 +2444,7 @@ set -e</p>
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">42</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2429,9 +2483,7 @@ set -e</p>
                     
                       
                     
-                      
-                    
-                    <span class="site-state-item-count">14</span>
+                    <span class="site-state-item-count">13</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -2494,7 +2546,11 @@ set -e</p>
                     
                       
                     
-                    <span class="site-state-item-count">25</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">27</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
