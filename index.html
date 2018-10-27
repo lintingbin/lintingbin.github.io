@@ -1,35 +1,114 @@
 <!DOCTYPE html>
-<html>
-<head>
-    
-<!-- Google Analytics -->
-<script>
-window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-ga('create', 'UA-98287189-1', 'auto');
-ga('send', 'pageview');
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.4.2" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.4.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.4.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.4.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.4.2" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.4.2',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
 </script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-<!-- End Google Analytics -->
 
 
-    
-
-    
+  
 
 
 
-    <meta charset="utf-8">
-    
-    
-    
-    <title>Darcy&#39;s Blog | 不如烂笔头</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    
-    <meta name="theme-color" content="#3F51B5">
-    
-    
-    <meta name="keywords" content="">
-    <meta name="description" content="欢迎来到我的个人站">
+
+  <meta name="description" content="欢迎来到我的个人站">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Darcy&#39;s Blog">
 <meta property="og:url" content="https://lintingbin2009.github.io/index.html">
@@ -39,778 +118,2800 @@ ga('send', 'pageview');
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Darcy&#39;s Blog">
 <meta name="twitter:description" content="欢迎来到我的个人站">
-    
-        <link rel="alternate" type="application/atom+xml" title="Darcy&#39;s Blog" href="/atom.xml">
-    
-    <link rel="shortcut icon" href="/favicon.ico">
-    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
-    <script>window.lazyScripts=[]</script>
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Darcy's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="https://lintingbin2009.github.io/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Darcy's Blog</title>
+  
+
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-98287189-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-98287189-1');
+</script>
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
 </head>
 
-<body>
-    <div id="loading" class="active"></div>
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-CN">
 
-    <aside id="menu"  >
-  <div class="inner flex-row-vertical">
-    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
-        <i class="icon icon-lg icon-close"></i>
-    </a>
-    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
-      <div class="brand">
-        <a href="/" class="avatar waves-effect waves-circle waves-light">
-          <img src="/img/avatar.jpg">
-        </a>
-        <hgroup class="introduce">
-          <h5 class="nickname">lintingbin2009</h5>
-          <a href="mailto:lintingbin31@gmail.com" title="lintingbin31@gmail.com" class="mail">lintingbin31@gmail.com</a>
-        </hgroup>
-      </div>
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left 
+  page-home">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Darcy's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
     </div>
-    <div class="scroll-wrap flex-col">
-      <ul class="nav">
+    
+      
+        <p class="site-subtitle">不如烂笔头</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
         
-            <li class="waves-block waves-effect active">
-              <a href="/"  >
-                <i class="icon icon-lg icon-home"></i>
-                主页
-              </a>
-            </li>
         
-            <li class="waves-block waves-effect">
-              <a href="/archives"  >
-                <i class="icon icon-lg icon-archives"></i>
-                归档
-              </a>
-            </li>
         
-            <li class="waves-block waves-effect">
-              <a href="/tags"  >
-                <i class="icon icon-lg icon-tags"></i>
-                标签
-              </a>
-            </li>
+          
+          <li class="menu-item menu-item-home menu-item-active">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+  </li>
         
-            <li class="waves-block waves-effect">
-              <a href="/categories"  >
-                <i class="icon icon-lg icon-th-list"></i>
-                类别
-              </a>
-            </li>
         
-            <li class="waves-block waves-effect">
-              <a href="https://github.com/lintingbin2009" target="_blank" >
-                <i class="icon icon-lg icon-github"></i>
-                Github
-              </a>
-            </li>
         
-      </ul>
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
     </div>
   </div>
-</aside>
-
-    <main id="main">
-        <header class="top-header" id="header">
-    <div class="flex-row">
-        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
-          <i class="icon icon-lg icon-navicon"></i>
-        </a>
-        <div class="flex-col header-title ellipsis">Darcy&#39;s Blog</div>
-        
-        <div class="search-wrap" id="search-wrap">
-            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
-                <i class="icon icon-lg icon-chevron-left"></i>
-            </a>
-            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
-            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
-                <i class="icon icon-lg icon-search"></i>
-            </a>
-        </div>
-        
-        
-        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
-            <i class="icon icon-lg icon-share-alt"></i>
-        </a>
-        
-    </div>
-</header>
-<header class="content-header index-header">
-
-    <div class="container fade-scale">
-        <h1 class="title">Darcy&#39;s Blog</h1>
-        <h5 class="subtitle">
-            
-                不如烂笔头
-            
-        </h5>
-    </div>
-
-    
+  <div id="local-search-result"></div>
+</div>
 
 
-</header>
-
-<div class="container body-wrap">
-
-    <ul class="post-list">
-    
-        <li class="post-list-item fade">
-            <article id="post-Fluentd性能优化实践"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2018-10-04 18:51:56" datetime="2018-10-04T10:51:56.000Z"  itemprop="datePublished">2018-10-04</time>
-
-        
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/日志收集/">日志收集</a></li></ul>
-
-
-
-        
 
     </div>
-
-    
-
-
   
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2018/10/04/Fluentd性能优化实践/">Fluentd性能优化实践</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        
-我们的日志收集系统使用的是Fluentd，使用Fluentd的原因大概是因为配置简单、插件比较多、而且能够比较容易的定制自己的插件。但是随着日志越来越多以后，Fluentd会出现性能上的问题，以下的文章将回顾我们进行Fluentd性能优化的操作。
-
-Fluentd 性能问题的主要原因？抛开自己配置错误的一些原因，Fluentd性能问题的最主要原因是因为Fluentd是使用Ruby写的，而R...
-    
-
-        <a href="/2018/10/04/Fluentd性能优化实践/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fluentd/">Fluentd</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-Python的Iterator不能当List用"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2018-09-09 12:49:24" datetime="2018-09-09T04:49:24.000Z"  itemprop="datePublished">2018-09-09</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2018/09/09/Python的Iterator不能当List用/">Python的Iterator不能当List用</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        
-之前在重构流处理框架的时候，把在每个模块里面处理的数据类型从List，变成了pyspark里面foreachPartition输入的函数的参数，其实就是一个Iterator类型的参数，用来遍历整个Partition的数据。但是后面发现有些模块没有执行，最后发现竟然是误用Iterator造成的bug。
-
-问题Iterator类型的数据只能遍历一次，但是List可以一直遍历，很简单的一段代码就...
-    
-
-        <a href="/2018/09/09/Python的Iterator不能当List用/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-fabric远程执行后台进程卡住问题处理"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2018-07-28 13:24:38" datetime="2018-07-28T05:24:38.000Z"  itemprop="datePublished">2018-07-28</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2018/07/28/fabric远程执行后台进程卡住问题处理/">fabric远程执行后台脚本卡住的问题</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        
-最近用fabric开发了一个简单的运维系统，该系统可以在远程机器上执行一些命令，在批量执行后台脚本的启动的时候，发现fabric会卡住，不能正常的返回。在fabric官方有给出一些解决方案Why can’t I run programs in the background with &amp;? It makes Fabric hang，但是这些方案都要额外的工具，有些麻烦。接下来简单的介...
-    
-
-        <a href="/2018/07/28/fabric远程执行后台进程卡住问题处理/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fabric/">fabric</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-python标准开发环境"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2018-06-23 13:44:23" datetime="2018-06-23T05:44:23.000Z"  itemprop="datePublished">2018-06-23</time>
-
-        
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2018/06/23/python标准开发环境/">python标准开发环境</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        
-很多初学python的同学可能都知道pip，通过pip可以安装自己的需要的python第三方库。但是有很多同学可能不知道pipenv，在这篇文章我将介绍如何用pipenv来构建自己的开发环境，以及用pipenv快速部署生产环境
-
-什么是pipenv？pipenv是一个把包管理工具和虚拟环境结合的工具，使用pipenv install和使用pip install一样，可以安装任何你想安装的第...
-    
-
-        <a href="/2018/06/23/python标准开发环境/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-在Spark中使用Python单例的技巧"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2018-05-20 22:33:03" datetime="2018-05-20T14:33:03.000Z"  itemprop="datePublished">2018-05-20</time>
-
-        
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/python使用/">python使用</a></li></ul>
-
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2018/05/20/在Spark中使用Python单例的技巧/">在Spark中使用Python单例的技巧</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        
-在使用spark编程的时候，我们需要知道我们编写的某一段代码是在driver端执行，还是在executor端执行。如果是在executor端执行的话，就要注意这些代码是否是可以序列化发送到executor端执行，如果不行的话就会报错。接下来这篇文章主要讨论Python单例在使用Spark的时候解决的问题。
-
-问题描述在使用spark的时候经常会用到map来对数据进行处理，在map函数里面的...
-    
-
-        <a href="/2018/05/20/在Spark中使用Python单例的技巧/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/">spark</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/单例/">单例</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-Spark报错——java-lang-outofmemoryerror-java-heap-space问题处理"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2018-05-20 15:07:11" datetime="2018-05-20T07:07:11.000Z"  itemprop="datePublished">2018-05-20</time>
-
-        
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/错误处理/">错误处理</a></li></ul>
-
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2018/05/20/Spark报错——java-lang-outofmemoryerror-java-heap-space问题处理/">Spark报错——java.lang.outofmemoryerror: java heap space问题处理</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        
-最近在用spark处理数据的时候遇到内存不足的报错，主要的报错信息是在executor端的log中显示java.lang.outofmemoryerror: java heap space。
-
-问题描述具体的问题是spark在执行到最后一个stage后有一个task一直执行不成功，每次都是重试四次后失败。下面的两张图是具体失败的信息：
-
-                
-         ...
-    
-
-        <a href="/2018/05/20/Spark报错——java-lang-outofmemoryerror-java-heap-space问题处理/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/">spark</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-使用spark进行流处理"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2018-05-04 23:34:53" datetime="2018-05-04T15:34:53.000Z"  itemprop="datePublished">2018-05-04</time>
-
-        
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/流处理/">流处理</a></li></ul>
-
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2018/05/04/使用spark进行流处理/">使用spark进行流处理</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        
-最近在做一个假量检测的项目，主要是用来检测是否有一些伪造的广告点击之类的，然后该项目使用了spark来做在线的流处理
-
-spark的使用场景spark主要用来读取kafka里面的一些点击、安装、登入和登出等数据，然后使用spark的流处理模块对这些数据进行处理，最后把处理完的数据存储到相应的数据库中，供后面的数据分析使用。
-使用的spark流处理模块spark的流处理模块有两个：
-
-Spa...
-    
-
-        <a href="/2018/05/04/使用spark进行流处理/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark/">spark</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-fluentd语法速记"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2018-05-01 14:17:05" datetime="2018-05-01T06:17:05.000Z"  itemprop="datePublished">2018-05-01</time>
-
-        
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/日志收集/">日志收集</a></li></ul>
-
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2018/05/01/fluentd语法速记/">Fluentd语法速记</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        
-最近开始转行做大数据，大数据中很重要的一部分是数据的收集，我们公司主要用的数据收集工具是Fluentd，由于Fluentd的配置比较多，有可能配置过一次后就会忘了。我这边在学习Fluentd配置的同时也对这些配置进行一些记录，方便后面再用到时可以快速的查找。
-
-Fluentd简介Fluentd是一款完全免费且完全开源的日志收集器，拥有“Log Everything”的体系结构，能够与125...
-    
-
-        <a href="/2018/05/01/fluentd语法速记/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fluentd/">Fluentd</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-图片转像素风实现"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2018-03-30 12:13:27" datetime="2018-03-30T04:13:27.000Z"  itemprop="datePublished">2018-03-30</time>
-
-        
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Python/">Python</a></li></ul>
-
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2018/03/30/图片转像素风实现/">图片转像素风实现</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        
-Python用来写各种小工具简直是神器，昨天晚上花了点时间实现了一个图片转像素风的小工具，下面附上图片Demo和代码
-
-
-
-                
-                    
-                    
-                
-                
-            
-
-下面是实现的具体代码：
-123456789101112...
-    
-
-        <a href="/2018/03/30/图片转像素风实现/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/图片/">图片</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/小工具/">小工具</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-        <li class="post-list-item fade">
-            <article id="post-使用erlang-get-stacktrace注意避开的坑"
-  class="article-card article-type-post" itemprop="blogPost">
-
-    <div class="post-meta">
-        <time class="post-time" title="2018-03-29 11:03:03" datetime="2018-03-29T03:03:03.000Z"  itemprop="datePublished">2018-03-29</time>
-
-        
-	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Erlang/">Erlang</a></li></ul>
-
-
-
-        
-
-    </div>
-
-    
-
-
-  
-    <h3 class="post-title" itemprop="name">
-      <a class="post-title-link" href="/2018/03/29/使用erlang-get-stacktrace注意避开的坑/">使用erlang:get_stacktrace注意避开的坑</a>
-    </h3>
-  
-
-
-
-
-    <div class="post-content" id="post-content" itemprop="postContent">
-
-    
-        之前在使用erlang:get_stacktrace()函数的时候发现不能正确的获取发生异常的栈内容，但是错误类型和原因却是正常，感觉非常奇怪，下面是具体的代码：
-12345678910dispatch_cmd(User, Mod, Msg) -&gt;  try Mod:req(User, Msg) of    Result -&gt;      Result  catch    Clas...
-    
-
-        <a href="/2018/03/29/使用erlang-get-stacktrace注意避开的坑/" class="post-more waves-effect waves-button">
-            阅读全文…
-        </a>
-    </div>
-    
-    <div class="post-footer">
-        
-	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Erlang/">Erlang</a></li></ul>
-
-    </div>
-    
-</article>
-
-        </li>
-    
-    </ul>
-
-    
-<nav id="page-nav">
-    <div class="inner">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">下一页</a>
-    </div>
 </nav>
 
 
-</div>
 
-        <footer class="footer">
-    <div class="top">
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+  <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/10/04/Fluentd性能优化实践/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
         
-<p>
-    <span id="busuanzi_container_site_uv" style='display:none'>
-        站点总访客数：<span id="busuanzi_value_site_uv"></span>
-    </span>
-    <span id="busuanzi_container_site_pv" style='display:none'>
-        站点总访问量：<span id="busuanzi_value_site_pv"></span>
-    </span>
-</p>
-
-
-        <p>
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/10/04/Fluentd性能优化实践/" itemprop="url">
+                  Fluentd性能优化实践
+                </a>
+              
             
-                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
-            
-            <span>博客内容遵循<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
-        </p>
-    </div>
-    <div class="bottom">
-        <p>
-            <span>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></span>
-            <span>lintingbin2009 &copy; 2016 - 2018</span>
-        </p>
-    </div>
-</footer>
+          </h1>
+        
 
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-10-04 18:51:56 / 修改时间：23:06:46" itemprop="dateCreated datePublished" datetime="2018-10-04T18:51:56+08:00">2018-10-04</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/日志收集/" itemprop="url" rel="index"><span itemprop="name">日志收集</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/10/04/Fluentd性能优化实践/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/10/04/Fluentd性能优化实践/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>我们的日志收集系统使用的是Fluentd，使用Fluentd的原因大概是因为配置简单、插件比较多、而且能够比较容易的定制自己的插件。但是随着日志越来越多以后，Fluentd会出现性能上的问题，以下的文章将回顾我们进行Fluentd性能优化的操作。</p>
+</blockquote>
+<h4 id="Fluentd-性能问题的主要原因？"><a href="#Fluentd-性能问题的主要原因？" class="headerlink" title="Fluentd 性能问题的主要原因？"></a>Fluentd 性能问题的主要原因？</h4><p>抛开自己配置错误的一些原因，Fluentd性能问题的最主要原因是因为Fluentd是使用Ruby写的，而Ruby有全局锁(GIL)，因而在一个Ruby进程里面同时最多只有一个线程在运行。这样的话，Ruby的多线程对需要更多计算资源的操作显得无能为力，具体的体现可以用top查看进程的运行情况，如果Fluentd到达性能瓶颈的话，Fluentd的进程会一直占用100%左右的计算资源，再也不能提升，对于有四个核的计算机来说，最多也就使用的1/4的计算能力，这是极其浪费的。而且当Fluentd进程到达瓶颈后，数据会处理不完，导致数据收集的速度落后于数据产生的速度。</p>
+<h4 id="Fluentd-多进程优化一"><a href="#Fluentd-多进程优化一" class="headerlink" title="Fluentd 多进程优化一"></a>Fluentd 多进程优化一</h4><p>既然已经知道了Fluentd性能瓶颈的问题主要是因为单进程不能使用多核的计算能力，那解决的方法也是很简单的，可以把收集的日志按照不同的类型来拆分成不同的进程，这样就能充分的利用多核的计算能力了。</p>
+<h5 id="多进程架构"><a href="#多进程架构" class="headerlink" title="多进程架构"></a>多进程架构</h5><p><img src="/images/fluentd_multi_process_1.jpg" alt="Fluentd多进程架构一">
+如上图所示，之前单进程的架构可以改成如上的多进程架构，这样每个进程最多可以使用100%的cpu资源，理论上四核的机器起四个Fluentd进程就可以充分的利用机器的计算资源的了，但是实际上这个架构还有一些问题未能解决。</p>
+<h5 id="主要问题"><a href="#主要问题" class="headerlink" title="主要问题"></a>主要问题</h5><p>这个多进程的架构相比于单进程的架构在性能上已经有很大的提升了，不过还有如下两个问题：</p>
+<ol>
+<li>该架构要求Log的拆分要比较均衡，这样每个进程都能合理的利用计算资源，不然会出现有些进程非常繁忙，但是有些进程却非常的空闲。然而Log的拆分是按照之前的经验来拆分的，不可能做到绝对的均衡，而且拆分完后是直接写到配置文件里面的，也不能进行实时调整。</li>
+<li>即使是按照现在的架构进行日志拆分了，但是有些日志的计算任务比较繁重，有可能导致即使一个进程只处理一个类型的Log也会到达性能瓶颈。如上图的Process3只处理Log5，但是在top中却看到Process3的cpu使用率一直是100%，这说明Process3已经到达了性能瓶颈，但是Log5已经不能再进行拆分了。</li>
+</ol>
+<p>基于上面的这两个问题，这种多进程架构还是会遇到性能瓶颈，因此需要对架构再继续进行优化，接下来介绍新的架构来优化Fluentd的性能。</p>
+<h4 id="Fluentd-多进程优化二"><a href="#Fluentd-多进程优化二" class="headerlink" title="Fluentd 多进程优化二"></a>Fluentd 多进程优化二</h4><p>上面的日志拆分架构其实在我们的系统中已经用过了一段时间了，但是我们发现有些Fluentd进程一直很繁忙，我们本来是想着怎么把日志拆分的更加均衡一些，但是无意中在Fluentd官网中看到了他们推荐的架构，觉得这才是真正正确的做法，之前走的是弯路。</p>
+<h5 id="新的多进程架构"><a href="#新的多进程架构" class="headerlink" title="新的多进程架构"></a>新的多进程架构</h5><p><img src="/images/fluentd_multi_process_2.jpg" alt="Fluentd多进程架构二">
+这是Fluentd官网给出的多进程架构图，该架构采用两层的结构，前面的一层只负责数据的路由，把数据按照一定的比例路由到第二层，然后第二层才对数据进行处理。第二层可以根据机器的资源起不同个数的进程，甚至可以把第二层部署到不同的机器上去。这样就能解决旧的架构的分配不均和计算瓶颈的问题了，每种日志都能很均衡的使用机器的计算资源，甚至可以分布式扩展。同时也不用苦恼于怎么拆分Log来让进程的计算资源更加的均衡。</p>
+<h5 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h5><p>新的架构虽然在理论上是非常好的架构，但是在配置的过程中需要注意一些问题：</p>
+<ol>
+<li>新架构第一层使用的是forward插件把log路由到第二层的，需要注意的是forward的插件也是需要把buffer_type配置成文件的，不然如果第二层的处理能力不够的话，就会导致第一层的buffer数据一直堆在内存里面，导致内存不够。还会造成在停Fluentd进程的时候，如果是第二层进程先停的话，那么第一层的数据会不能发送的到第二层，第一层的进程会一直停不掉。如果机器不小心关掉的话，还会造成数据丢失。</li>
+<li>新架构第一层的flush_interval（推荐1秒）和buffer_chunk_size（推荐1M）要配置的尽量小，这样数据才能尽快的发送到第二层进行处理。其实如果配置的比较大的话，到时候第二层会有报警的。</li>
+<li>新架构的缺点是同一种Log会有多个处理进程，这样的话就会导致一些只能单进程处理的操作变得不那么优美了。比如webhdfs插件，现在使用新的多进程架构后，因为每个hdfs文件只能由一个进程写入，所以现在同一种Log是由多个进程写入的，只能写入到多个不同的文件，这样会造成hdfs文件数量成倍的增加。</li>
+</ol>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>通过这次架构的升级，Fluentd的性能已经得到了很大的提升，而且配置也变得更加简单了，好的架构往往能够事半功倍。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/09/09/Python的Iterator不能当List用/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/09/09/Python的Iterator不能当List用/" itemprop="url">
+                  Python的Iterator不能当List用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-09-09 12:49:24 / 修改时间：13:38:04" itemprop="dateCreated datePublished" datetime="2018-09-09T12:49:24+08:00">2018-09-09</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/09/09/Python的Iterator不能当List用/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/09/09/Python的Iterator不能当List用/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>之前在重构流处理框架的时候，把在每个模块里面处理的数据类型从List，变成了pyspark里面foreachPartition输入的函数的参数，其实就是一个Iterator类型的参数，用来遍历整个Partition的数据。但是后面发现有些模块没有执行，最后发现竟然是误用Iterator造成的bug。</p>
+</blockquote>
+<h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><p>Iterator类型的数据只能遍历一次，但是List可以一直遍历，很简单的一段代码就可以说明这个问题：
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">lst = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">it = iter(lst)</span><br><span class="line">print([v <span class="keyword">for</span> v <span class="keyword">in</span> lst])</span><br><span class="line">print([v <span class="keyword">for</span> v <span class="keyword">in</span> lst])</span><br><span class="line">print([v <span class="keyword">for</span> v <span class="keyword">in</span> it])</span><br><span class="line">print([v <span class="keyword">for</span> v <span class="keyword">in</span> it])</span><br></pre></td></tr></table></figure></p>
+<p>这段代码的输出是：
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">[]</span><br></pre></td></tr></table></figure></p>
+<p>很简单的就可以看出Iterator和List的不同了，我项目中的问题就对Iterator遍历了两次，第二次遍历的代码等于没执行。这样说来Iterator是不是就都可以用List替换了，或者说Iterator就没有优势了？答案显然不是的。</p>
+<h4 id="Iterator"><a href="#Iterator" class="headerlink" title="Iterator"></a>Iterator</h4><h5 id="什么是Iterator"><a href="#什么是Iterator" class="headerlink" title="什么是Iterator"></a>什么是Iterator</h5><p>Iterator是访问集合元素的一种方式。Iterator对象从集合的第一个元素开始访问，直到所有的元素被访问完结束。Iterator只能单向访问，且不能回退。</p>
+<h5 id="Iterator的优势"><a href="#Iterator的优势" class="headerlink" title="Iterator的优势"></a>Iterator的优势</h5><p>我觉得Iterator的主要优势是延迟计算，他并不像List那样需要事先把所有的元素都放到List，而是访问到的时候才产生所需要的元素，访问之后的元素如果其他地方没有用到，其占用的内存也可以被回收掉，大大的减少了集合遍历所需的内存。想象一下，如果需要访问的集合是非常巨大的话，这样的话List就需要分配非常多的内存。下面的代码举个例子：
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gen</span><span class="params">()</span>:</span></span><br><span class="line">    i = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> i &lt; <span class="number">1000000000</span>:</span><br><span class="line">        <span class="keyword">yield</span> random.random()</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> rand <span class="keyword">in</span> gen():</span><br><span class="line">    print(rand)</span><br></pre></td></tr></table></figure></p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>这篇文章主要了解了下List和Iterator的区别，不过在有些方法中不管你传的是Iterator还是List都会转成List类型，用List来求集合的长度，比如进程池的map函数。当集合比较小的时候不管是使用List还是Iterator，都行。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/07/28/fabric远程执行后台进程卡住问题处理/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/28/fabric远程执行后台进程卡住问题处理/" itemprop="url">
+                  fabric远程执行后台脚本卡住的问题
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-07-28 13:24:38 / 修改时间：14:11:00" itemprop="dateCreated datePublished" datetime="2018-07-28T13:24:38+08:00">2018-07-28</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/07/28/fabric远程执行后台进程卡住问题处理/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/07/28/fabric远程执行后台进程卡住问题处理/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>最近用fabric开发了一个简单的运维系统，该系统可以在远程机器上执行一些命令，在批量执行后台脚本的启动的时候，发现fabric会卡住，不能正常的返回。在fabric官方有给出一些解决方案<a href="http://www.fabfile.org/faq.html#why-can-t-i-run-programs-in-the-background-with-it-makes-fabric-hang" target="_blank" rel="noopener">Why can’t I run programs in the background with &amp;? It makes Fabric hang</a>，但是这些方案都要额外的工具，有些麻烦。接下来简单的介绍下fabric的机制和我的解决方案。</p>
+</blockquote>
+<h4 id="fabric是怎么在远程机器上执行命令的？"><a href="#fabric是怎么在远程机器上执行命令的？" class="headerlink" title="fabric是怎么在远程机器上执行命令的？"></a>fabric是怎么在远程机器上执行命令的？</h4><p>fabric是先用ssh连接到远程机器上，然后再执行相关的命令。</p>
+<h4 id="fabric为什么会卡住不返回？"><a href="#fabric为什么会卡住不返回？" class="headerlink" title="fabric为什么会卡住不返回？"></a>fabric为什么会卡住不返回？</h4><p>ssh连接到远程机器上的时候会起一个session，fabric卡住不返回是因为这个session一直结束不掉，这个session之所以结束不掉是因为我们起的后台进程有输出是定向到这个session的。</p>
+<h4 id="怎么解决？"><a href="#怎么解决？" class="headerlink" title="怎么解决？"></a>怎么解决？</h4><p>只要把后台进程的输出重定向到其他地方，fabric就可以正常返回。比如把后台脚本的启动方式改成<code>yourcommand &gt; /dev/null 2&gt;&amp;1 &amp;</code>，这样就会把yourcommand脚本的所有输出重定向到/dev/null，因此fabric就可以正常返回了。</p>
+<h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><p>我之前后台脚本的启动方式是<code>yourcommand 2&gt;&amp;1 1&gt; /dev/null</code>，按照我本来的理解，应该是把stderr和stdout都重定向到/dev/null了，但是这个命令只是把stdout重定向到/dev/null，stderr还是没有被重定向。 </p>
+<p>使用<code>yourcommand &amp;&gt; /dev/null</code>这种方式也可以把所有的输出重定向到/dev/null，这种方式的命令也更短一些。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/06/23/python标准开发环境/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/06/23/python标准开发环境/" itemprop="url">
+                  python标准开发环境
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-06-23 13:44:23 / 修改时间：14:32:47" itemprop="dateCreated datePublished" datetime="2018-06-23T13:44:23+08:00">2018-06-23</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/06/23/python标准开发环境/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/06/23/python标准开发环境/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>很多初学python的同学可能都知道pip，通过pip可以安装自己的需要的python第三方库。但是有很多同学可能不知道pipenv，在这篇文章我将介绍如何用pipenv来构建自己的开发环境，以及用pipenv快速部署生产环境</p>
+</blockquote>
+<h4 id="什么是pipenv？"><a href="#什么是pipenv？" class="headerlink" title="什么是pipenv？"></a>什么是pipenv？</h4><p>pipenv是一个把包管理工具和虚拟环境结合的工具，使用pipenv install和使用pip install一样，可以安装任何你想安装的第三方库，不同的是pipenv会记录你安装的库和使用的python版本，在部署生产环境的时候直接使用pipenv install就可以安装所有的依赖、甚至特定的python版本。<a href="https://github.com/pypa/pipenv" target="_blank" rel="noopener">pipenv项目地址</a></p>
+<h4 id="如何使用pipenv？"><a href="#如何使用pipenv？" class="headerlink" title="如何使用pipenv？"></a>如何使用pipenv？</h4><ol>
+<li>开发环境使用<br>项目开发的时候使用pip install在项目的目录下面安装所需要的库，pipenv会自动在项目的根目录下面产生Pipfile，Pipfile.lock这两个文件，这两个文件记录了当前项目的使用第三方库和python版本的信息，同时pipenv会为这个项目构建一个虚拟环境(pipenv –venv可以查看虚拟环境的位置)。pipenv shell可以把当前的命令行环境切换到当前项目的虚拟环境下执行。要用虚拟环境运行一个python文件的话，则使用pipenv run python a.py。</li>
+<li>生产环境使用<br>当项目开发完成以后，把项目上传到需要部署该项目的服务器。然后在项目的根目录下运行pipenv install，这时候pipenv会自动为该项目创建所依赖的python的版本的虚拟环境，同时在该虚拟环境下安装所有需要的第三方库。有一个问题需要注意的是：如果机器上没有安装项目所需要的python版本的话，这时候虚拟环境就会创建失败。要解决这个失败的话有两个办法：1.安装项目所依赖的python版本。2.安装pyenv，让pipenv在创建虚拟环境的时候使用pyenv自动安装所需要的python版本。</li>
+</ol>
+<h4 id="使用pyenv"><a href="#使用pyenv" class="headerlink" title="使用pyenv"></a>使用pyenv</h4><p>pyenv是一个python包管理工具，可以在一台机器上面安装多个python版本。我推荐至少在生产环境上面安装pyenv，这样在项目代码部署到生产环境的时候根据项目的实际需要安装不同的python版本。<a href="https://github.com/pyenv/pyenv" target="_blank" rel="noopener">pyenv项目地址</a></p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>python程序员在开发项目的时候推荐使用pipenv，这样在项目分享给别人或者部署的时候都可以无比的轻松。同时推荐使用pyenv，pipenv和pyenv配合使用不要太爽了。这篇文章只是简单的介绍pipenv和pyenv，具体的使用方法请查阅他们的官方文档。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/05/20/在Spark中使用Python单例的技巧/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/20/在Spark中使用Python单例的技巧/" itemprop="url">
+                  在Spark中使用Python单例的技巧
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-05-20 22:33:03 / 修改时间：23:53:49" itemprop="dateCreated datePublished" datetime="2018-05-20T22:33:03+08:00">2018-05-20</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/python使用/" itemprop="url" rel="index"><span itemprop="name">python使用</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/05/20/在Spark中使用Python单例的技巧/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/05/20/在Spark中使用Python单例的技巧/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>在使用spark编程的时候，我们需要知道我们编写的某一段代码是在driver端执行，还是在executor端执行。如果是在executor端执行的话，就要注意这些代码是否是可以序列化发送到executor端执行，如果不行的话就会报错。接下来这篇文章主要讨论Python单例在使用Spark的时候解决的问题。</p>
+</blockquote>
+<h4 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h4><p>在使用spark的时候经常会用到map来对数据进行处理，在map函数里面的代码会被序列化，然后发送到executor端执行。但是并不是所有的代码都是可以被序列化的，比如一个mysql连接的实例就不能被序列化，然后发送到executor端执行。要解决这个问题很简单，如果一个mysql连接的实例不能被序列化发送的话，可以在executor端实例化一个mysql连接，然后使用这个连接。
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">transform</span><span class="params">(row)</span>:</span></span><br><span class="line">    connector = mysql.connector.connect(**mysql_conf)</span><br><span class="line">    <span class="comment"># Do something</span></span><br><span class="line">rdd.map(transform)</span><br></pre></td></tr></table></figure></p>
+<p>上述的代码可以正确的运行，但是有一个比较严重的问题：map函数在每执行一次转换的时候都需要实例化一个mysql的实例，在实例化的时候要与mysql服务器建立连接，这个开销是比较大的，可想而知效率会非常的低。</p>
+<p>要解决这个问题我们可以用mapPartitions接口来代替map，mapPartitions接口不是对每行数据进行操作的时候都执行一个mysql实例化操作，而是对一个partition的数据执行操作时候才执行一个mysql实例化操作，这样效率会大大的提升，上述的代码可以改成如下的代码。
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">transform</span><span class="params">(rows)</span>:</span></span><br><span class="line">    connector = mysql.connector.connect(**mysql_conf)</span><br><span class="line">    <span class="keyword">for</span> row <span class="keyword">in</span> rows:</span><br><span class="line">        <span class="comment"># Do something</span></span><br><span class="line">rdd.mapPartitions(transform)</span><br></pre></td></tr></table></figure></p>
+<p>这样问题似乎已经解决了，但是解决的还不完全，或者说只解决rdd的问题，因为虽然spark的rdd支持mapPartitions操作，但是DataFrame并不支持mapPartitions的操作（对DataFrame执行map操作可以注册一个udf函数，然后调用这个udf函数）。有一个不太优美的做法是先把DataFrame转化成rdd进行mapPartitions，然后再把处理后的rdd转化成DataFrame。要在两种数据结构之间来回转化，这个操作实在是不够优美，而且效率低下。所以我们需要找到一个让mysql在map操作中只实例化一次的方法。</p>
+<h4 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h4><p>要优美的解决上面提到的这个问题的话，我们就需要用到Python的单例了。Python的单例实现方式有很多种，这在边我只介绍最简单的一种。利用Python的import机制可以确保一个模块只被导入一次，如果在这个模块里面实例化一个mysql实例的话，那么即使被多次导入，也只会被实例化一次。
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># SingletonMysql.py</span></span><br><span class="line">connector = mysql.connector.connect(**mysql_conf)</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">transform</span><span class="params">(row)</span>:</span></span><br><span class="line">    <span class="keyword">from</span> SingletonMysql <span class="keyword">import</span> connector</span><br><span class="line">    <span class="comment"># Do something</span></span><br><span class="line">rdd.map(transform)</span><br><span class="line">spark.udf.register(<span class="string">"transform"</span>, transform)</span><br><span class="line">spark.sql(<span class="string">"select transform(name) from table"</span>)</span><br></pre></td></tr></table></figure>
+<p>通过上面的代码，我们就可以在map函数里面使用mysql实例，而且能够保证它只会在第一次使用的时候被实例化。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>在一些第三方库的接口已经确定的情况下，有时候我们必须使用一些语言的特性才能达到一些特定的目标。这个Python单例的使用只是其中的一个例子，如果Spark本身的接口支持在executor端进行一些初始化操作的话就不需要用到单例了。还有，比如map里面的函数只能是一个参数的函数，但是有时候我们需要一些额外的信息，所以这时候就要用匿名函数来达到这个目的了。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/05/20/Spark报错——java-lang-outofmemoryerror-java-heap-space问题处理/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/20/Spark报错——java-lang-outofmemoryerror-java-heap-space问题处理/" itemprop="url">
+                  Spark报错——java.lang.outofmemoryerror: java heap space问题处理
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-05-20 15:07:11 / 修改时间：22:30:56" itemprop="dateCreated datePublished" datetime="2018-05-20T15:07:11+08:00">2018-05-20</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/错误处理/" itemprop="url" rel="index"><span itemprop="name">错误处理</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/05/20/Spark报错——java-lang-outofmemoryerror-java-heap-space问题处理/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/05/20/Spark报错——java-lang-outofmemoryerror-java-heap-space问题处理/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>最近在用spark处理数据的时候遇到内存不足的报错，主要的报错信息是在executor端的log中显示java.lang.outofmemoryerror: java heap space。</p>
+</blockquote>
+<h4 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h4><p>具体的问题是spark在执行到最后一个stage后有一个task一直执行不成功，每次都是重试四次后失败。下面的两张图是具体失败的信息：
+<img src="/images/spark_outofmemory1.png" alt="四次task失败信息">
+<img src="/images/spark_outofmemory2.png" alt="具体失败的log"></p>
+<p>task的失败的信息图中显示：失败的任务的Shffle Read Size是0，这个是不对的，因为这个信息在任务失败的时候都会被置零，实际上在任务在运行的时候这个值是六百多M，远远大于其他task的输入的20多M。</p>
+<p>从上面失败的信息中我们可以看到失败的原因是有一个task的输入的数据量太大，以至于spark executor运行的时候需要的内存大大增加，这才导致了内存不足的异常。</p>
+<h4 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h4><h5 id="解决尝试一"><a href="#解决尝试一" class="headerlink" title="解决尝试一"></a>解决尝试一</h5><p>最简单直接的解决方法是直接通过增大executor-memory的值来增加executor最大的内存使用量，由于yarn默认的每个executor的core是一个，如果本身启动的executor比较多的话，增加executor-memory的值的话，yarn集群就要多消耗executor的数量✖️增加的内存量的内存，内存的消耗会比较大。所以可以减少executor的数量，为每个executor分配多个core，这样需要的内存量就大大的减少了，但是每个executor可以使用的内存量又可以增加，这样的配置可以减少因为数据倾斜导致任务失败的概率。  </p>
+<p>最终我们用这个方法把每个executor的executor-memory值增大到了12G，但是最后还是由于内存不够失败了。</p>
+<h5 id="解决尝试二"><a href="#解决尝试二" class="headerlink" title="解决尝试二"></a>解决尝试二</h5><p>由于某个task需要的内存量非常的大，然而其他task的内存量都很小，这应该不是简单的数据倾斜。spark sql只是对玩家的登陆数据进行以device_id为key的group by操作，数据的倾斜不可能这么严重。</p>
+<p>在重新观察了玩家的登陆数据后，我发现有很多数据的device_id为null。这下就很清楚的知道数据倾斜的原因了，接着对device_id为null的数据进行过滤后，问题就迎刃而解了。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>在处理数据倾斜问题的时候可以通过调整spark的参数来优化任务的执行。但是如果想更彻底的优化任务的执行的话，要观察数据，知道是什么原因造成的数据倾斜。这样才能进行更彻底的优化。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/05/04/使用spark进行流处理/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/04/使用spark进行流处理/" itemprop="url">
+                  使用spark进行流处理
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-05-04 23:34:53" itemprop="dateCreated datePublished" datetime="2018-05-04T23:34:53+08:00">2018-05-04</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-05-05 00:57:24" itemprop="dateModified" datetime="2018-05-05T00:57:24+08:00">2018-05-05</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/流处理/" itemprop="url" rel="index"><span itemprop="name">流处理</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/05/04/使用spark进行流处理/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/05/04/使用spark进行流处理/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>最近在做一个假量检测的项目，主要是用来检测是否有一些伪造的广告点击之类的，然后该项目使用了spark来做在线的流处理</p>
+</blockquote>
+<h4 id="spark的使用场景"><a href="#spark的使用场景" class="headerlink" title="spark的使用场景"></a>spark的使用场景</h4><p>spark主要用来读取kafka里面的一些点击、安装、登入和登出等数据，然后使用spark的流处理模块对这些数据进行处理，最后把处理完的数据存储到相应的数据库中，供后面的数据分析使用。</p>
+<h4 id="使用的spark流处理模块"><a href="#使用的spark流处理模块" class="headerlink" title="使用的spark流处理模块"></a>使用的spark流处理模块</h4><p>spark的流处理模块有两个：</p>
+<ul>
+<li>Spark Streaming(Dstream) 老的接口</li>
+<li>Structured Streaming 新的接口</li>
+</ul>
+<p>我们的项目使用了Dstream实现流处理，一个主要的原因是在新的Structured Streaming中我们不能获取到读取的kafka的offset，这样当我们有数据处理失败的时候就不能从相应的offset中恢复继续运行，虽然可以设置checkpoint来恢复失败的任务，但是checkpoint的恢复是基于任务的，不能对该任务进行修改，然后再重新运行。<br>对于怎么在Structured Streaming中获取offset，我查了一些资料，如果实在是想获取offset的话也可以通过读取checkpoint文件夹下面的offset文件夹来获取当前的offset，不过这种方法比较奇怪。还有一个方法是使用StreamingQueryListener类里面的onQueryProgress回调来获取当前执行的状态，其中包括offset的信息，但是非常遗憾这种方法只支持scala和java，而我们的开发语言是python。下面的链接是该问题的具体讨论：<a href="https://stackoverflow.com/questions/46153105/how-to-get-kafka-offsets-for-structured-query-for-manual-and-reliable-offset-man/46174353" target="_blank" rel="noopener">如何从Structed streaming中获取offset的问题。</a></p>
+<h4 id="在一个流中处理多个topic"><a href="#在一个流中处理多个topic" class="headerlink" title="在一个流中处理多个topic"></a>在一个流中处理多个topic</h4><p>感觉spark的api设置的非常不友好，想要在一个流中处理多个topic也挺麻烦的，主要的问题如下：</p>
+<ul>
+<li>如果使用Dstream，在创建Dstream的时候可以传入多个topic，这样貌似可以解决读取多个topic的问题，但是有一个很严重的问题，读取到的内容你不知道是属于哪个topic，这样你就不能对不同的topic执行不同的处理了。</li>
+<li>如果使用Structured Streaming，也可以在DataStreamReader中指定多个topic，而且传入的每行数据中也有相应的topic信息，是可以根据不同的topic来调用不同的处理方法的。但是如上面所说的，Structured Streaming不支持获取offset让我们放弃了它。</li>
+</ul>
+<p>最后我们的处理方法是在一个流中建立多个Dstream，在每个Dstream中拉取和处理同一个topic的数据，这样一个流就可以处理多个topic了，示例代码如下所示：
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> topic <span class="keyword">in</span> topic_info:</span><br><span class="line">    from_offsets = restore_off_sets(topic)</span><br><span class="line">    DStream = KafkaUtils.createDirectStream(ssc, [topic], kafka_params, from_offsets)</span><br><span class="line">    DStream.transform((<span class="keyword">lambda</span> t: <span class="keyword">lambda</span> rdd: get_offset_ranges(t, rdd))(topic))\</span><br><span class="line">        .map(<span class="keyword">lambda</span> x: x[<span class="number">1</span>])\</span><br><span class="line">        .foreachRDD((<span class="keyword">lambda</span> t: <span class="keyword">lambda</span> rdd: process_rdd(t, rdd))(topic))</span><br></pre></td></tr></table></figure></p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>第一次使用spark，感觉spark的接口设置不是很友好，而且文档写的也不是很友好。比如foreachRDD的回调函数如果是两个参数的函数的话，第一个参数就是时间，这个在文档中没有提及，一不注意就有奇怪的bug了。总之自己还是一个菜鸟，还要多多学习。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/05/01/fluentd语法速记/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/01/fluentd语法速记/" itemprop="url">
+                  Fluentd语法速记
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-05-01 14:17:05" itemprop="dateCreated datePublished" datetime="2018-05-01T14:17:05+08:00">2018-05-01</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/日志收集/" itemprop="url" rel="index"><span itemprop="name">日志收集</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/05/01/fluentd语法速记/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/05/01/fluentd语法速记/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>最近开始转行做大数据，大数据中很重要的一部分是数据的收集，我们公司主要用的数据收集工具是Fluentd，由于Fluentd的配置比较多，有可能配置过一次后就会忘了。我这边在学习Fluentd配置的同时也对这些配置进行一些记录，方便后面再用到时可以快速的查找。</p>
+</blockquote>
+<h4 id="Fluentd简介"><a href="#Fluentd简介" class="headerlink" title="Fluentd简介"></a>Fluentd简介</h4><p>Fluentd是一款完全免费且完全开源的日志收集器，拥有“Log Everything”的体系结构，能够与125种以上的系统对接。</p>
+<p><img src="/images/fluentd-architecture.png" alt="Fluentd-architecture"></p>
+<h4 id="配置文件语法"><a href="#配置文件语法" class="headerlink" title="配置文件语法"></a>配置文件语法</h4><h5 id="Fluentd事件的生命周期"><a href="#Fluentd事件的生命周期" class="headerlink" title="Fluentd事件的生命周期"></a>Fluentd事件的生命周期</h5><ol>
+<li>每个输入的事件会带有一个tag</li>
+<li>Fluentd通过tag匹配output</li>
+<li>Fluentd发送事件到匹配的output</li>
+<li>Fluentd支持多个数据源和数据输出</li>
+<li>通过过滤器，事件可以被重新触发</li>
+</ol>
+<h5 id="“source”-定义数据源"><a href="#“source”-定义数据源" class="headerlink" title="“source”: 定义数据源"></a>“source”: 定义数据源</h5><p>数据源可以在source指令中定义，比如我们可以定义http和forward的数据源。http数据源可以通过http协议来接收数据，forward可以通过tcp协议来接收数据。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># Receive events from 24224/tcp</span></span><br><span class="line"><span class="section"># This is used by log forwarding and the fluent-cat command</span></span><br><span class="line">&lt;source&gt;</span><br><span class="line">  @type forward</span><br><span class="line">  port 24224</span><br><span class="line">&lt;/source&gt;</span><br><span class="line"></span><br><span class="line"><span class="section"># http://this.host:9880/myapp.access?json=&#123;"event":"data"&#125;</span></span><br><span class="line">&lt;source&gt;</span><br><span class="line">  @type http</span><br><span class="line">  port 9880</span><br><span class="line">&lt;/source&gt;</span><br></pre></td></tr></table></figure></p>
+<p>所有source指令中必须包含@type参数，该参数用来指定使用哪个输入插件，比如我们还可以用tail插件来读取文件的内容。 </p>
+<h6 id="路由"><a href="#路由" class="headerlink" title="路由"></a>路由</h6><p>source指令把事件提交到Fluentd的路由引擎。一个事件由三个实体组成：tag、time和record。tag是由’.’分割的字符串组成，被内部路由引擎使用。time由input插件指定，必须是Unix时间戳格式。record是一个Json对象。</p>
+<blockquote>
+<p>强烈推荐使用小写字母、数字和下划线来命名tag，虽然其他的字符也是合法的。</p>
+</blockquote>
+<h5 id="“match”-定义数据的输出目标"><a href="#“match”-定义数据的输出目标" class="headerlink" title="“match”: 定义数据的输出目标"></a>“match”: 定义数据的输出目标</h5><p>match指令通过匹配tag字段来将事件输出到其他的系统。同样match指令也必须指定@type参数，该参数用来指定使用哪个输出插件。在下面的例子中，只有myapp.access的tag能够匹配到该输出插件。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;match myapp.access&gt;</span><br><span class="line">  @type file</span><br><span class="line">  path /var/log/fluent/access</span><br><span class="line">&lt;/match&gt;</span><br></pre></td></tr></table></figure></p>
+<h6 id="匹配模式"><a href="#匹配模式" class="headerlink" title="匹配模式"></a>匹配模式</h6><p>下面的这些匹配模式可以在&lt;match&gt;中使用，用来匹配tag:  </p>
+<ul>
+<li>*用来匹配tag的一部分（比如：a.*可以匹配a.b，但是不能匹配a或者a.b.c）</li>
+<li>**可以用来匹配tag的0个或多个部分（比如：a.**可以匹配a、a.b和a.b.c）</li>
+<li>{X,Y,Z}匹配X,Y或者Z（比如：{a,b}可以匹配a和b，但是不能匹配c。他可以和*或者**结合起来一起使用。）</li>
+<li>如果有多个匹配模式写在&lt;match&gt;里面，则可以用空格分开(比如：&lt;match a b&gt;能够匹配a和b。&lt;match a.** b.* &gt;能够匹配a,a.b,a.b.c和b.d。)</li>
+</ul>
+<h6 id="匹配顺序"><a href="#匹配顺序" class="headerlink" title="匹配顺序"></a>匹配顺序</h6><p>Fluentd是按顺序匹配的，先在配置文件里面出现的match会先匹配。下面的例子中myapp.access永远都不会被匹配到。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># ** matches all tags. Bad :(</span></span><br><span class="line">&lt;match **&gt;</span><br><span class="line">  @type blackhole_plugin</span><br><span class="line">&lt;/match&gt;</span><br><span class="line"></span><br><span class="line">&lt;match myapp.access&gt;</span><br><span class="line">  @type file</span><br><span class="line">  path /var/log/fluent/access</span><br><span class="line">&lt;/match&gt;</span><br></pre></td></tr></table></figure></p>
+<h5 id="“filter”：事件处理管道"><a href="#“filter”：事件处理管道" class="headerlink" title="“filter”：事件处理管道"></a>“filter”：事件处理管道</h5><p>“filter”指令的语法和”match”指令的语法相同，但是”filter”能够在管道中被连起来处理，如下所示：
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Input -&gt; filter 1 -&gt; ... -&gt; filter N -&gt; Output</span><br></pre></td></tr></table></figure></p>
+<p>下面的例子展示了record_transformer fliter的用法。source首先会接收到一个{“event”:”data”}的事件，然后该事件会首先被路由到filter，filter会增加一个host_param的字段到record中，然后再把该事件发送到match中。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># http://this.host:9880/myapp.access?json=&#123;"event":"data"&#125;</span></span><br><span class="line">&lt;source&gt;</span><br><span class="line">  @type http</span><br><span class="line">  port 9880</span><br><span class="line">&lt;/source&gt;</span><br><span class="line"></span><br><span class="line">&lt;filter myapp.access&gt;</span><br><span class="line">  @type record_transformer</span><br><span class="line">  &lt;record&gt;</span><br><span class="line"><span class="code">    host_param "#&#123;Socket.gethostname&#125;"</span></span><br><span class="line">  &lt;/record&gt;</span><br><span class="line">&lt;/filter&gt;</span><br><span class="line"></span><br><span class="line">&lt;match myapp.access&gt;</span><br><span class="line">  @type file</span><br><span class="line">  path /var/log/fluent/access</span><br><span class="line">&lt;/match&gt;</span><br></pre></td></tr></table></figure></p>
+<h5 id="“system”：设置系统范围配置"><a href="#“system”：设置系统范围配置" class="headerlink" title="“system”：设置系统范围配置"></a>“system”：设置系统范围配置</h5><p>以下的配置能够由”system”指令指定。也可以通过Fluentd的配置选项设置相同的配置:</p>
+<ul>
+<li>log_level</li>
+<li>suppress_repeated_stacktrace</li>
+<li>emit_error_log_interval</li>
+<li>suppress_config_dump</li>
+<li>without_source</li>
+<li>process_name (只能用”system”指令指定)</li>
+</ul>
+<p>下面是一些例子：
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;system&gt;</span><br><span class="line">  # 等价于-qq选项</span><br><span class="line">  log_level error</span><br><span class="line">  #等价于--without-source选项</span><br><span class="line">  without_source</span><br><span class="line">&lt;/system&gt;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;system&gt;</span><br><span class="line">  process_name fluentd1</span><br><span class="line">&lt;/system&gt;</span><br></pre></td></tr></table></figure>
+<p>process_name用来指定Fluentd监控进程和工作进程的名字，通过ps可以看到
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">% ps aux | grep fluentd1</span><br><span class="line">foo      45673   0.4  0.2  2523252  38620 s001  S+    7:04AM   0:00.44 worker:fluentd1</span><br><span class="line">foo      45647   0.0  0.1  2481260  23700 s001  S+    7:04AM   0:00.40 supervisor:fluentd1</span><br></pre></td></tr></table></figure></p>
+<h5 id="“label”：用来组织filter和match"><a href="#“label”：用来组织filter和match" class="headerlink" title="“label”：用来组织filter和match"></a>“label”：用来组织filter和match</h5><p>“label”指令用来降低tag路由的复杂度，通过”label”指令可以用来组织filter和match的内部路由。下面是一个配置的例子，由于”label”是内建的插件，所以他的参数需要以@开头。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">&lt;source&gt;</span><br><span class="line">  @type forward</span><br><span class="line">&lt;/source&gt;</span><br><span class="line"></span><br><span class="line">&lt;source&gt;</span><br><span class="line">  @type tail</span><br><span class="line">  @label @SYSTEM</span><br><span class="line">&lt;/source&gt;</span><br><span class="line"></span><br><span class="line">&lt;filter access.**&gt;</span><br><span class="line">  @type record_transformer</span><br><span class="line">  &lt;record&gt;</span><br><span class="line"><span class="code">    # ...</span></span><br><span class="line">  &lt;/record&gt;</span><br><span class="line">&lt;/filter&gt;</span><br><span class="line">&lt;match **&gt;</span><br><span class="line">  @type elasticsearch</span><br><span class="line">  # ...</span><br><span class="line">&lt;/match&gt;</span><br><span class="line"></span><br><span class="line">&lt;label @SYSTEM&gt;</span><br><span class="line">  &lt;filter var.log.middleware.**&gt;</span><br><span class="line"><span class="code">    @type grep</span></span><br><span class="line"><span class="code">    # ...</span></span><br><span class="line">  &lt;/filter&gt;</span><br><span class="line">  &lt;match **&gt;</span><br><span class="line"><span class="code">    @type s3</span></span><br><span class="line"><span class="code">    # ...</span></span><br><span class="line">  &lt;/match&gt;</span><br><span class="line">&lt;/label&gt;</span><br></pre></td></tr></table></figure></p>
+<p>在上面的例子中，forward的数据源的事件被路由到record_transformer filter和elasticsearch output中。tail数据源被路由到@system里面的grep filter和s3 output中。</p>
+<h6 id="ERROR-label"><a href="#ERROR-label" class="headerlink" title="@ERROR label"></a>@ERROR label</h6><p>@ERROR label是内建的label，用来记录emit_error_event错误事件的。如果在配置文件里面设置了<label @error="">，当有相关的错误发生（比如：缓冲区已满或无效记录）的话，该错误事件就会被发送到&lt; label @ERROR &gt;。</label></p>
+<h5 id="“-include”：重用配置"><a href="#“-include”：重用配置" class="headerlink" title="“@include”：重用配置"></a>“@include”：重用配置</h5><p>可以通过”@include”来导入其他的配置文件，配置文件是按顺序导入的。如果使用模式匹配的话，文件是按字母顺序导入的。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># If you have a.conf,b.conf,...,z.conf and a.conf / z.conf are important...</span></span><br><span class="line"><span class="section"># This is bad</span></span><br><span class="line">@include *.conf</span><br><span class="line"></span><br><span class="line"><span class="section"># This is good</span></span><br><span class="line">@include a.conf</span><br><span class="line">@include config.d/*.conf</span><br><span class="line">@include z.conf</span><br></pre></td></tr></table></figure></p>
+<p>如果导入的文件有顺序的要求的话，最好自己主动写导入的语句，模式匹配导入容易出错。</p>
+<h4 id="支持的数据类型"><a href="#支持的数据类型" class="headerlink" title="支持的数据类型"></a>支持的数据类型</h4><p>每个插件都需要一些参数。例如：in_tail插件有rotate_wait和pos_file这两个参数。每个参数都有对应的类型与其关联。下面是这些类型的定义：</p>
+<ul>
+<li>string 类型：该类型被解析成一个字符串。string类型可以有三种形式：不带引号的字符串、带单引号的字符串和带双引号的字符串。</li>
+<li>integer 类型：该类型被解析成一个整数。</li>
+<li>float 类型：该类型被解析成一个浮点数。</li>
+<li>size 类型：该类型用来解析成有多少个字节。可以在整数后面加上k/K、m/M、g/G、t/T，对应的是计算机学科的度量单位。比如：12k表示为12*1024后的数值。</li>
+<li>time 类型：该类型被解析成时间。可以在浮点数后面加上s、m、h和d分别表示为秒、分、小时、天。可以用0.1表示100ms。</li>
+<li>array 类型：该类型被解析成JSON数组。这种类型还支持缩写，比如：[“key1”, “key2”]可以缩写成key1,key2。</li>
+<li>hash 类型：该类型被解析成JSON对象。这种类型也支持缩写，比如：{“key1”:”value1”, “key2”:”value2”}可以缩写成key1:value1,key2:value2。</li>
+</ul>
+<h4 id="常见的插件参数"><a href="#常见的插件参数" class="headerlink" title="常见的插件参数"></a>常见的插件参数</h4><p>这些参数是系统保留的并且带有@前缀。</p>
+<ul>
+<li>@type: 指定插件的类型。</li>
+<li>@id: 指定插件的id。</li>
+<li>@label：用来指定标签。</li>
+<li>@log_level：用来指定每个插件的log级别。</li>
+</ul>
+<h4 id="检查配置文件"><a href="#检查配置文件" class="headerlink" title="检查配置文件"></a>检查配置文件</h4><p>通过–dry-run选项，可以在不启动插件的情况下检查配置文件。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ fluentd --dry-run -c fluent.conf</span><br></pre></td></tr></table></figure></p>
+<h4 id="格式建议"><a href="#格式建议" class="headerlink" title="格式建议"></a>格式建议</h4><h5 id="双引号包起来的字符串、数组和哈希类型支持多行"><a href="#双引号包起来的字符串、数组和哈希类型支持多行" class="headerlink" title="双引号包起来的字符串、数组和哈希类型支持多行"></a>双引号包起来的字符串、数组和哈希类型支持多行</h5><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">str_param "foo  # This line is converted to "foo\nbar". NL is kept in the parameter</span><br><span class="line">bar"</span><br><span class="line">array_param [</span><br><span class="line">  "a", "b"</span><br><span class="line">]</span><br><span class="line">hash_param &#123;</span><br><span class="line">  "k":"v",</span><br><span class="line">  "k1":10</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果想让[或者{开头的字符串不被解析成数组或者对象，则需要用’或者“把该字符串包起来。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;match **&gt;</span><br><span class="line">  @type mail</span><br><span class="line">  subject "[CRITICAL] foo's alert system"</span><br><span class="line">&lt;/match&gt;</span><br><span class="line">&lt;match tag&gt;</span><br><span class="line">  @type map</span><br><span class="line">  map '[["code." + tag, time, &#123; "code" =&gt; record["code"].to<span class="emphasis">_i&#125;], ["time." + tag, time, &#123; "time" =&gt; record["time"].to_</span>i&#125;]]'</span><br><span class="line">  multi true</span><br><span class="line">&lt;/match&gt;</span><br></pre></td></tr></table></figure></p>
+<h5 id="嵌入Ruby代码"><a href="#嵌入Ruby代码" class="headerlink" title="嵌入Ruby代码"></a>嵌入Ruby代码</h5><p>可以在”包住的#{}里面执行Ruby代码，这可以用来获取一些机器的信息，比如hostname。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">host_param "#&#123;hostname&#125;"  # This is same with Socket.gethostname</span><br><span class="line">@id "out<span class="emphasis">_foo#&#123;worker_</span>id&#125;" # This is same with ENV["SERVERENGINE<span class="emphasis">_WORKER_</span>ID"]</span><br></pre></td></tr></table></figure></p>
+<h5 id="在双引号字符串中，-是转义字符"><a href="#在双引号字符串中，-是转义字符" class="headerlink" title="在双引号字符串中，\是转义字符"></a>在双引号字符串中，\是转义字符</h5><p>\被解释为转义字符。你需要用\来设置”，\r，\n，\t，\或双引号字符串中的多个字符。
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">str_param "foo\nbar" # \n is interpreted as actual LF character</span><br></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/03/30/图片转像素风实现/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/30/图片转像素风实现/" itemprop="url">
+                  图片转像素风实现
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-03-30 12:13:27" itemprop="dateCreated datePublished" datetime="2018-03-30T12:13:27+08:00">2018-03-30</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/03/30/图片转像素风实现/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/03/30/图片转像素风实现/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>Python用来写各种小工具简直是神器，昨天晚上花了点时间实现了一个图片转像素风的小工具，下面附上图片Demo和代码</p>
+</blockquote>
+<p><div style="width: 400px">
+<img src="/images/pixel_demo.png" alt="">
+</div>
+下面是实现的具体代码：
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image  </span><br><span class="line"><span class="keyword">import</span> argparse  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># 命令行输入参数处理  </span></span><br><span class="line">parser = argparse.ArgumentParser()  </span><br><span class="line">  </span><br><span class="line">parser.add_argument(<span class="string">'file'</span>)     <span class="comment"># 输入文件  </span></span><br><span class="line">parser.add_argument(<span class="string">'-o'</span>, <span class="string">'--output'</span>)   <span class="comment"># 输出文件  </span></span><br><span class="line">parser.add_argument(<span class="string">'--maxlen'</span>, type=int, default=<span class="number">150</span>)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># 获取参数  </span></span><br><span class="line">args = parser.parse_args()  </span><br><span class="line">  </span><br><span class="line">IMG = args.file  </span><br><span class="line">MAXLEN = args.maxlen  </span><br><span class="line">OUTPUT = args.output</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">resize_image</span><span class="params">(im)</span>:</span></span><br><span class="line">    (width, height) = im.size</span><br><span class="line">    max_len = max(width, height)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> max_len &lt;= MAXLEN:</span><br><span class="line">        <span class="keyword">return</span> im</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        scale = max_len / MAXLEN</span><br><span class="line">        size = (int(width//scale), int(height//scale))</span><br><span class="line">        <span class="keyword">return</span>  im.resize(size, Image.NEAREST) </span><br><span class="line">  </span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:  </span><br><span class="line"></span><br><span class="line">    im = Image.open(IMG)  </span><br><span class="line">    im = resize_image(im) </span><br><span class="line">  </span><br><span class="line">    txt = <span class="string">""</span>  </span><br><span class="line">    (width, height) = im.size</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(height):  </span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> range(width):  </span><br><span class="line">            (r, b, g) = im.getpixel((j, i))</span><br><span class="line">            txt += <span class="string">"&lt;font style='background:rgb(&#123;&#125;,&#123;&#125;,&#123;&#125;);display:inline-block;width:3px;height:3px;margin:1px;'&gt;&lt;/font&gt;"</span>.format(r, b, g)</span><br><span class="line">        txt += <span class="string">'&lt;/br&gt;'</span>  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> OUTPUT:</span><br><span class="line">        OUTPUT =  <span class="string">"output.txt"</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">with</span> open(OUTPUT,<span class="string">'w'</span>) <span class="keyword">as</span> f:  </span><br><span class="line">        f.write(txt)</span><br></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/03/29/使用erlang-get-stacktrace注意避开的坑/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/29/使用erlang-get-stacktrace注意避开的坑/" itemprop="url">
+                  使用erlang:get_stacktrace注意避开的坑
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-03-29 11:03:03" itemprop="dateCreated datePublished" datetime="2018-03-29T11:03:03+08:00">2018-03-29</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang/" itemprop="url" rel="index"><span itemprop="name">Erlang</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/03/29/使用erlang-get-stacktrace注意避开的坑/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/03/29/使用erlang-get-stacktrace注意避开的坑/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>之前在使用erlang:get_stacktrace()函数的时候发现不能正确的获取发生异常的栈内容，但是错误类型和原因却是正常，感觉非常奇怪，下面是具体的代码：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">dispatch_cmd</span><span class="params">(User, Mod, Msg)</span> -&gt;</span></span><br><span class="line">  <span class="keyword">try</span> Mod:req(User, Msg) <span class="keyword">of</span></span><br><span class="line">    Result -&gt;</span><br><span class="line">      Result</span><br><span class="line">  <span class="keyword">catch</span></span><br><span class="line">    Class:Reason -&gt;</span><br><span class="line">      monitor:notify(ws_dispatch_crash, io_lib:format(<span class="string">"&lt;error-info: ~p:req ~p:~p&gt;"</span>, [Mod, Class, Reason])),</span><br><span class="line">      ?ERROR(<span class="string">"Req Msg: ~p.~nStacktrace: ~s"</span>, [?PR(Msg), ?PR_ST(erlang:get_stacktrace(), &#123;Class, Reason&#125;)]),</span><br><span class="line">      ?ERR_AT_DISPATCH_CMD</span><br><span class="line">  <span class="keyword">end</span>.</span><br></pre></td></tr></table></figure></p>
+<p><strong>上面的代码有什么问题呢？</strong>
+主要的问题是在调用erlang:get_stacktrace()之前执行了其他有可能会有异常捕获的语句，而在io_lib:format里面会有catch函数，如果io_lib:format函数里面的catch被调用的话，erlang:get_stacktrace()返回的就不是我们想要打印的异常栈，而是io_lib:format里面的异常栈。
+<strong>如何解决？</strong>
+在catch之后里面立马调用erlang:get_stacktrace()
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">dispatch_cmd</span><span class="params">(User, Mod, Msg)</span> -&gt;</span></span><br><span class="line">  <span class="keyword">try</span> Mod:req(User, Msg) <span class="keyword">of</span></span><br><span class="line">    Result -&gt;</span><br><span class="line">      Result</span><br><span class="line">  <span class="keyword">catch</span></span><br><span class="line">    Class:Reason -&gt;</span><br><span class="line">      Stacktrace = erlang:get_stacktrace(),</span><br><span class="line">      monitor:notify(ws_dispatch_crash, io_lib:format(<span class="string">"&lt;error-info: ~p:req ~p:~p&gt;"</span>, [Mod, Class, Reason])),</span><br><span class="line">      ?ERROR(<span class="string">"Req Msg: ~p.~nStacktrace: ~s"</span>, [?PR(Msg), ?PR_ST(Stacktrace, &#123;Class, Reason&#125;)]),</span><br><span class="line">      ?ERR_AT_DISPATCH_CMD</span><br><span class="line">  <span class="keyword">end</span>.</span><br></pre></td></tr></table></figure></p>
+<p>据说erlang的开发团队也认为erlang:get_stacktrace()是一个不好的东西，会在OTP 21中把它废弃掉，有一位叫@peterdmv的开发人员是这样说的：
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">erlang:get_stacktrace/0 is deprecated in OTP 21, you can use the following expression instead:</span><br><span class="line"></span><br><span class="line">try Expr</span><br><span class="line">catch</span><br><span class="line">  Class:Reason:Stacktrace -&gt;</span><br><span class="line">   &#123;Class,Reason,Stacktrace&#125;</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<p>我试了下这个新语法，在OTP 20.3上面还不行，应该在接下来的OTP 21中能够使用它吧~</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+  </section>
+
+  
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+  </nav>
+
+
+
+          </div>
+          
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Darcy">
+            
+              <p class="site-author-name" itemprop="name">Darcy</p>
+              <p class="site-description motion-element" itemprop="description">欢迎来到我的个人站</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">40</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">14</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/lintingbin2009" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:lintingbin31@gmail.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
     </main>
-    <div class="mask" id="mask"></div>
-<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
 
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Darcy</span>
 
+  
 
-<div class="global-share" id="globalShare">
-    <ul class="reset share-icons">
-      <li>
-        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://lintingbin2009.github.io/&title=Darcy's Blog&pic=https://lintingbin2009.github.io/img/avatar.jpg" data-title="微博">
-          <i class="icon icon-weibo"></i>
-        </a>
-      </li>
-      <li>
-        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
-          <i class="icon icon-weixin"></i>
-        </a>
-      </li>
-      <li>
-        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://lintingbin2009.github.io/&title=Darcy's Blog&source=欢迎来到我的个人站" data-title=" QQ">
-          <i class="icon icon-qq"></i>
-        </a>
-      </li>
-      <li>
-        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://lintingbin2009.github.io/" data-title=" Facebook">
-          <i class="icon icon-facebook"></i>
-        </a>
-      </li>
-      <li>
-        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=Darcy's Blog&url=https://lintingbin2009.github.io/&via=https://lintingbin2009.github.io" data-title=" Twitter">
-          <i class="icon icon-twitter"></i>
-        </a>
-      </li>
-      <li>
-        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://lintingbin2009.github.io/" data-title=" Google+">
-          <i class="icon icon-google-plus"></i>
-        </a>
-      </li>
-    </ul>
- </div>
-
-
-<div class="page-modal wx-share" id="wxShare">
-    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABwklEQVR42u3aS47CMBAFQO5/6cwBRmTea8eGkcorRFBcZtFyf16veF2/Vv70/m2vHQsXF3eZe92udxsk6PwNiQEXF/c8913ESHD3v79n5QZcXNxv5iah6t3x8r8DFxf3f3FneUoeBHFxcb+Hm6Qu96xZNWNjroaLi7vAzUPSvs9b6ru4uLgj7lWuNsm5Hl24uLhnuCsXlOSi0zZjovQJFxf3CLe93OTFjlmytJT84OLiLnOTIYnZiEY+hJFfjHBxcc9wkwCUF1JnQ1d1IwcXF/cIN3mcbNOGsCQd+qP/g4uLe4S7ktLkacwDuRouLu5m7nry024/S7pwcXHPcJPTFAWL8uJSBz5cXNwj3DbQtBvk39RxFxcX9wh3dqFZL4YulUpxcXGPcJOA1RYyZsGryNVwcXG3cddLpUnDdXYMXFzcT3FXyhb1lgsDnbi4uLu5V7naS09eOokOg4uLe4S7PkjRjlM8W9/AxcXdx21bKStFkLYNg4uL+1luW+bIj9RG0D8CJS4u7ldy89bsrIk7rJrg4uJ+lNsOYxW120SIi4t7kNsOYM2aKHnhNeoJ4+LibuPORivy47W3lFnKhIuL+xD3BydEIB4VLTfCAAAAAElFTkSuQmCC" alt="微信分享二维码">
+  
 </div>
 
 
 
 
-    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
-<script>
-var BLOG = { ROOT: '/', SHARE: true, REWARD: false };
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v3.8.0</div>
 
 
 
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Mist</a> v6.4.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
 </script>
 
-<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
-
-
-<div class="search-panel" id="search-panel">
-    <ul class="search-result" id="search-result"></ul>
-</div>
-<template id="search-tpl">
-<li class="item">
-    <a href="{path}" class="waves-block waves-effect">
-        <div class="title ellipsis" title="{title}">{title}</div>
-        <div class="flex-row flex-middle">
-            <div class="tags ellipsis">
-                {tags}
-            </div>
-            <time class="flex-col time">{date}</time>
-        </div>
-    </a>
-</li>
-</template>
-
-<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
 
 
 
 
 
 
-<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.4.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.4.2"></script>
+
+
+
+  
+  
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.4.2"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://lintingbin2009.disqus.com/count.js" async></script>
+  
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
 
 </body>
 </html>
