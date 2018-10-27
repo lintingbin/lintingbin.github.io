@@ -110,8 +110,8 @@ NexT.utils = NexT.$u = {
       $('#scrollpercent>span').html(scrollPercentMaxed);
     }
 
-    // For init back to top in sidebar if page was scrolled after page refresh.
-    $(window).on('load', function() {
+    // For init back to top in sidebar if page was already scrolled.
+    $(document).ready(function() {
       initBackToTop();
     });
 
@@ -280,9 +280,8 @@ NexT.utils = NexT.$u = {
     var sidebarNavHeight = $('.sidebar-nav').css('display') === 'block' ? $('.sidebar-nav').outerHeight(true) : 0;
     var sidebarInner = $('.sidebar-inner');
     var sidebarPadding = sidebarInner.innerWidth() - sidebarInner.width();
-    var sidebarOffset = CONFIG.sidebar.offset ? CONFIG.sidebar.offset : 12;
     var sidebarSchemePadding = this.isPisces() || this.isGemini()
-      ? (sidebarPadding * 2) + sidebarNavHeight + sidebarOffset + this.getSidebarb2tHeight()
+      ? (sidebarPadding * 2) + sidebarNavHeight + (CONFIG.sidebar.offset * 2) + this.getSidebarb2tHeight()
       : (sidebarPadding * 2) + (sidebarNavHeight / 2);
     return sidebarSchemePadding;
   }
