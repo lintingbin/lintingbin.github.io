@@ -340,6 +340,185 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/11/01/为集群搭建DNS服务的过程记录/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/01/为集群搭建DNS服务的过程记录/" itemprop="url">
+                  为集群搭建DNS服务的过程记录
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-11-01 11:56:33 / 修改时间：13:55:39" itemprop="dateCreated datePublished" datetime="2018-11-01T11:56:33+08:00">2018-11-01</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/教程/" itemprop="url" rel="index"><span itemprop="name">教程</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/01/为集群搭建DNS服务的过程记录/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/11/01/为集群搭建DNS服务的过程记录/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>之前集群维护hostname和ip之间的映射关系使用的是/etc/hosts文件，但是由于每次新加机器的时候都要更新每台机器的/etc/hosts文件，比较繁琐而且容易出错，所以就考虑为集群增加dns服务。</p>
+</blockquote>
+<h4 id="搭建dns服务器"><a href="#搭建dns服务器" class="headerlink" title="搭建dns服务器"></a>搭建dns服务器</h4><p>我们这边的dns服务器是运维直接帮我搭的，使用的是dnsmasq。相比于bind，dnsmasq的主要优势是轻量级、配置简单，然后我们机器的hostname和ip的映射文件放于这台机器的<code>/etc/hosts</code>文件下面，每次增加新机器的时候只要修改<code>/etc/hosts</code>文件，然后重启dnsmasq就可以了。</p>
+<h4 id="集群机器的配置"><a href="#集群机器的配置" class="headerlink" title="集群机器的配置"></a>集群机器的配置</h4><p>集群的机器配置主要是修改dns服务器的地址，把<code>/etc/resolv.conf</code>文件的内容修改为：<code>nameserver 192.168.1.1（你自己的dns服务器地址）</code>。<br>在这步，我遇到了一个问题：用dig和nslookup可以找到一个hostname对应的ip，但是使用ping或者telnet的时候就会返回<code>Name or service not known</code>。我在网上查了很多的资料，有人遇到类似的问题，但是他们的问题是因为<code>/etc/nsswitch.conf</code>的host配置没配好，而我这边并没有该配置问题。最后我在一个帖子回答中找到了解决方法，原来是我启用了nscd服务，这样的话，修改dns服务器就需要把该服务重启下，重启完后问题就解决了。</p>
+<h4 id="配置优化"><a href="#配置优化" class="headerlink" title="配置优化"></a>配置优化</h4><p>虽然经过上述的步骤后，集群的机器就可以使用dns服务了，但是还需要一些优化，才能让dns服务有更好的性能。</p>
+<h5 id="启用nscd服务"><a href="#启用nscd服务" class="headerlink" title="启用nscd服务"></a>启用nscd服务</h5><p>在centos7中默认是没有开启nscd服务的，这样的话，每次查询一个域名都需要向dns服务器发起一次请求，如果请求非常多的话就会给dns服务器带来压力，所以我们需要启用nscd服务。如果机器没有安装该服务的话，可以使用命令<code>yum install nscd</code>进行安装，然后使用命令<code>systemctl start nscd</code>启动该服务，使用命令<code>systemctl enable nscd</code>把该服务设置成开机启动。</p>
+<h4 id="配置dnsmasq的local-ttl参数"><a href="#配置dnsmasq的local-ttl参数" class="headerlink" title="配置dnsmasq的local-ttl参数"></a>配置dnsmasq的local-ttl参数</h4><p>集群的机器启动了nscd服务以后，按道理对dns服务器的请求会大大的减少，但是我在dns服务器上使用<code>tcpdump udp port 53</code>查看集群机器对dns服务器的请求的时候，集群机器会一直重复的请求一个hostname的ip，nscd根本没有起到缓存到的效果，如下图所示：
+<img src="/images/dns_request.png" alt="tcpdump显示log">
+后面查看dnsmasq的man手册知道，dnsmasq的local-ttl参数是控制本地域名的缓存时间的，比如存在<code>/etc/hosts</code>下的域名映射关系的缓存时间就是由local-ttl参数控制的，该值默认是0。我们集群的所有机器的hostname和ip的映射关系都是存储在dns服务器的<code>/etc/hosts</code>文件中的，所以这些域名在集群机器中是不缓存的，所以集群机器才会一直重复的请求某一个hostname的ip。最后为local-ttl配置一个适当值后该问题就解决了。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>为集群配置dns服务看起来是一件比较简单的事情，但是如果不知道其中的一些坑的话，配置起来就会挺费精力的，我就花了不少的时间。希望这篇文章能让其他人少走一些弯路。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/10/27/使用django-guardian实现django-admin的行级权限控制/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1929,267 +2108,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/05/01/fluentd语法速记/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/05/01/fluentd语法速记/" itemprop="url">
-                  Fluentd语法速记
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-05-01 14:17:05" itemprop="dateCreated datePublished" datetime="2018-05-01T14:17:05+08:00">2018-05-01</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/日志收集/" itemprop="url" rel="index"><span itemprop="name">日志收集</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/05/01/fluentd语法速记/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/05/01/fluentd语法速记/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>最近开始转行做大数据，大数据中很重要的一部分是数据的收集，我们公司主要用的数据收集工具是Fluentd，由于Fluentd的配置比较多，有可能配置过一次后就会忘了。我这边在学习Fluentd配置的同时也对这些配置进行一些记录，方便后面再用到时可以快速的查找。</p>
-</blockquote>
-<h4 id="Fluentd简介"><a href="#Fluentd简介" class="headerlink" title="Fluentd简介"></a>Fluentd简介</h4><p>Fluentd是一款完全免费且完全开源的日志收集器，拥有“Log Everything”的体系结构，能够与125种以上的系统对接。</p>
-<p><img src="/images/fluentd-architecture.png" alt="Fluentd-architecture"></p>
-<h4 id="配置文件语法"><a href="#配置文件语法" class="headerlink" title="配置文件语法"></a>配置文件语法</h4><h5 id="Fluentd事件的生命周期"><a href="#Fluentd事件的生命周期" class="headerlink" title="Fluentd事件的生命周期"></a>Fluentd事件的生命周期</h5><ol>
-<li>每个输入的事件会带有一个tag</li>
-<li>Fluentd通过tag匹配output</li>
-<li>Fluentd发送事件到匹配的output</li>
-<li>Fluentd支持多个数据源和数据输出</li>
-<li>通过过滤器，事件可以被重新触发</li>
-</ol>
-<h5 id="“source”-定义数据源"><a href="#“source”-定义数据源" class="headerlink" title="“source”: 定义数据源"></a>“source”: 定义数据源</h5><p>数据源可以在source指令中定义，比如我们可以定义http和forward的数据源。http数据源可以通过http协议来接收数据，forward可以通过tcp协议来接收数据。
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># Receive events from 24224/tcp</span></span><br><span class="line"><span class="section"># This is used by log forwarding and the fluent-cat command</span></span><br><span class="line">&lt;source&gt;</span><br><span class="line">  @type forward</span><br><span class="line">  port 24224</span><br><span class="line">&lt;/source&gt;</span><br><span class="line"></span><br><span class="line"><span class="section"># http://this.host:9880/myapp.access?json=&#123;"event":"data"&#125;</span></span><br><span class="line">&lt;source&gt;</span><br><span class="line">  @type http</span><br><span class="line">  port 9880</span><br><span class="line">&lt;/source&gt;</span><br></pre></td></tr></table></figure></p>
-<p>所有source指令中必须包含@type参数，该参数用来指定使用哪个输入插件，比如我们还可以用tail插件来读取文件的内容。 </p>
-<h6 id="路由"><a href="#路由" class="headerlink" title="路由"></a>路由</h6><p>source指令把事件提交到Fluentd的路由引擎。一个事件由三个实体组成：tag、time和record。tag是由’.’分割的字符串组成，被内部路由引擎使用。time由input插件指定，必须是Unix时间戳格式。record是一个Json对象。</p>
-<blockquote>
-<p>强烈推荐使用小写字母、数字和下划线来命名tag，虽然其他的字符也是合法的。</p>
-</blockquote>
-<h5 id="“match”-定义数据的输出目标"><a href="#“match”-定义数据的输出目标" class="headerlink" title="“match”: 定义数据的输出目标"></a>“match”: 定义数据的输出目标</h5><p>match指令通过匹配tag字段来将事件输出到其他的系统。同样match指令也必须指定@type参数，该参数用来指定使用哪个输出插件。在下面的例子中，只有myapp.access的tag能够匹配到该输出插件。
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;match myapp.access&gt;</span><br><span class="line">  @type file</span><br><span class="line">  path /var/log/fluent/access</span><br><span class="line">&lt;/match&gt;</span><br></pre></td></tr></table></figure></p>
-<h6 id="匹配模式"><a href="#匹配模式" class="headerlink" title="匹配模式"></a>匹配模式</h6><p>下面的这些匹配模式可以在&lt;match&gt;中使用，用来匹配tag:  </p>
-<ul>
-<li>*用来匹配tag的一部分（比如：a.*可以匹配a.b，但是不能匹配a或者a.b.c）</li>
-<li>**可以用来匹配tag的0个或多个部分（比如：a.**可以匹配a、a.b和a.b.c）</li>
-<li>{X,Y,Z}匹配X,Y或者Z（比如：{a,b}可以匹配a和b，但是不能匹配c。他可以和*或者**结合起来一起使用。）</li>
-<li>如果有多个匹配模式写在&lt;match&gt;里面，则可以用空格分开(比如：&lt;match a b&gt;能够匹配a和b。&lt;match a.** b.* &gt;能够匹配a,a.b,a.b.c和b.d。)</li>
-</ul>
-<h6 id="匹配顺序"><a href="#匹配顺序" class="headerlink" title="匹配顺序"></a>匹配顺序</h6><p>Fluentd是按顺序匹配的，先在配置文件里面出现的match会先匹配。下面的例子中myapp.access永远都不会被匹配到。
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># ** matches all tags. Bad :(</span></span><br><span class="line">&lt;match **&gt;</span><br><span class="line">  @type blackhole_plugin</span><br><span class="line">&lt;/match&gt;</span><br><span class="line"></span><br><span class="line">&lt;match myapp.access&gt;</span><br><span class="line">  @type file</span><br><span class="line">  path /var/log/fluent/access</span><br><span class="line">&lt;/match&gt;</span><br></pre></td></tr></table></figure></p>
-<h5 id="“filter”：事件处理管道"><a href="#“filter”：事件处理管道" class="headerlink" title="“filter”：事件处理管道"></a>“filter”：事件处理管道</h5><p>“filter”指令的语法和”match”指令的语法相同，但是”filter”能够在管道中被连起来处理，如下所示：
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Input -&gt; filter 1 -&gt; ... -&gt; filter N -&gt; Output</span><br></pre></td></tr></table></figure></p>
-<p>下面的例子展示了record_transformer fliter的用法。source首先会接收到一个{“event”:”data”}的事件，然后该事件会首先被路由到filter，filter会增加一个host_param的字段到record中，然后再把该事件发送到match中。
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># http://this.host:9880/myapp.access?json=&#123;"event":"data"&#125;</span></span><br><span class="line">&lt;source&gt;</span><br><span class="line">  @type http</span><br><span class="line">  port 9880</span><br><span class="line">&lt;/source&gt;</span><br><span class="line"></span><br><span class="line">&lt;filter myapp.access&gt;</span><br><span class="line">  @type record_transformer</span><br><span class="line">  &lt;record&gt;</span><br><span class="line"><span class="code">    host_param "#&#123;Socket.gethostname&#125;"</span></span><br><span class="line">  &lt;/record&gt;</span><br><span class="line">&lt;/filter&gt;</span><br><span class="line"></span><br><span class="line">&lt;match myapp.access&gt;</span><br><span class="line">  @type file</span><br><span class="line">  path /var/log/fluent/access</span><br><span class="line">&lt;/match&gt;</span><br></pre></td></tr></table></figure></p>
-<h5 id="“system”：设置系统范围配置"><a href="#“system”：设置系统范围配置" class="headerlink" title="“system”：设置系统范围配置"></a>“system”：设置系统范围配置</h5><p>以下的配置能够由”system”指令指定。也可以通过Fluentd的配置选项设置相同的配置:</p>
-<ul>
-<li>log_level</li>
-<li>suppress_repeated_stacktrace</li>
-<li>emit_error_log_interval</li>
-<li>suppress_config_dump</li>
-<li>without_source</li>
-<li>process_name (只能用”system”指令指定)</li>
-</ul>
-<p>下面是一些例子：
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;system&gt;</span><br><span class="line">  # 等价于-qq选项</span><br><span class="line">  log_level error</span><br><span class="line">  #等价于--without-source选项</span><br><span class="line">  without_source</span><br><span class="line">&lt;/system&gt;</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;system&gt;</span><br><span class="line">  process_name fluentd1</span><br><span class="line">&lt;/system&gt;</span><br></pre></td></tr></table></figure>
-<p>process_name用来指定Fluentd监控进程和工作进程的名字，通过ps可以看到
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">% ps aux | grep fluentd1</span><br><span class="line">foo      45673   0.4  0.2  2523252  38620 s001  S+    7:04AM   0:00.44 worker:fluentd1</span><br><span class="line">foo      45647   0.0  0.1  2481260  23700 s001  S+    7:04AM   0:00.40 supervisor:fluentd1</span><br></pre></td></tr></table></figure></p>
-<h5 id="“label”：用来组织filter和match"><a href="#“label”：用来组织filter和match" class="headerlink" title="“label”：用来组织filter和match"></a>“label”：用来组织filter和match</h5><p>“label”指令用来降低tag路由的复杂度，通过”label”指令可以用来组织filter和match的内部路由。下面是一个配置的例子，由于”label”是内建的插件，所以他的参数需要以@开头。
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">&lt;source&gt;</span><br><span class="line">  @type forward</span><br><span class="line">&lt;/source&gt;</span><br><span class="line"></span><br><span class="line">&lt;source&gt;</span><br><span class="line">  @type tail</span><br><span class="line">  @label @SYSTEM</span><br><span class="line">&lt;/source&gt;</span><br><span class="line"></span><br><span class="line">&lt;filter access.**&gt;</span><br><span class="line">  @type record_transformer</span><br><span class="line">  &lt;record&gt;</span><br><span class="line"><span class="code">    # ...</span></span><br><span class="line">  &lt;/record&gt;</span><br><span class="line">&lt;/filter&gt;</span><br><span class="line">&lt;match **&gt;</span><br><span class="line">  @type elasticsearch</span><br><span class="line">  # ...</span><br><span class="line">&lt;/match&gt;</span><br><span class="line"></span><br><span class="line">&lt;label @SYSTEM&gt;</span><br><span class="line">  &lt;filter var.log.middleware.**&gt;</span><br><span class="line"><span class="code">    @type grep</span></span><br><span class="line"><span class="code">    # ...</span></span><br><span class="line">  &lt;/filter&gt;</span><br><span class="line">  &lt;match **&gt;</span><br><span class="line"><span class="code">    @type s3</span></span><br><span class="line"><span class="code">    # ...</span></span><br><span class="line">  &lt;/match&gt;</span><br><span class="line">&lt;/label&gt;</span><br></pre></td></tr></table></figure></p>
-<p>在上面的例子中，forward的数据源的事件被路由到record_transformer filter和elasticsearch output中。tail数据源被路由到@system里面的grep filter和s3 output中。</p>
-<h6 id="ERROR-label"><a href="#ERROR-label" class="headerlink" title="@ERROR label"></a>@ERROR label</h6><p>@ERROR label是内建的label，用来记录emit_error_event错误事件的。如果在配置文件里面设置了<label @error="">，当有相关的错误发生（比如：缓冲区已满或无效记录）的话，该错误事件就会被发送到&lt; label @ERROR &gt;。</label></p>
-<h5 id="“-include”：重用配置"><a href="#“-include”：重用配置" class="headerlink" title="“@include”：重用配置"></a>“@include”：重用配置</h5><p>可以通过”@include”来导入其他的配置文件，配置文件是按顺序导入的。如果使用模式匹配的话，文件是按字母顺序导入的。
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># If you have a.conf,b.conf,...,z.conf and a.conf / z.conf are important...</span></span><br><span class="line"><span class="section"># This is bad</span></span><br><span class="line">@include *.conf</span><br><span class="line"></span><br><span class="line"><span class="section"># This is good</span></span><br><span class="line">@include a.conf</span><br><span class="line">@include config.d/*.conf</span><br><span class="line">@include z.conf</span><br></pre></td></tr></table></figure></p>
-<p>如果导入的文件有顺序的要求的话，最好自己主动写导入的语句，模式匹配导入容易出错。</p>
-<h4 id="支持的数据类型"><a href="#支持的数据类型" class="headerlink" title="支持的数据类型"></a>支持的数据类型</h4><p>每个插件都需要一些参数。例如：in_tail插件有rotate_wait和pos_file这两个参数。每个参数都有对应的类型与其关联。下面是这些类型的定义：</p>
-<ul>
-<li>string 类型：该类型被解析成一个字符串。string类型可以有三种形式：不带引号的字符串、带单引号的字符串和带双引号的字符串。</li>
-<li>integer 类型：该类型被解析成一个整数。</li>
-<li>float 类型：该类型被解析成一个浮点数。</li>
-<li>size 类型：该类型用来解析成有多少个字节。可以在整数后面加上k/K、m/M、g/G、t/T，对应的是计算机学科的度量单位。比如：12k表示为12*1024后的数值。</li>
-<li>time 类型：该类型被解析成时间。可以在浮点数后面加上s、m、h和d分别表示为秒、分、小时、天。可以用0.1表示100ms。</li>
-<li>array 类型：该类型被解析成JSON数组。这种类型还支持缩写，比如：[“key1”, “key2”]可以缩写成key1,key2。</li>
-<li>hash 类型：该类型被解析成JSON对象。这种类型也支持缩写，比如：{“key1”:”value1”, “key2”:”value2”}可以缩写成key1:value1,key2:value2。</li>
-</ul>
-<h4 id="常见的插件参数"><a href="#常见的插件参数" class="headerlink" title="常见的插件参数"></a>常见的插件参数</h4><p>这些参数是系统保留的并且带有@前缀。</p>
-<ul>
-<li>@type: 指定插件的类型。</li>
-<li>@id: 指定插件的id。</li>
-<li>@label：用来指定标签。</li>
-<li>@log_level：用来指定每个插件的log级别。</li>
-</ul>
-<h4 id="检查配置文件"><a href="#检查配置文件" class="headerlink" title="检查配置文件"></a>检查配置文件</h4><p>通过–dry-run选项，可以在不启动插件的情况下检查配置文件。
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ fluentd --dry-run -c fluent.conf</span><br></pre></td></tr></table></figure></p>
-<h4 id="格式建议"><a href="#格式建议" class="headerlink" title="格式建议"></a>格式建议</h4><h5 id="双引号包起来的字符串、数组和哈希类型支持多行"><a href="#双引号包起来的字符串、数组和哈希类型支持多行" class="headerlink" title="双引号包起来的字符串、数组和哈希类型支持多行"></a>双引号包起来的字符串、数组和哈希类型支持多行</h5><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">str_param "foo  # This line is converted to "foo\nbar". NL is kept in the parameter</span><br><span class="line">bar"</span><br><span class="line">array_param [</span><br><span class="line">  "a", "b"</span><br><span class="line">]</span><br><span class="line">hash_param &#123;</span><br><span class="line">  "k":"v",</span><br><span class="line">  "k1":10</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>如果想让[或者{开头的字符串不被解析成数组或者对象，则需要用’或者“把该字符串包起来。
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;match **&gt;</span><br><span class="line">  @type mail</span><br><span class="line">  subject "[CRITICAL] foo's alert system"</span><br><span class="line">&lt;/match&gt;</span><br><span class="line">&lt;match tag&gt;</span><br><span class="line">  @type map</span><br><span class="line">  map '[["code." + tag, time, &#123; "code" =&gt; record["code"].to<span class="emphasis">_i&#125;], ["time." + tag, time, &#123; "time" =&gt; record["time"].to_</span>i&#125;]]'</span><br><span class="line">  multi true</span><br><span class="line">&lt;/match&gt;</span><br></pre></td></tr></table></figure></p>
-<h5 id="嵌入Ruby代码"><a href="#嵌入Ruby代码" class="headerlink" title="嵌入Ruby代码"></a>嵌入Ruby代码</h5><p>可以在”包住的#{}里面执行Ruby代码，这可以用来获取一些机器的信息，比如hostname。
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">host_param "#&#123;hostname&#125;"  # This is same with Socket.gethostname</span><br><span class="line">@id "out<span class="emphasis">_foo#&#123;worker_</span>id&#125;" # This is same with ENV["SERVERENGINE<span class="emphasis">_WORKER_</span>ID"]</span><br></pre></td></tr></table></figure></p>
-<h5 id="在双引号字符串中，-是转义字符"><a href="#在双引号字符串中，-是转义字符" class="headerlink" title="在双引号字符串中，\是转义字符"></a>在双引号字符串中，\是转义字符</h5><p>\被解释为转义字符。你需要用\来设置”，\r，\n，\t，\或双引号字符串中的多个字符。
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">str_param "foo\nbar" # \n is interpreted as actual LF character</span><br></pre></td></tr></table></figure></p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2239,7 +2157,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">42</span>
+                    <span class="site-state-item-count">43</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2345,7 +2263,13 @@
                     
                       
                     
-                    <span class="site-state-item-count">27</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">30</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

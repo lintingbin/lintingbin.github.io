@@ -340,6 +340,224 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/10/14/efficiency-guide-List处理/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/10/14/efficiency-guide-List处理/" itemprop="url">
+                  efficiency-guide:List处理
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-10-14 17:21:11" itemprop="dateCreated datePublished" datetime="2017-10-14T17:21:11+08:00">2017-10-14</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang-Efficiency-Guide/" itemprop="url" rel="index"><span itemprop="name">Erlang Efficiency Guide</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/10/14/efficiency-guide-List处理/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/10/14/efficiency-guide-List处理/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>关于列表的处理，大多懂得Erlang的同学都差不多知道列表要怎么用，但是关于列表嵌套和拉伸的优化点还是值得一看的。</p>
+</blockquote>
+<h4 id="列表创建"><a href="#列表创建" class="headerlink" title="列表创建"></a>列表创建</h4><p>不能使用如下代码创建列表，因为每次迭代都会创建一个新的列表:
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(N)</span> -&gt;</span></span><br><span class="line">    bad_fib(N, <span class="number">0</span>, <span class="number">1</span>, []).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(<span class="number">0</span>, _Current, _Next, Fibs)</span> -&gt;</span></span><br><span class="line">    Fibs;</span><br><span class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(N, Current, Next, Fibs)</span> -&gt;</span> </span><br><span class="line">    bad_fib(N - <span class="number">1</span>, Next, Current + Next, Fibs ++ [Current]).</span><br></pre></td></tr></table></figure></p>
+<p>应该使用如下的代码创建列表:
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">tail_recursive_fib</span><span class="params">(N)</span> -&gt;</span></span><br><span class="line">    tail_recursive_fib(N, <span class="number">0</span>, <span class="number">1</span>, []).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">tail_recursive_fib</span><span class="params">(<span class="number">0</span>, _Current, _Next, Fibs)</span> -&gt;</span></span><br><span class="line">    lists:reverse(Fibs);</span><br><span class="line"><span class="function"><span class="title">tail_recursive_fib</span><span class="params">(N, Current, Next, Fibs)</span> -&gt;</span> </span><br><span class="line">    tail_recursive_fib(N - <span class="number">1</span>, Next, Current + Next, [Current|Fibs]).</span><br></pre></td></tr></table></figure></p>
+<h4 id="列表推导"><a href="#列表推导" class="headerlink" title="列表推导"></a>列表推导</h4><p>列表推导现在仍然被认为是缓慢的。他们过去常常使用funs来实现，而funs过去很慢。
+以下的列表推导：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Expr(E) || E &lt;- List]</span><br></pre></td></tr></table></figure></p>
+<p>会被转换成本地的函数实现：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">'lc^<span class="number">0</span>'([E|Tail], Expr) -&gt;</span><br><span class="line">    [Expr(E)|'lc^<span class="number">0</span>'(Tail, Expr)];</span><br><span class="line">'lc^<span class="number">0</span>'([], _Expr) -&gt; [].</span><br></pre></td></tr></table></figure></p>
+<p>如果列表推导的结果不会被使用，则不会构造列表。如下的代码：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[io:put_chars(E) || E &lt;- List],</span><br><span class="line">ok.</span><br><span class="line"><span class="comment">%% 或者</span></span><br><span class="line">...</span><br><span class="line"><span class="keyword">case</span> Var <span class="keyword">of</span></span><br><span class="line">    ... -&gt;</span><br><span class="line">        [io:put_chars(E) || E &lt;- List];</span><br><span class="line">    ... -&gt;</span><br><span class="line"><span class="keyword">end</span>,</span><br><span class="line"><span class="function"><span class="title">some_function</span><span class="params">(...)</span>,</span></span><br><span class="line"><span class="function">...</span></span><br></pre></td></tr></table></figure></p>
+<p>上述的代码不会构造列表，所以转换成以下的本地函数实现：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">'lc^<span class="number">0</span>'([E|Tail], Expr) -&gt;</span><br><span class="line">    Expr(E),</span><br><span class="line">    'lc^<span class="number">0</span>'(Tail, Expr);</span><br><span class="line">'lc^<span class="number">0</span>'([], _Expr) -&gt; [].</span><br></pre></td></tr></table></figure></p>
+<p>编译器知道分配给’_’意味着该值不会被使用。因此，以下示例中的代码也将进行优化：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_ = [io:put_chars(E) || E &lt;- List],</span><br><span class="line">ok.</span><br></pre></td></tr></table></figure></p>
+<h4 id="嵌套和拉伸列表-Deep-and-Flat-Lists"><a href="#嵌套和拉伸列表-Deep-and-Flat-Lists" class="headerlink" title="嵌套和拉伸列表(Deep and Flat Lists)"></a>嵌套和拉伸列表(Deep and Flat Lists)</h4><p>lists:flatten/1比++操作更加的低效，在下述的情况中，可以很简单的避免使用lists:flatten/1:</p>
+<ul>
+<li>向端口发送数据时。端口了解嵌套列表，所以没有理由在将列表发送到端口之前拉伸列表。</li>
+<li>当调用接受嵌套列表的BIF时，例如list_to_binary/1或iolist_to_binary/1。</li>
+<li>当知道列表只有一级嵌套时，可以使用list:append/1。</li>
+</ul>
+<h5 id="端口例子"><a href="#端口例子" class="headerlink" title="端口例子"></a>端口例子</h5><figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="function"><span class="title">port_command</span><span class="params">(Port, DeepList)</span> %% DO</span></span><br><span class="line"><span class="function">...</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">...</span></span><br><span class="line"><span class="function"><span class="title">port_command</span><span class="params">(Port, lists:flatten(DeepList))</span> %% DO NOT</span></span><br><span class="line"><span class="function">...</span></span><br></pre></td></tr></table></figure>
+<p>通常会这样向端口发送一个以0为结尾的字符串：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">TerminatedStr = String ++ [<span class="number">0</span>], <span class="comment">% String="foo" =&gt; [$f, $o, $o, 0]</span></span><br><span class="line"><span class="function"><span class="title">port_command</span><span class="params">(Port, TerminatedStr)</span></span></span><br><span class="line"><span class="function">...</span></span><br></pre></td></tr></table></figure></p>
+<p>上述效率比较低，应该用下述方式代替：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">TerminatedStr = [String, <span class="number">0</span>], <span class="comment">% String="foo" =&gt; [[$f, $o, $o], 0]</span></span><br><span class="line"><span class="function"><span class="title">port_command</span><span class="params">(Port, TerminatedStr)</span> </span></span><br><span class="line"><span class="function">...</span></span><br></pre></td></tr></table></figure></p>
+<h5 id="Append例子"><a href="#Append例子" class="headerlink" title="Append例子"></a>Append例子</h5><figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lists:append([[<span class="number">1</span>], [<span class="number">2</span>], [<span class="number">3</span>]]). <span class="comment">%% DO</span></span><br><span class="line"></span><br><span class="line">lists:flatten([[<span class="number">1</span>], [<span class="number">2</span>], [<span class="number">3</span>]]). <span class="comment">%% DO NOT</span></span><br></pre></td></tr></table></figure>
+<h4 id="递归列表函数"><a href="#递归列表函数" class="headerlink" title="递归列表函数"></a>递归列表函数</h4><p>普通递归列表函数和尾部递归函数在结束的时候反转列表之间通常没有太大差异。因此，专注于编写好看的代码，并忘记了列表功能的性能。在代码的性能关键部分（仅在那里），用比较高效的写法就行了。</p>
+<blockquote>
+<p>这部分是关于构造列表的列表函数。不构造列表的尾递归函数运行在常量空间中，而相应的普通递归函数使用与列表长度成比例的堆栈空间。</p>
+</blockquote>
+<p>例如，一个将整数列表相加的函数不能写成如下：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">recursive_sum</span><span class="params">([H|T])</span> -&gt;</span> H+recursive_sum(T);</span><br><span class="line"><span class="function"><span class="title">recursive_sum</span><span class="params">([])</span>    -&gt;</span> <span class="number">0</span>.</span><br></pre></td></tr></table></figure></p>
+<p>应该写成:
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">sum</span><span class="params">(L)</span> -&gt;</span> sum(L, <span class="number">0</span>).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">sum</span><span class="params">([H|T], Sum)</span> -&gt;</span> sum(T, Sum + H);</span><br><span class="line"><span class="function"><span class="title">sum</span><span class="params">([], Sum)</span>    -&gt;</span> Sum.</span><br></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/10/14/efficiency-guide-Binary的构建和匹配/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -2178,223 +2396,6 @@ set -e</p>
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/06/17/Markdown语法速记/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/06/17/Markdown语法速记/" itemprop="url">
-                  Markdown语法速记
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-06-17 22:44:26" itemprop="dateCreated datePublished" datetime="2017-06-17T22:44:26+08:00">2017-06-17</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/教程/" itemprop="url" rel="index"><span itemprop="name">教程</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/06/17/Markdown语法速记/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/17/Markdown语法速记/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>有时候自己也会忘记Markdown的语法，在这边做一个备忘，以后找起来比较方便，这边记录的是最基本的Markdown语法。</p>
-</blockquote>
-<h4 id="粗体和斜体"><a href="#粗体和斜体" class="headerlink" title="粗体和斜体"></a>粗体和斜体</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_下划线是斜体_</span><br></pre></td></tr></table></figure>
-<p><em>下划线是斜体</em> 
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">**两个星是粗体**</span><br></pre></td></tr></table></figure></p>
-<p><strong>两个星是粗体</strong>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">**_粗体斜体一起用_**</span><br></pre></td></tr></table></figure></p>
-<p><strong><em>粗体斜体一起用</em></strong></p>
-<h4 id="六种标题"><a href="#六种标题" class="headerlink" title="六种标题"></a>六种标题</h4><p>几个#号代表标题几,#号后面有空格
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 标题1</span><br><span class="line">## 标题2</span><br><span class="line">### 标题3</span><br><span class="line">#### 标题4</span><br><span class="line">##### 标题5</span><br><span class="line">###### 标题6</span><br></pre></td></tr></table></figure></p>
-<h4 id="链接"><a href="#链接" class="headerlink" title="链接"></a>链接</h4><figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">这是一个 [普通的链接方式](https://www.github.com)</span><br><span class="line">这是一个 [引用的链接方式][another place].</span><br><span class="line">这还是一个 [引用的链接方式][another-link].</span><br><span class="line"></span><br><span class="line">[another place]: https://www.github.com</span><br><span class="line">[another-link]: https://www.google.com</span><br></pre></td></tr></table></figure>
-<p>这是一个 <a href="https://www.github.com" target="_blank" rel="noopener">普通的链接方式</a>
-这是一个 <a href="https://www.github.com" target="_blank" rel="noopener">引用的链接方式</a>.
-这还是一个 <a href="https://www.google.com" target="_blank" rel="noopener">引用的链接方式</a>.</p>
-<h4 id="图片"><a href="#图片" class="headerlink" title="图片"></a>图片</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">![我的头像](https://lintingbin2009.github.io/img/avatar.jpg)</span><br><span class="line">![又是一个头像][other]</span><br><span class="line"></span><br><span class="line">[other]: https://lintingbin2009.github.io/img/avatar.jpg</span><br></pre></td></tr></table></figure>
-<p><img src="https://lintingbin2009.github.io/img/avatar.jpg" alt="我的头像">
-<img src="https://lintingbin2009.github.io/img/avatar.jpg" alt="又是一个头像"></p>
-<h4 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;在要被引用的段落或者行前面加大括号</span><br><span class="line">&gt;</span><br><span class="line">&gt;即使是空行也要加一下，保持一致</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>在要被引用的段落或者行前面加大括号</p>
-<p>即使是空行也要加一下，保持一致</p>
-</blockquote>
-<h4 id="列表"><a href="#列表" class="headerlink" title="列表"></a>列表</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1. 有序用数字</span><br><span class="line"> 继续保持缩进,只需加空格</span><br><span class="line">2. 有序用数字</span><br><span class="line"> * 无序用星号</span><br><span class="line">    * 还可再缩进,只需再加空格</span><br></pre></td></tr></table></figure>
-<ol>
-<li>有序用数字
-继续保持缩进,只需加空格</li>
-<li>有序用数字<ul>
-<li>无序用星号<ul>
-<li>还可再缩进,只需再加空格</li>
-</ul>
-</li>
-</ul>
-</li>
-</ol>
-<h4 id="段落"><a href="#段落" class="headerlink" title="段落"></a>段落</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">我在逗号后加了两个空格,  </span><br><span class="line">所以不在一行</span><br></pre></td></tr></table></figure>
-<p>我在逗号后加了两个空格,<br>所以不在一行</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2444,7 +2445,7 @@ set -e</p>
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">42</span>
+                    <span class="site-state-item-count">43</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2550,7 +2551,13 @@ set -e</p>
                     
                       
                     
-                    <span class="site-state-item-count">27</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">30</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

@@ -340,6 +340,340 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/04/30/Erlang数据类型/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/04/30/Erlang数据类型/" itemprop="url">
+                  Erlang数据类型
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-04-30 11:23:06" itemprop="dateCreated datePublished" datetime="2017-04-30T11:23:06+08:00">2017-04-30</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-09-09 13:53:12" itemprop="dateModified" datetime="2018-09-09T13:53:12+08:00">2018-09-09</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang入门教程/" itemprop="url" rel="index"><span itemprop="name">Erlang入门教程</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/04/30/Erlang数据类型/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/04/30/Erlang数据类型/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Erlang提供的数据类型，包括以下几种：</p>
+<h4 id="基本类型"><a href="#基本类型" class="headerlink" title="基本类型"></a>基本类型</h4><ul>
+<li>数字(Number)
+数字类型又包含整数(integers)和浮点数(floats)类型，其中整数是精确的而且是支持大数的，小数是满足IEEE754规则的64位浮点数。Erlang支持ASCII或者Unicode转换成整数值，同时支持整数不同进制的表示。（‘%’后的内容为注释）<blockquote>
+<p>1&gt; $a.　　%% ASCII表中的a是97
+97
+2&gt; $哈.
+21704
+3&gt; $\n.
+10
+4&gt; 2#100.　　%% 用100表示的二进制是4
+4
+5&gt; 4#100.
+16
+6&gt; 16#100.
+256</p>
+</blockquote>
+</li>
+<li>原子(Atom)
+原子可以理解为一个不可变的常量，必须以小写字母开头，如果要以大写、下划线或者其他的特殊字符开头，必须加上单引号。原子在Erlang里面是存在一张表上面的，原子的个数有上限，大概是在一百万个左右。<blockquote>
+<p>test
+‘Myhome’
+‘_hero’</p>
+</blockquote>
+</li>
+<li>位串和二进制(Bit Strings and Binaries)
+在大多数情况下，二进制型里的位数都会是8的整数倍，因此对应一个字节串。如果位数不是8的整数倍，就称这段数据为位串（bitstring）。所以当我们说位串时，是在强调数据里的位数不是8的整数倍。位语法是一种表示法，用于从二进制数据里提取或加入单独的位或者位串。当你编写底层代码，以位为单位打包和解包二进制数据时，就会发现位语法是极其有用的。<blockquote>
+<p>1&gt; &lt;&lt;257,1,2,3,5&gt;&gt;. 　　%%二进制型的元素如果大于8位的会自动截断，257截断成1
+&lt;&lt;1,1,2,3,5&gt;&gt;
+2&gt; &lt;&lt;0:7,1:2&gt;&gt;. 　　%%二进制型位数如果不是8的整数倍就会产生位串，这边多了1位1
+&lt;&lt;0,1:1&gt;&gt;
+3&gt; &lt;&lt;0:3,0:4,1:2&gt;&gt;.
+&lt;&lt;0,1:1&gt;&gt;</p>
+</blockquote>
+</li>
+<li>引用(Reference)
+可以通过make_ref/0函数来创建一个引用，引用在Erlang程序运行时调用make_ref函数产生的是全局唯一的。比如timer模块在创建一个定时任务的时候通常会返回一个引用，可以通过这个引用来取消定时任务。</li>
+<li>函数(Fun)
+函数在Erlang里面也算是一种数据类型，通过给变量绑定函数，可以通过变量名来执行函数。<blockquote>
+<p>1&gt; Fun = fun(X) -&gt; X * X end.</p>
+</blockquote>
+#Fun&lt;erl_eval.6.50752066&gt;
+2&gt; Fun(9).
+81</li>
+<li>端口标识符(Port Identifier)
+端口用于与外界通信，由通过函数open_port/2来创建。消息可以通过端口进行收发，但是这些消息必须遵守所谓“端口协议”(port protocol)的规则。</li>
+<li>进程标识符(Pid)
+当创建一个进程的时候会产生一个进程标识符，可以通过这个进程标识符和进程进行通讯。<blockquote>
+<p>1&gt; Process1 = spawn(fun() -&gt; receive X -&gt; io:format(“recv ~p, bye~n”, [X]) end end).</p>
+</blockquote>
+&lt;0.34.0&gt;　　%% 创建一个进程等待接收消息
+2&gt; Process1 ! my_test.　　%% 给进程发消息
+recv my_test, bye
+my_test</li>
+</ul>
+<h4 id="复合类型"><a href="#复合类型" class="headerlink" title="复合类型"></a>复合类型</h4><p>为了方便定义以下的这些复合类型，我把上述的所有基本类型都称为Term。</p>
+<ul>
+<li><p>元组(Tuple)
+元组类似于C语言里面的结构体(Struct)，是由固定数量的元素组成的复合数据类型，可以定义成如下结构：</p>
+<blockquote>
+<p>{Term1, Term2, …, TermN}</p>
+</blockquote>
+<p>可以通过模式匹配或者element/2函数来提取元组里面元素的值，通过setelement/3来设置元组里面元素的值，size可以取元组里面元素的个数。</p>
+<blockquote>
+<p>1&gt; P = {adam,24,{july,29}}.
+{adam,24,{july,29}}
+2&gt; element(1,P).
+adam
+3&gt; element(3,P).
+{july,29}
+4&gt; P2 = setelement(2,P,25).
+{adam,25,{july,29}}
+5&gt; size(P).
+3
+6&gt; {adam, Old, {Month, Day}} = P.
+{adam,24,{july,29}}
+7&gt; Old.
+24</p>
+</blockquote>
+</li>
+<li><p>映射组(Map)
+映射组是一个由多个Key-Vaule结构组成的符合数据类型，可以定义为如下结构：</p>
+<blockquote>
+<p>#{Key1=&gt;Value1, Key2=&gt;Value2, …, KeyN=&gt;ValueN}
+其中Key、Value都是Term</p>
+</blockquote>
+<p>可以通过maps模块提供的一些函数对映射组进行操作</p>
+<blockquote>
+<p>1&gt; M1 = #{name=&gt;adam,age=&gt;24,date=&gt;{july,29}}.</p>
+</blockquote>
+<p>#{age =&gt; 24,date =&gt; {july,29},name =&gt; adam}
+2&gt; maps:get(name,M1).
+adam
+3&gt; maps:get(date,M1).
+{july,29}
+4&gt; M2 = maps:update(age,25,M1).
+#{age =&gt; 25,date =&gt; {july,29},name =&gt; adam}
+5&gt; map_size(M).
+3
+6&gt; map_size(#{}).
+0</p>
+</li>
+<li><p>列表(List)
+列表类似于其他语言里面的数组，是由可变数量的元素组成的复合数据结构，可以定义成如下结构：</p>
+<blockquote>
+<p>[Term1, Term2, …, TermN]</p>
+</blockquote>
+<p>在Erlang里面，列表由一个头和一个尾组成，空列表也是一个列表。所以列表也可以有一个递归的定义  </p>
+<blockquote>
+<p>List = [Term| List] | []
+[] 是一个列表, 因此 
+[c|[]] 是一个列表, 因此 
+[b|[c|[]]] 是一个列表, 因此<br>[a|[b|[c|[]]]] 是一个列表, 或者简写为 [a,b,c]</p>
+</blockquote>
+<p>lists模块可以提供大量函数对列表进行操作：</p>
+<blockquote>
+<p>1&gt; L = [3,3,4,2,1,2,34].
+[3,3,4,2,1,2,34]
+2&gt; length(L).
+7
+3&gt; lists:sort(L).
+[1,2,2,3,3,4,34]
+4&gt; lists:reverse(L).
+[34,2,1,2,4,3,3]</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="其他类型-不算数据类型"><a href="#其他类型-不算数据类型" class="headerlink" title="其他类型(不算数据类型)"></a>其他类型(不算数据类型)</h4><ul>
+<li>字符串(String)
+字符串用一对双引号括起来，但不算是Erlang中的数据类型。字符串仅仅是列表的一个缩写，比如：字符串”hello”是列表[$h,$e,$l,$l,$o]的一个缩写。两个相邻的字符串在编译的时候连接成一个字符串，不会造成任何运行时开销。<blockquote>
+<p>1&gt; “hello” “ “ “world”.
+“hello world”</p>
+</blockquote>
+</li>
+<li><p>记录(Record)
+记录其实就是元组的另一种形式。通过使用记录，可以给元组里的各个元素关联一个名称。对记录的处理是在编译的时候完成的，在运行时是不会有记录的，可以把记录理解成是元组的一种语法糖。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">-module</span><span class="params">(person)</span>.</span><br><span class="line"><span class="keyword">-export</span><span class="params">([new/<span class="number">2</span>])</span>.</span><br><span class="line"><span class="keyword">-record</span><span class="params">(person, &#123;name, age&#125;)</span>.</span><br><span class="line"><span class="function"><span class="title">new</span><span class="params">(Name, Age)</span> -&gt;</span></span><br><span class="line">    #person&#123;name=Name, age=Age&#125;.</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>1&gt; person:new(ernie, 44).
+{person,ernie,44}</p>
+</blockquote>
+</li>
+<li><p>布尔类型(Boolean)
+在Erlang中没有Boolean类型。而是用原子true和false来表示布尔值。</p>
+<blockquote>
+<p>1&gt; 2 =&lt; 3.
+true
+2&gt; true or false.
+true</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="类型转换"><a href="#类型转换" class="headerlink" title="类型转换"></a>类型转换</h4><p>Erlang提供了一些内置的类型转换函数，可以方便地进行类型转换，下面是一些类型转换的例子：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>&gt; atom_to_list(hello).</span><br><span class="line"><span class="string">"hello"</span></span><br><span class="line"><span class="number">2</span>&gt; list_to_atom(<span class="string">"hello"</span>).</span><br><span class="line">hello</span><br><span class="line"><span class="number">3</span>&gt; binary_to_list(&lt;&lt;<span class="string">"hello"</span>&gt;&gt;).</span><br><span class="line"><span class="string">"hello"</span></span><br><span class="line"><span class="number">4</span>&gt; binary_to_list(&lt;&lt;<span class="number">104</span>,<span class="number">101</span>,<span class="number">108</span>,<span class="number">108</span>,<span class="number">111</span>&gt;&gt;).</span><br><span class="line"><span class="string">"hello"</span></span><br><span class="line"><span class="number">5</span>&gt; list_to_binary(<span class="string">"hello"</span>).</span><br><span class="line">&lt;&lt;<span class="number">104</span>,<span class="number">101</span>,<span class="number">108</span>,<span class="number">108</span>,<span class="number">111</span>&gt;&gt;</span><br><span class="line"><span class="number">6</span>&gt; float_to_list(<span class="number">7.0</span>).</span><br><span class="line"><span class="string">"7.00000000000000000000e+00"</span></span><br><span class="line"><span class="number">7</span>&gt; list_to_float(<span class="string">"7.000e+00"</span>).</span><br><span class="line"><span class="number">7.0</span></span><br><span class="line"><span class="number">8</span>&gt; integer_to_list(<span class="number">77</span>).</span><br><span class="line"><span class="string">"77"</span></span><br><span class="line"><span class="number">9</span>&gt; list_to_integer(<span class="string">"77"</span>).</span><br><span class="line"><span class="number">77</span></span><br><span class="line"><span class="number">10</span>&gt; tuple_to_list(&#123;a,b,c&#125;).</span><br><span class="line">[a,b,c]</span><br><span class="line"><span class="number">11</span>&gt; list_to_tuple([a,b,c]).</span><br><span class="line">&#123;a,b,c&#125;</span><br><span class="line"><span class="number">12</span>&gt; term_to_binary(&#123;a,b,c&#125;).</span><br><span class="line">&lt;&lt;<span class="number">131</span>,<span class="number">104</span>,<span class="number">3</span>,<span class="number">100</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">97</span>,<span class="number">100</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">98</span>,<span class="number">100</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">99</span>&gt;&gt;</span><br><span class="line"><span class="number">13</span>&gt; binary_to_term(&lt;&lt;<span class="number">131</span>,<span class="number">104</span>,<span class="number">3</span>,<span class="number">100</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">97</span>,<span class="number">100</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">98</span>,<span class="number">100</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">99</span>&gt;&gt;).</span><br><span class="line">&#123;a,b,c&#125;</span><br><span class="line"><span class="number">14</span>&gt; binary_to_integer(&lt;&lt;<span class="string">"77"</span>&gt;&gt;).</span><br><span class="line"><span class="number">77</span></span><br><span class="line"><span class="number">15</span>&gt; integer_to_binary(<span class="number">77</span>).</span><br><span class="line">&lt;&lt;<span class="string">"77"</span>&gt;&gt;</span><br><span class="line"><span class="number">16</span>&gt; float_to_binary(<span class="number">7.0</span>).</span><br><span class="line">&lt;&lt;<span class="string">"7.00000000000000000000e+00"</span>&gt;&gt;</span><br><span class="line"><span class="number">17</span>&gt; binary_to_float(&lt;&lt;<span class="string">"7.000e+00&gt;&gt;"</span>).</span><br><span class="line"><span class="number">7.0</span></span><br></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/04/29/为什么使用Erlang/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -810,7 +1144,7 @@ Erlang的进程是Erlang虚拟机内部自己实现的进程，非常轻量级�
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">42</span>
+                    <span class="site-state-item-count">43</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -916,7 +1250,13 @@ Erlang的进程是Erlang虚拟机内部自己实现的进程，非常轻量级�
                     
                       
                     
-                    <span class="site-state-item-count">27</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">30</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

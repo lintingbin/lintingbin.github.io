@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://lintingbin2009.github.io/"/>
-  <updated>2018-10-27T13:19:45.754Z</updated>
+  <updated>2018-11-01T05:55:39.523Z</updated>
   <id>https://lintingbin2009.github.io/</id>
   
   <author>
@@ -15,6 +15,38 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>为集群搭建DNS服务的过程记录</title>
+    <link href="https://lintingbin2009.github.io/2018/11/01/%E4%B8%BA%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BADNS%E6%9C%8D%E5%8A%A1%E7%9A%84%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/"/>
+    <id>https://lintingbin2009.github.io/2018/11/01/为集群搭建DNS服务的过程记录/</id>
+    <published>2018-11-01T03:56:33.000Z</published>
+    <updated>2018-11-01T05:55:39.523Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>之前集群维护hostname和ip之间的映射关系使用的是/etc/hosts文件，但是由于每次新加机器的时候都要更新每台机器的/etc/hosts文件，比较繁琐而且容易出错，所以就考虑为集群增加dns服务。</p></blockquote><h4 id="搭建dns服务器"><a href="#搭建dns服务器" class="headerlink" title="搭建dns服务器"></a>搭建dns服务器</h4><p>我们这边的dns服务器是运维直接帮我搭的，使用的是dnsmasq。相比于bind，dnsmasq的主要优势是轻量级、配置简单，然后我们机器的hostname和ip的映射文件放于这台机器的<code>/etc/hosts</code>文件下面，每次增加新机器的时候只要修改<code>/etc/hosts</code>文件，然后重启dnsmasq就可以了。</p><h4 id="集群机器的配置"><a href="#集群机器的配置" class="headerlink" title="集群机器的配置"></a>集群机器的配置</h4><p>集群的机器配置主要是修改dns服务器的地址，把<code>/etc/resolv.conf</code>文件的内容修改为：<code>nameserver 192.168.1.1（你自己的dns服务器地址）</code>。<br>在这步，我遇到了一个问题：用dig和nslookup可以找到一个hostname对应的ip，但是使用ping或者telnet的时候就会返回<code>Name or service not known</code>。我在网上查了很多的资料，有人遇到类似的问题，但是他们的问题是因为<code>/etc/nsswitch.conf</code>的host配置没配好，而我这边并没有该配置问题。最后我在一个帖子回答中找到了解决方法，原来是我启用了nscd服务，这样的话，修改dns服务器就需要把该服务重启下，重启完后问题就解决了。</p><h4 id="配置优化"><a href="#配置优化" class="headerlink" title="配置优化"></a>配置优化</h4><p>虽然经过上述的步骤后，集群的机器就可以使用dns服务了，但是还需要一些优化，才能让dns服务有更好的性能。</p><h5 id="启用nscd服务"><a href="#启用nscd服务" class="headerlink" title="启用nscd服务"></a>启用nscd服务</h5><p>在centos7中默认是没有开启nscd服务的，这样的话，每次查询一个域名都需要向dns服务器发起一次请求，如果请求非常多的话就会给dns服务器带来压力，所以我们需要启用nscd服务。如果机器没有安装该服务的话，可以使用命令<code>yum install nscd</code>进行安装，然后使用命令<code>systemctl start nscd</code>启动该服务，使用命令<code>systemctl enable nscd</code>把该服务设置成开机启动。</p><h4 id="配置dnsmasq的local-ttl参数"><a href="#配置dnsmasq的local-ttl参数" class="headerlink" title="配置dnsmasq的local-ttl参数"></a>配置dnsmasq的local-ttl参数</h4><p>集群的机器启动了nscd服务以后，按道理对dns服务器的请求会大大的减少，但是我在dns服务器上使用<code>tcpdump udp port 53</code>查看集群机器对dns服务器的请求的时候，集群机器会一直重复的请求一个hostname的ip，nscd根本没有起到缓存到的效果，如下图所示：<img src="/images/dns_request.png" alt="tcpdump显示log">后面查看dnsmasq的man手册知道，dnsmasq的local-ttl参数是控制本地域名的缓存时间的，比如存在<code>/etc/hosts</code>下的域名映射关系的缓存时间就是由local-ttl参数控制的，该值默认是0。我们集群的所有机器的hostname和ip的映射关系都是存储在dns服务器的<code>/etc/hosts</code>文件中的，所以这些域名在集群机器中是不缓存的，所以集群机器才会一直重复的请求某一个hostname的ip。最后为local-ttl配置一个适当值后该问题就解决了。</p><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>为集群配置dns服务看起来是一件比较简单的事情，但是如果不知道其中的一些坑的话，配置起来就会挺费精力的，我就花了不少的时间。希望这篇文章能让其他人少走一些弯路。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;blockquote&gt;
+&lt;p&gt;之前集群维护hostname和ip之间的映射关系使用的是/etc/hosts文件，但是由于每次新加机器的时候都要更新每台机器的/etc/hosts文件，比较繁琐而且容易出错，所以就考虑为集群增加dns服务。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h
+      
+    
+    </summary>
+    
+      <category term="教程" scheme="https://lintingbin2009.github.io/categories/%E6%95%99%E7%A8%8B/"/>
+    
+    
+      <category term="dns" scheme="https://lintingbin2009.github.io/tags/dns/"/>
+    
+      <category term="dnsmasq" scheme="https://lintingbin2009.github.io/tags/dnsmasq/"/>
+    
+      <category term="nscd" scheme="https://lintingbin2009.github.io/tags/nscd/"/>
+    
+  </entry>
   
   <entry>
     <title>使用django-guardian实现django-admin的行级权限控制</title>
@@ -507,34 +539,6 @@
 &lt;p&gt;本篇文章主要介绍函数的模式匹配和调用，函数的模式匹配优化还是有必要了解一下的。&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h4 id=&quot;模式匹配&quot;&gt;&lt;a href=&quot;#模式匹配&quot; class=&quot;headerlink&quot; title=&quot;模式匹配&quot;&gt;&lt;/a&gt;
-      
-    
-    </summary>
-    
-      <category term="Erlang Efficiency Guide" scheme="https://lintingbin2009.github.io/categories/Erlang-Efficiency-Guide/"/>
-    
-    
-      <category term="Erlang" scheme="https://lintingbin2009.github.io/tags/Erlang/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>efficiency-guide:List处理</title>
-    <link href="https://lintingbin2009.github.io/2017/10/14/efficiency-guide-List%E5%A4%84%E7%90%86/"/>
-    <id>https://lintingbin2009.github.io/2017/10/14/efficiency-guide-List处理/</id>
-    <published>2017-10-14T09:21:11.000Z</published>
-    <updated>2018-05-04T15:15:55.982Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote><p>关于列表的处理，大多懂得Erlang的同学都差不多知道列表要怎么用，但是关于列表嵌套和拉伸的优化点还是值得一看的。</p></blockquote><h4 id="列表创建"><a href="#列表创建" class="headerlink" title="列表创建"></a>列表创建</h4><p>不能使用如下代码创建列表，因为每次迭代都会创建一个新的列表:<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(N)</span> -&gt;</span></span><br><span class="line">    bad_fib(N, <span class="number">0</span>, <span class="number">1</span>, []).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(<span class="number">0</span>, _Current, _Next, Fibs)</span> -&gt;</span></span><br><span class="line">    Fibs;</span><br><span class="line"><span class="function"><span class="title">bad_fib</span><span class="params">(N, Current, Next, Fibs)</span> -&gt;</span> </span><br><span class="line">    bad_fib(N - <span class="number">1</span>, Next, Current + Next, Fibs ++ [Current]).</span><br></pre></td></tr></table></figure></p><p>应该使用如下的代码创建列表:<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">tail_recursive_fib</span><span class="params">(N)</span> -&gt;</span></span><br><span class="line">    tail_recursive_fib(N, <span class="number">0</span>, <span class="number">1</span>, []).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">tail_recursive_fib</span><span class="params">(<span class="number">0</span>, _Current, _Next, Fibs)</span> -&gt;</span></span><br><span class="line">    lists:reverse(Fibs);</span><br><span class="line"><span class="function"><span class="title">tail_recursive_fib</span><span class="params">(N, Current, Next, Fibs)</span> -&gt;</span> </span><br><span class="line">    tail_recursive_fib(N - <span class="number">1</span>, Next, Current + Next, [Current|Fibs]).</span><br></pre></td></tr></table></figure></p><h4 id="列表推导"><a href="#列表推导" class="headerlink" title="列表推导"></a>列表推导</h4><p>列表推导现在仍然被认为是缓慢的。他们过去常常使用funs来实现，而funs过去很慢。以下的列表推导：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Expr(E) || E &lt;- List]</span><br></pre></td></tr></table></figure></p><p>会被转换成本地的函数实现：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">'lc^<span class="number">0</span>'([E|Tail], Expr) -&gt;</span><br><span class="line">    [Expr(E)|'lc^<span class="number">0</span>'(Tail, Expr)];</span><br><span class="line">'lc^<span class="number">0</span>'([], _Expr) -&gt; [].</span><br></pre></td></tr></table></figure></p><p>如果列表推导的结果不会被使用，则不会构造列表。如下的代码：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[io:put_chars(E) || E &lt;- List],</span><br><span class="line">ok.</span><br><span class="line"><span class="comment">%% 或者</span></span><br><span class="line">...</span><br><span class="line"><span class="keyword">case</span> Var <span class="keyword">of</span></span><br><span class="line">    ... -&gt;</span><br><span class="line">        [io:put_chars(E) || E &lt;- List];</span><br><span class="line">    ... -&gt;</span><br><span class="line"><span class="keyword">end</span>,</span><br><span class="line"><span class="function"><span class="title">some_function</span><span class="params">(...)</span>,</span></span><br><span class="line"><span class="function">...</span></span><br></pre></td></tr></table></figure></p><p>上述的代码不会构造列表，所以转换成以下的本地函数实现：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">'lc^<span class="number">0</span>'([E|Tail], Expr) -&gt;</span><br><span class="line">    Expr(E),</span><br><span class="line">    'lc^<span class="number">0</span>'(Tail, Expr);</span><br><span class="line">'lc^<span class="number">0</span>'([], _Expr) -&gt; [].</span><br></pre></td></tr></table></figure></p><p>编译器知道分配给’_’意味着该值不会被使用。因此，以下示例中的代码也将进行优化：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_ = [io:put_chars(E) || E &lt;- List],</span><br><span class="line">ok.</span><br></pre></td></tr></table></figure></p><h4 id="嵌套和拉伸列表-Deep-and-Flat-Lists"><a href="#嵌套和拉伸列表-Deep-and-Flat-Lists" class="headerlink" title="嵌套和拉伸列表(Deep and Flat Lists)"></a>嵌套和拉伸列表(Deep and Flat Lists)</h4><p>lists:flatten/1比++操作更加的低效，在下述的情况中，可以很简单的避免使用lists:flatten/1:</p><ul><li>向端口发送数据时。端口了解嵌套列表，所以没有理由在将列表发送到端口之前拉伸列表。</li><li>当调用接受嵌套列表的BIF时，例如list_to_binary/1或iolist_to_binary/1。</li><li>当知道列表只有一级嵌套时，可以使用list:append/1。</li></ul><h5 id="端口例子"><a href="#端口例子" class="headerlink" title="端口例子"></a>端口例子</h5><figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="function"><span class="title">port_command</span><span class="params">(Port, DeepList)</span> %% DO</span></span><br><span class="line"><span class="function">...</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">...</span></span><br><span class="line"><span class="function"><span class="title">port_command</span><span class="params">(Port, lists:flatten(DeepList))</span> %% DO NOT</span></span><br><span class="line"><span class="function">...</span></span><br></pre></td></tr></table></figure><p>通常会这样向端口发送一个以0为结尾的字符串：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">TerminatedStr = String ++ [<span class="number">0</span>], <span class="comment">% String="foo" =&gt; [$f, $o, $o, 0]</span></span><br><span class="line"><span class="function"><span class="title">port_command</span><span class="params">(Port, TerminatedStr)</span></span></span><br><span class="line"><span class="function">...</span></span><br></pre></td></tr></table></figure></p><p>上述效率比较低，应该用下述方式代替：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">TerminatedStr = [String, <span class="number">0</span>], <span class="comment">% String="foo" =&gt; [[$f, $o, $o], 0]</span></span><br><span class="line"><span class="function"><span class="title">port_command</span><span class="params">(Port, TerminatedStr)</span> </span></span><br><span class="line"><span class="function">...</span></span><br></pre></td></tr></table></figure></p><h5 id="Append例子"><a href="#Append例子" class="headerlink" title="Append例子"></a>Append例子</h5><figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lists:append([[<span class="number">1</span>], [<span class="number">2</span>], [<span class="number">3</span>]]). <span class="comment">%% DO</span></span><br><span class="line"></span><br><span class="line">lists:flatten([[<span class="number">1</span>], [<span class="number">2</span>], [<span class="number">3</span>]]). <span class="comment">%% DO NOT</span></span><br></pre></td></tr></table></figure><h4 id="递归列表函数"><a href="#递归列表函数" class="headerlink" title="递归列表函数"></a>递归列表函数</h4><p>普通递归列表函数和尾部递归函数在结束的时候反转列表之间通常没有太大差异。因此，专注于编写好看的代码，并忘记了列表功能的性能。在代码的性能关键部分（仅在那里），用比较高效的写法就行了。</p><blockquote><p>这部分是关于构造列表的列表函数。不构造列表的尾递归函数运行在常量空间中，而相应的普通递归函数使用与列表长度成比例的堆栈空间。</p></blockquote><p>例如，一个将整数列表相加的函数不能写成如下：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">recursive_sum</span><span class="params">([H|T])</span> -&gt;</span> H+recursive_sum(T);</span><br><span class="line"><span class="function"><span class="title">recursive_sum</span><span class="params">([])</span>    -&gt;</span> <span class="number">0</span>.</span><br></pre></td></tr></table></figure></p><p>应该写成:<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">sum</span><span class="params">(L)</span> -&gt;</span> sum(L, <span class="number">0</span>).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">sum</span><span class="params">([H|T], Sum)</span> -&gt;</span> sum(T, Sum + H);</span><br><span class="line"><span class="function"><span class="title">sum</span><span class="params">([], Sum)</span>    -&gt;</span> Sum.</span><br></pre></td></tr></table></figure></p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;blockquote&gt;
-&lt;p&gt;关于列表的处理，大多懂得Erlang的同学都差不多知道列表要怎么用，但是关于列表嵌套和拉伸的优化点还是值得一看的。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h4 id=&quot;列表创建&quot;&gt;&lt;a href=&quot;#列表创建&quot; class=&quot;headerlink&quot;
       
     
     </summary>
