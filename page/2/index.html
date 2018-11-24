@@ -340,6 +340,204 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/05/04/使用spark进行流处理/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/04/使用spark进行流处理/" itemprop="url">
+                  使用spark进行流处理
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-05-04 23:34:53" itemprop="dateCreated datePublished" datetime="2018-05-04T23:34:53+08:00">2018-05-04</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-05-05 00:57:24" itemprop="dateModified" datetime="2018-05-05T00:57:24+08:00">2018-05-05</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/流处理/" itemprop="url" rel="index"><span itemprop="name">流处理</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/05/04/使用spark进行流处理/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/05/04/使用spark进行流处理/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>最近在做一个假量检测的项目，主要是用来检测是否有一些伪造的广告点击之类的，然后该项目使用了spark来做在线的流处理</p>
+</blockquote>
+<h4 id="spark的使用场景"><a href="#spark的使用场景" class="headerlink" title="spark的使用场景"></a>spark的使用场景</h4><p>spark主要用来读取kafka里面的一些点击、安装、登入和登出等数据，然后使用spark的流处理模块对这些数据进行处理，最后把处理完的数据存储到相应的数据库中，供后面的数据分析使用。</p>
+<h4 id="使用的spark流处理模块"><a href="#使用的spark流处理模块" class="headerlink" title="使用的spark流处理模块"></a>使用的spark流处理模块</h4><p>spark的流处理模块有两个：</p>
+<ul>
+<li>Spark Streaming(Dstream) 老的接口</li>
+<li>Structured Streaming 新的接口</li>
+</ul>
+<p>我们的项目使用了Dstream实现流处理，一个主要的原因是在新的Structured Streaming中我们不能获取到读取的kafka的offset，这样当我们有数据处理失败的时候就不能从相应的offset中恢复继续运行，虽然可以设置checkpoint来恢复失败的任务，但是checkpoint的恢复是基于任务的，不能对该任务进行修改，然后再重新运行。<br>对于怎么在Structured Streaming中获取offset，我查了一些资料，如果实在是想获取offset的话也可以通过读取checkpoint文件夹下面的offset文件夹来获取当前的offset，不过这种方法比较奇怪。还有一个方法是使用StreamingQueryListener类里面的onQueryProgress回调来获取当前执行的状态，其中包括offset的信息，但是非常遗憾这种方法只支持scala和java，而我们的开发语言是python。下面的链接是该问题的具体讨论：<a href="https://stackoverflow.com/questions/46153105/how-to-get-kafka-offsets-for-structured-query-for-manual-and-reliable-offset-man/46174353" target="_blank" rel="noopener">如何从Structed streaming中获取offset的问题。</a></p>
+<h4 id="在一个流中处理多个topic"><a href="#在一个流中处理多个topic" class="headerlink" title="在一个流中处理多个topic"></a>在一个流中处理多个topic</h4><p>感觉spark的api设置的非常不友好，想要在一个流中处理多个topic也挺麻烦的，主要的问题如下：</p>
+<ul>
+<li>如果使用Dstream，在创建Dstream的时候可以传入多个topic，这样貌似可以解决读取多个topic的问题，但是有一个很严重的问题，读取到的内容你不知道是属于哪个topic，这样你就不能对不同的topic执行不同的处理了。</li>
+<li>如果使用Structured Streaming，也可以在DataStreamReader中指定多个topic，而且传入的每行数据中也有相应的topic信息，是可以根据不同的topic来调用不同的处理方法的。但是如上面所说的，Structured Streaming不支持获取offset让我们放弃了它。</li>
+</ul>
+<p>最后我们的处理方法是在一个流中建立多个Dstream，在每个Dstream中拉取和处理同一个topic的数据，这样一个流就可以处理多个topic了，示例代码如下所示：
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> topic <span class="keyword">in</span> topic_info:</span><br><span class="line">    from_offsets = restore_off_sets(topic)</span><br><span class="line">    DStream = KafkaUtils.createDirectStream(ssc, [topic], kafka_params, from_offsets)</span><br><span class="line">    DStream.transform((<span class="keyword">lambda</span> t: <span class="keyword">lambda</span> rdd: get_offset_ranges(t, rdd))(topic))\</span><br><span class="line">        .map(<span class="keyword">lambda</span> x: x[<span class="number">1</span>])\</span><br><span class="line">        .foreachRDD((<span class="keyword">lambda</span> t: <span class="keyword">lambda</span> rdd: process_rdd(t, rdd))(topic))</span><br></pre></td></tr></table></figure></p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>第一次使用spark，感觉spark的接口设置不是很友好，而且文档写的也不是很友好。比如foreachRDD的回调函数如果是两个参数的函数的话，第一个参数就是时间，这个在文档中没有提及，一不注意就有奇怪的bug了。总之自己还是一个菜鸟，还要多多学习。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/05/01/fluentd语法速记/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -2170,232 +2368,6 @@ true
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/10/15/efficiency-guide-函数/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/10/15/efficiency-guide-函数/" itemprop="url">
-                  efficiency-guide:函数
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-10-15 12:15:32" itemprop="dateCreated datePublished" datetime="2017-10-15T12:15:32+08:00">2017-10-15</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang-Efficiency-Guide/" itemprop="url" rel="index"><span itemprop="name">Erlang Efficiency Guide</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/10/15/efficiency-guide-函数/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/10/15/efficiency-guide-函数/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>本篇文章主要介绍函数的模式匹配和调用，函数的模式匹配优化还是有必要了解一下的。</p>
-</blockquote>
-<h4 id="模式匹配"><a href="#模式匹配" class="headerlink" title="模式匹配"></a>模式匹配</h4><p>在函数的头部以及case和receive子句中的模式匹配都会被编译器优化。但是有一些例外，重新排列匹配子句没有什么好处。
-Binary的模式匹配就是一个例外。编译器不重新排列与Binary相匹配的子句。最后放置与空Binary匹配的子句通常比放置在第一个的子句执行的更快。
-下面是另一种例外的例子：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">atom_map1</span><span class="params">(one)</span> -&gt;</span> <span class="number">1</span>;</span><br><span class="line"><span class="function"><span class="title">atom_map1</span><span class="params">(two)</span> -&gt;</span> <span class="number">2</span>;</span><br><span class="line"><span class="function"><span class="title">atom_map1</span><span class="params">(three)</span> -&gt;</span> <span class="number">3</span>;</span><br><span class="line"><span class="function"><span class="title">atom_map1</span><span class="params">(Int)</span> <span class="title">when</span> <span class="title">is_integer</span><span class="params">(Int)</span> -&gt;</span> Int;</span><br><span class="line"><span class="function"><span class="title">atom_map1</span><span class="params">(four)</span> -&gt;</span> <span class="number">4</span>;</span><br><span class="line"><span class="function"><span class="title">atom_map1</span><span class="params">(five)</span> -&gt;</span> <span class="number">5</span>;</span><br><span class="line"><span class="function"><span class="title">atom_map1</span><span class="params">(six)</span> -&gt;</span> <span class="number">6</span>.</span><br></pre></td></tr></table></figure></p>
-<p>问题在于带有变量Int的子句。由于变量可以匹配任何内容，包括原子four、five、six，后续的子句也匹配，所以编译器必须生成次优代码，执行如下：</p>
-<ul>
-<li>首先，将输入值与one、two、three（使用二分查找，即使有很多值也非常有效）来选择要执行的前三个子句中的哪一个（如果有的话）。 </li>
-<li>如果前三个子句中没有一个匹配，则第四个子句匹配变量的话会始终匹配。 </li>
-<li>如果测试is_integer(Int)成功，则执行第四个子句。</li>
-<li>如果测试失败，则将输入值与four、five、six进行比较，并选择适当的子句。 （如果没有匹配成功，则会产生一个function_clause异常。）</li>
-</ul>
-<p>如果想让匹配代码更加高效，则上面的代码可以重写成：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">atom_map2</span><span class="params">(one)</span> -&gt;</span> <span class="number">1</span>;</span><br><span class="line"><span class="function"><span class="title">atom_map2</span><span class="params">(two)</span> -&gt;</span> <span class="number">2</span>;</span><br><span class="line"><span class="function"><span class="title">atom_map2</span><span class="params">(three)</span> -&gt;</span> <span class="number">3</span>;</span><br><span class="line"><span class="function"><span class="title">atom_map2</span><span class="params">(four)</span> -&gt;</span> <span class="number">4</span>;</span><br><span class="line"><span class="function"><span class="title">atom_map2</span><span class="params">(five)</span> -&gt;</span> <span class="number">5</span>;</span><br><span class="line"><span class="function"><span class="title">atom_map2</span><span class="params">(six)</span> -&gt;</span> <span class="number">6</span>;</span><br><span class="line"><span class="function"><span class="title">atom_map2</span><span class="params">(Int)</span> <span class="title">when</span> <span class="title">is_integer</span><span class="params">(Int)</span> -&gt;</span> Int.</span><br></pre></td></tr></table></figure></p>
-<p>或者:
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">atom_map3</span><span class="params">(Int)</span> <span class="title">when</span> <span class="title">is_integer</span><span class="params">(Int)</span> -&gt;</span> Int;</span><br><span class="line"><span class="function"><span class="title">atom_map3</span><span class="params">(one)</span> -&gt;</span> <span class="number">1</span>;</span><br><span class="line"><span class="function"><span class="title">atom_map3</span><span class="params">(two)</span> -&gt;</span> <span class="number">2</span>;</span><br><span class="line"><span class="function"><span class="title">atom_map3</span><span class="params">(three)</span> -&gt;</span> <span class="number">3</span>;</span><br><span class="line"><span class="function"><span class="title">atom_map3</span><span class="params">(four)</span> -&gt;</span> <span class="number">4</span>;</span><br><span class="line"><span class="function"><span class="title">atom_map3</span><span class="params">(five)</span> -&gt;</span> <span class="number">5</span>;</span><br><span class="line"><span class="function"><span class="title">atom_map3</span><span class="params">(six)</span> -&gt;</span> <span class="number">6</span>.</span><br></pre></td></tr></table></figure></p>
-<p>还有下面的例子：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">map_pairs1</span><span class="params">(_Map, [], Ys)</span> -&gt;</span></span><br><span class="line">    Ys;</span><br><span class="line"><span class="function"><span class="title">map_pairs1</span><span class="params">(_Map, Xs, [] )</span> -&gt;</span></span><br><span class="line">    Xs;</span><br><span class="line"><span class="function"><span class="title">map_pairs1</span><span class="params">(Map, [X|Xs], [Y|Ys])</span> -&gt;</span></span><br><span class="line">    [Map(X, Y)|map_pairs1(Map, Xs, Ys)].</span><br></pre></td></tr></table></figure></p>
-<p>第一个参数没有问题。它是在所有匹配子句都有的一个变量。有问题的是第二个参数在第二个匹配子句的变量Xs。因为Xs变量可以匹配任何东西，所以编译器不能重新排列匹配子句，而是必须按照上述代码的顺序生成与它们匹配的代码。 
-如果函数按如下方式重写，编译器就可以自由地重新排列子句：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">map_pairs2</span><span class="params">(_Map, [], Ys)</span> -&gt;</span></span><br><span class="line">    Ys;</span><br><span class="line"><span class="function"><span class="title">map_pairs2</span><span class="params">(_Map, [_|_]=Xs, [] )</span> -&gt;</span></span><br><span class="line">    Xs;</span><br><span class="line"><span class="function"><span class="title">map_pairs2</span><span class="params">(Map, [X|Xs], [Y|Ys])</span> -&gt;</span></span><br><span class="line">    [Map(X, Y)|map_pairs2(Map, Xs, Ys)].</span><br></pre></td></tr></table></figure></p>
-<p>编译器将生成与此类似的代码：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">explicit_map_pairs</span><span class="params">(Map, Xs0, Ys0)</span> -&gt;</span></span><br><span class="line">    <span class="keyword">case</span> Xs0 <span class="keyword">of</span></span><br><span class="line">    [X|Xs] -&gt;</span><br><span class="line">        <span class="keyword">case</span> Ys0 <span class="keyword">of</span></span><br><span class="line">        [Y|Ys] -&gt;</span><br><span class="line">            [Map(X, Y)|explicit_map_pairs(Map, Xs, Ys)];</span><br><span class="line">        [] -&gt;</span><br><span class="line">            Xs0</span><br><span class="line">        <span class="keyword">end</span>;</span><br><span class="line">    [] -&gt;</span><br><span class="line">        Ys0</span><br><span class="line">    <span class="keyword">end</span>.</span><br></pre></td></tr></table></figure></p>
-<p>这可能是最常见的情况，输入列表不是空或非常短。（另一个优点是Dialyzer可以为Xs变量推导出更准确的类型。）</p>
-<h4 id="函数调用"><a href="#函数调用" class="headerlink" title="函数调用"></a>函数调用</h4><p>以下是对不同函数调用类型的代价的粗略的估计。它是在Solaris/Sparc上运行测试出来的基准数据：</p>
-<ul>
-<li>调用本地或外部函数（foo()，m:foo()）是最快的。</li>
-<li>调用或者apply调用一个匿名函数（Fun(),apply(Fun, [])）的大概时间花费差不多是调用一个本地函数的三倍。</li>
-<li>Apply调用一个被导出的函数(Mod:Name(),apply(Mod, Name, [])),大概的时间花费差不多是调用匿名函数的两倍，也就是本地函数调用的六倍</li>
-</ul>
-<h5 id="注释和实现细节"><a href="#注释和实现细节" class="headerlink" title="注释和实现细节"></a>注释和实现细节</h5><p>调用和apply一个匿名函数不涉及任何的哈希表查找。一个匿名函数变量包含一个（间接的）指向匿名函数实现的函数的指针。
-apply/3必须在哈希表中查找执行的函数的代码。因此，总是比直接调用或匿名函数调用来的慢。
-它不再重要（从性能的角度来看）是否写成：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Module:Function(Arg1, Arg2)</span><br></pre></td></tr></table></figure></p>
-<p>或者：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">apply</span><span class="params">(Module, Function, [Arg1,Arg2])</span></span></span><br></pre></td></tr></table></figure></p>
-<p>编译器会将后一种代码重写为前一种的方式。
-以下代码会稍微慢一点，因为参数的个数在编译时是未知的。
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">apply</span><span class="params">(Module, Function, Arguments)</span></span></span><br></pre></td></tr></table></figure></p>
-<h4 id="递归的内存使用"><a href="#递归的内存使用" class="headerlink" title="递归的内存使用"></a>递归的内存使用</h4><p>当编写递归函数时，最好使用尾递归的方式，以便它们可以在恒定的内存空间中执行：
-最好这样写：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">list_length</span><span class="params">(List)</span> -&gt;</span></span><br><span class="line">    list_length(List, <span class="number">0</span>).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">list_length</span><span class="params">([], AccLen)</span> -&gt;</span> </span><br><span class="line">    AccLen; <span class="comment">% Base case</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">list_length</span><span class="params">([_|Tail], AccLen)</span> -&gt;</span></span><br><span class="line">    list_length(Tail, AccLen + <span class="number">1</span>). <span class="comment">% Tail-recursive</span></span><br></pre></td></tr></table></figure></p>
-<p>而不要这样写：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">list_length</span><span class="params">([])</span> -&gt;</span></span><br><span class="line">    <span class="number">0</span>. <span class="comment">% Base case</span></span><br><span class="line"><span class="function"><span class="title">list_length</span><span class="params">([_ | Tail])</span> -&gt;</span></span><br><span class="line">    list_length(Tail) + <span class="number">1</span>. <span class="comment">% Not tail-recursive</span></span><br></pre></td></tr></table></figure></p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2445,7 +2417,7 @@ apply/3必须在哈希表中查找执行的函数的代码。因此，总是比�
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">43</span>
+                    <span class="site-state-item-count">44</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2484,7 +2456,9 @@ apply/3必须在哈希表中查找执行的函数的代码。因此，总是比�
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -2557,7 +2531,9 @@ apply/3必须在哈希表中查找执行的函数的代码。因此，总是比�
                     
                       
                     
-                    <span class="site-state-item-count">30</span>
+                      
+                    
+                    <span class="site-state-item-count">31</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

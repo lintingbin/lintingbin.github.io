@@ -340,6 +340,183 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/11/24/Impala性能优化/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/24/Impala性能优化/" itemprop="url">
+                  Impala性能优化
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-11-24 10:31:31 / 修改时间：11:29:15" itemprop="dateCreated datePublished" datetime="2018-11-24T10:31:31+08:00">2018-11-24</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/离线处理/" itemprop="url" rel="index"><span itemprop="name">离线处理</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/24/Impala性能优化/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/11/24/Impala性能优化/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>最近做了一些离线的etl，因为用到了kudu，所以大部分的etl都是在impala下面执行的。下面的性能优化是我在使用impala的时候总结的一些经验。</p>
+</blockquote>
+<h4 id="COMPUTE-STATS"><a href="#COMPUTE-STATS" class="headerlink" title="COMPUTE STATS"></a>COMPUTE STATS</h4><p>impala在做join的时候会根据表格的实际情况采用更优化的join方案，但是如果impala不知道表的统计信息（比如表格的大小）的话就不能定制优化的join方案，而<code>compute stats</code>命令就是用来让impala产生表的统计信息的命令。正常的情况下把所有要执行的表都执行下<code>compute stats</code>就能有最好的性能，但是有时候impala的优化也不一定是最好的，所以我们必须懂得自己分析执行的过程。</p>
+<h4 id="EXPLAIN"><a href="#EXPLAIN" class="headerlink" title="EXPLAIN"></a>EXPLAIN</h4><p>在执行sql语句之前可以使用<code>explain</code>命令来查看impala计划执行该sql的流程和预估消耗的资源。要优化sql语句的话最方便的就是改完sql语句后直接执行<code>explain</code>命令，因为该命令不用执行sql语句，可以很方便的调优sql语句，而不用任何的等待。在hue的执行窗口有<code>explain</code>的命令可以直接按，非常的方便。</p>
+<h4 id="SUMMARY"><a href="#SUMMARY" class="headerlink" title="SUMMARY"></a>SUMMARY</h4><p><code>explain</code>命令虽然在大多数的情况下是能够预估sql语句的执行情况，但是毕竟没有执行sql语句，所以预估的情况可能和实际情况会有一些出入。所以这时候我们可以使用<code>summary</code>，在一条语句执行完以后立马执行<code>summary</code>命令就能看到这条sql语句执行时所消耗的时间和资源的情况，还有impala预估的资源使用，有时候预估和实际情况还是有很多不同的。如下图所示的summary的预估内存和实际使用的内存就要较大的出入。当然如果想要看到更详细的执行信息还可以用Profiles命令，但是由于我在优化的过程中没有使用到，这边就不多说了。
+<img src="/images/impala_summary_1.jpg" alt="impala summary 示例"></p>
+<h4 id="SQL语句提示信息"><a href="#SQL语句提示信息" class="headerlink" title="SQL语句提示信息"></a>SQL语句提示信息</h4><p>通过上面的<code>explain</code>和<code>summary</code>后我们就能清楚的知道我们的sql语句的性能瓶颈在哪里，但是有时候即使执行了<code>compute stats</code>命令，impala还是不能优化这些性能瓶颈的问题，也就是说，impala的优化不能保证是最优的。所以我们就要告诉impala按照我们自己的想法来执行sql语句。比如：使用<code>STRAIGHT_JOIN</code>命令就可以告诉impala按照我写的sql语句的join顺序来执行join过程，而不进行重排（因为有时候重排的效果更差）。在join后使用<code>-- +SHUFFLE</code>注释就可以告诉impala使用SHUFFLE的方式进行join，而不是BROADCAST的方式进行join。我之前优化的一个sql语句因为加了<code>-- +SHUFFLE</code>注释而减少了好几G的内存使用量。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>这篇文章只是粗略的介绍下可以优化的点，具体的优化过程还是得结合自己的sql语句来定制自己的优化方案，如果想了解更多的优化技巧请移步impala官网的文档。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/11/01/为集群搭建DNS服务的过程记录/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1910,204 +2087,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/05/04/使用spark进行流处理/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/05/04/使用spark进行流处理/" itemprop="url">
-                  使用spark进行流处理
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-05-04 23:34:53" itemprop="dateCreated datePublished" datetime="2018-05-04T23:34:53+08:00">2018-05-04</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-05-05 00:57:24" itemprop="dateModified" datetime="2018-05-05T00:57:24+08:00">2018-05-05</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/流处理/" itemprop="url" rel="index"><span itemprop="name">流处理</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/05/04/使用spark进行流处理/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/05/04/使用spark进行流处理/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>最近在做一个假量检测的项目，主要是用来检测是否有一些伪造的广告点击之类的，然后该项目使用了spark来做在线的流处理</p>
-</blockquote>
-<h4 id="spark的使用场景"><a href="#spark的使用场景" class="headerlink" title="spark的使用场景"></a>spark的使用场景</h4><p>spark主要用来读取kafka里面的一些点击、安装、登入和登出等数据，然后使用spark的流处理模块对这些数据进行处理，最后把处理完的数据存储到相应的数据库中，供后面的数据分析使用。</p>
-<h4 id="使用的spark流处理模块"><a href="#使用的spark流处理模块" class="headerlink" title="使用的spark流处理模块"></a>使用的spark流处理模块</h4><p>spark的流处理模块有两个：</p>
-<ul>
-<li>Spark Streaming(Dstream) 老的接口</li>
-<li>Structured Streaming 新的接口</li>
-</ul>
-<p>我们的项目使用了Dstream实现流处理，一个主要的原因是在新的Structured Streaming中我们不能获取到读取的kafka的offset，这样当我们有数据处理失败的时候就不能从相应的offset中恢复继续运行，虽然可以设置checkpoint来恢复失败的任务，但是checkpoint的恢复是基于任务的，不能对该任务进行修改，然后再重新运行。<br>对于怎么在Structured Streaming中获取offset，我查了一些资料，如果实在是想获取offset的话也可以通过读取checkpoint文件夹下面的offset文件夹来获取当前的offset，不过这种方法比较奇怪。还有一个方法是使用StreamingQueryListener类里面的onQueryProgress回调来获取当前执行的状态，其中包括offset的信息，但是非常遗憾这种方法只支持scala和java，而我们的开发语言是python。下面的链接是该问题的具体讨论：<a href="https://stackoverflow.com/questions/46153105/how-to-get-kafka-offsets-for-structured-query-for-manual-and-reliable-offset-man/46174353" target="_blank" rel="noopener">如何从Structed streaming中获取offset的问题。</a></p>
-<h4 id="在一个流中处理多个topic"><a href="#在一个流中处理多个topic" class="headerlink" title="在一个流中处理多个topic"></a>在一个流中处理多个topic</h4><p>感觉spark的api设置的非常不友好，想要在一个流中处理多个topic也挺麻烦的，主要的问题如下：</p>
-<ul>
-<li>如果使用Dstream，在创建Dstream的时候可以传入多个topic，这样貌似可以解决读取多个topic的问题，但是有一个很严重的问题，读取到的内容你不知道是属于哪个topic，这样你就不能对不同的topic执行不同的处理了。</li>
-<li>如果使用Structured Streaming，也可以在DataStreamReader中指定多个topic，而且传入的每行数据中也有相应的topic信息，是可以根据不同的topic来调用不同的处理方法的。但是如上面所说的，Structured Streaming不支持获取offset让我们放弃了它。</li>
-</ul>
-<p>最后我们的处理方法是在一个流中建立多个Dstream，在每个Dstream中拉取和处理同一个topic的数据，这样一个流就可以处理多个topic了，示例代码如下所示：
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> topic <span class="keyword">in</span> topic_info:</span><br><span class="line">    from_offsets = restore_off_sets(topic)</span><br><span class="line">    DStream = KafkaUtils.createDirectStream(ssc, [topic], kafka_params, from_offsets)</span><br><span class="line">    DStream.transform((<span class="keyword">lambda</span> t: <span class="keyword">lambda</span> rdd: get_offset_ranges(t, rdd))(topic))\</span><br><span class="line">        .map(<span class="keyword">lambda</span> x: x[<span class="number">1</span>])\</span><br><span class="line">        .foreachRDD((<span class="keyword">lambda</span> t: <span class="keyword">lambda</span> rdd: process_rdd(t, rdd))(topic))</span><br></pre></td></tr></table></figure></p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>第一次使用spark，感觉spark的接口设置不是很友好，而且文档写的也不是很友好。比如foreachRDD的回调函数如果是两个参数的函数的话，第一个参数就是时间，这个在文档中没有提及，一不注意就有奇怪的bug了。总之自己还是一个菜鸟，还要多多学习。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2157,7 +2136,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">43</span>
+                    <span class="site-state-item-count">44</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2196,7 +2175,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -2269,7 +2250,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">30</span>
+                      
+                    
+                    <span class="site-state-item-count">31</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
