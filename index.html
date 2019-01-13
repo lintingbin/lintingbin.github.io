@@ -340,6 +340,186 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2019/01/13/使用k8s部署Django项目/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/01/13/使用k8s部署Django项目/" itemprop="url">
+                  使用k8s部署Django项目
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-01-13 15:51:19 / 修改时间：16:57:13" itemprop="dateCreated datePublished" datetime="2019-01-13T15:51:19+08:00">2019-01-13</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/python/" itemprop="url" rel="index"><span itemprop="name">python</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/01/13/使用k8s部署Django项目/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/01/13/使用k8s部署Django项目/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>接触了一下docker和k8s，感觉是非常不错的东西。能够方便的部署线上环境，而且还能够更好的利用机器的资源，感觉是以后的大趋势。最近刚好有一个基于django的项目，所以就把这个项目打包到docker里面，放到k8是里面运行，顺便学习下k8s和docker的使用。</p>
+</blockquote>
+<h4 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h4><h5 id="为什么使用docker？"><a href="#为什么使用docker？" class="headerlink" title="为什么使用docker？"></a>为什么使用docker？</h5><p>我觉得docker最大的好处是部署的时候比较方便，一个预先打包好的docker镜像，可以在任何安装有docker的机器上面直接运行，不用再安装其他任何的依赖环境。不管是在开发、测试、还是发布阶段，都能节省很多安装依赖和配置文件的时间，真正做到了Build once, Run anywhere。</p>
+<h5 id="docker在我的项目中怎么使用？"><a href="#docker在我的项目中怎么使用？" class="headerlink" title="docker在我的项目中怎么使用？"></a>docker在我的项目中怎么使用？</h5><p>在我的项目中，我主要使用dockerfile来生成项目的镜像。我们都知道docker是按照层的思想来构建一个镜像的，我的镜像的最底层的操作系统使用的是centos7，再接着安装python相关的工具和库，然后安装项目所需求的库，最后再把项目拷到镜像中。
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> centos:<span class="number">7</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ENV</span> LC_ALL=en_US.utf-<span class="number">8</span> LANG=en_US.utf-<span class="number">8</span></span><br><span class="line"><span class="keyword">RUN</span> yum install -y https://centos7.iuscommunity.org/ius-release.rpm &amp;&amp; \</span><br><span class="line">    yum install -y python36u python36u-libs python36u-devel python36u-pip mysql-devel gcc which &amp;&amp; \</span><br><span class="line">    pip3.6 install pipenv</span><br><span class="line"></span><br><span class="line">COPY Pipfile Pipfile.lock /my_app/</span><br><span class="line">WORKDIR /my_app</span><br><span class="line">RUN pipenv sync</span><br><span class="line"></span><br><span class="line">COPY my_app_site /my_app/my_app_site</span><br><span class="line">COPY gunicorn_config.py /my_app/gunicorn_config.py</span><br><span class="line">COPY resource/nginx.conf /my_app/resource/nginx.conf</span><br><span class="line"></span><br><span class="line">RUN mkdir /static/ &amp;&amp; \</span><br><span class="line">    cd my_app_site &amp;&amp; \</span><br><span class="line">    pipenv run python manage.py collectstatic &amp;&amp; \</span><br><span class="line">    cd my_app_site &amp;&amp; \</span><br><span class="line">    rm -f local_settings.py</span><br><span class="line"></span><br><span class="line">WORKDIR /my_app</span><br><span class="line"></span><br><span class="line">EXPOSE 8000</span><br><span class="line">CMD pipenv run gunicorn my_app_site.wsgi -c gunicorn_config.py --log-file logs/gunicorn.log</span><br></pre></td></tr></table></figure></p>
+<p>在dockerfile中，每个RUN命令都会构建新的层，我这边之所以在dockerfile中使用三个RUN命令，是为了能够尽量的减少重复的构建过程。每次在构建镜像的时候docker都会判断每层的内容是否有修改，如果没有修改的话，就不需要重复的构建。所以在应用开发的过程中，上面的dockerfile最多也就重新构建最后一层和倒数第二层（在项目有新包加入的时候才重新构建倒数第二层，不然正常情况下就只会重新构建最后一层）。</p>
+<h4 id="k8s"><a href="#k8s" class="headerlink" title="k8s"></a>k8s</h4><h5 id="为什么使用k8s？"><a href="#为什么使用k8s？" class="headerlink" title="为什么使用k8s？"></a>为什么使用k8s？</h5><p>k8s的功能非常强大。不过简单的来说，k8s是用来管理容器的一个工具。有了k8s以后我们就能让k8s自动的去拉取docker镜像，并且根据需要来启动、关闭、调度docker容器，实现一些牛逼的自动化运维操作。</p>
+<h5 id="k8s在我的项目中怎么使用？"><a href="#k8s在我的项目中怎么使用？" class="headerlink" title="k8s在我的项目中怎么使用？"></a>k8s在我的项目中怎么使用？</h5><p>我使用了yaml文件定义了一个k8s部署，下面是具体的文件示例：
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ------------------- MyApp Deployment ------------------- #</span></span><br><span class="line"></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1beta2</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  labels:</span></span><br><span class="line"><span class="attr">    k8s-app:</span> <span class="string">my_app</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">my_app</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line"><span class="attr">  replicas:</span> <span class="number">2</span></span><br><span class="line"><span class="attr">  revisionHistoryLimit:</span> <span class="number">10</span></span><br><span class="line"><span class="attr">  selector:</span></span><br><span class="line"><span class="attr">    matchLabels:</span></span><br><span class="line"><span class="attr">      k8s-app:</span> <span class="string">my_app</span></span><br><span class="line"><span class="attr">  template:</span></span><br><span class="line"><span class="attr">    metadata:</span></span><br><span class="line"><span class="attr">      labels:</span></span><br><span class="line"><span class="attr">        k8s-app:</span> <span class="string">my_app</span></span><br><span class="line"><span class="attr">    spec:</span></span><br><span class="line"><span class="attr">      volumes:</span></span><br><span class="line"><span class="attr">      - name:</span> <span class="string">nginx-config</span></span><br><span class="line"><span class="attr">        emptyDir:</span> <span class="string">&#123;&#125;</span></span><br><span class="line"><span class="attr">      - name:</span> <span class="string">static-dir</span></span><br><span class="line"><span class="attr">        emptyDir:</span> <span class="string">&#123;&#125;</span></span><br><span class="line"><span class="attr">      containers:</span></span><br><span class="line"><span class="attr">      - name:</span> <span class="string">my_app-web</span></span><br><span class="line"><span class="attr">        image:</span> <span class="attr">my_app:latest</span></span><br><span class="line"><span class="attr">        ports:</span></span><br><span class="line"><span class="attr">        - containerPort:</span> <span class="number">8000</span></span><br><span class="line"><span class="attr">          protocol:</span> <span class="string">TCP</span></span><br><span class="line"><span class="attr">        volumeMounts:</span></span><br><span class="line"><span class="attr">        - name:</span> <span class="string">nginx-config</span></span><br><span class="line"><span class="attr">          mountPath:</span> <span class="string">/etc/nginx/conf.d/</span></span><br><span class="line"><span class="attr">        - name:</span> <span class="string">static-dir</span></span><br><span class="line"><span class="attr">          mountPath:</span> <span class="string">/usr/share/nginx/html/my_app/static</span></span><br><span class="line"><span class="attr">        command:</span> <span class="string">["/bin/sh"]</span></span><br><span class="line"><span class="attr">        args:</span> <span class="string">["-c",</span> <span class="string">"cp resource/nginx.conf /etc/nginx/conf.d/ &amp;&amp; \</span></span><br><span class="line"><span class="string">              cp /static/* /usr/share/nginx/html/my_app/static -rf &amp;&amp; \</span></span><br><span class="line"><span class="string">              pipenv run gunicorn my_app.wsgi -c gunicorn_config.py"</span><span class="string">]</span></span><br><span class="line"><span class="attr">      - name:</span> <span class="string">my_app-nginx</span></span><br><span class="line"><span class="attr">        image:</span> <span class="attr">nginx:1.15.8</span></span><br><span class="line"><span class="attr">        ports:</span></span><br><span class="line"><span class="attr">          - containerPort:</span> <span class="number">8899</span></span><br><span class="line"><span class="attr">            protocol:</span> <span class="string">TCP</span></span><br><span class="line"><span class="attr">        volumeMounts:</span></span><br><span class="line"><span class="attr">          - name:</span> <span class="string">nginx-config</span></span><br><span class="line"><span class="attr">            mountPath:</span> <span class="string">/etc/nginx/conf.d/</span></span><br><span class="line"><span class="attr">          - name:</span> <span class="string">static-dir</span></span><br><span class="line"><span class="attr">            mountPath:</span> <span class="string">/usr/share/nginx/html/my_app/static</span></span><br><span class="line"><span class="attr">        livenessProbe:</span></span><br><span class="line"><span class="attr">          httpGet:</span></span><br><span class="line"><span class="attr">            scheme:</span> <span class="string">HTTP</span></span><br><span class="line"><span class="attr">            path:</span> <span class="string">/</span></span><br><span class="line"><span class="attr">            port:</span> <span class="number">8899</span></span><br><span class="line"><span class="attr">          initialDelaySeconds:</span> <span class="number">30</span></span><br><span class="line"><span class="attr">          timeoutSeconds:</span> <span class="number">30</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ------------------- MyApp Service ------------------- #</span></span><br><span class="line"></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  labels:</span></span><br><span class="line"><span class="attr">    k8s-app:</span> <span class="string">my_app</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">my_app</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line"><span class="attr">  ports:</span></span><br><span class="line"><span class="attr">    - port:</span> <span class="number">8899</span></span><br><span class="line"><span class="attr">      targetPort:</span> <span class="number">8899</span></span><br><span class="line"><span class="attr">  selector:</span></span><br><span class="line"><span class="attr">    k8s-app:</span> <span class="string">my_app</span></span><br><span class="line"><span class="attr">  type:</span> <span class="string">NodePort</span></span><br></pre></td></tr></table></figure></p>
+<p>django项目在部署的时候需要用到nginx服务器，所以在部署的时候我在同一个pod里面也加入了一个nginx镜像，不过为了少打包一个新的nginx镜像（带有nginx配置文件和静态文件的nginx镜像），我在两个容器之间使用volumes来共享django静态文件和nginx配置文件。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>以上就是我使用docker和k8s来部署django项目的一个示例，文章里面没有包含一些具体的docker和k8s的介绍，是因为这些内容比较多，在这篇小文章里面放不下，感兴趣的同学可以去他们官网详细了解。最后我只想说，docker和k8s真是好东西，没有用过的同学赶紧去试试吧！</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/11/24/Impala性能优化/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1927,187 +2107,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/05/20/Spark报错——java-lang-outofmemoryerror-java-heap-space问题处理/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/05/20/Spark报错——java-lang-outofmemoryerror-java-heap-space问题处理/" itemprop="url">
-                  Spark报错——java.lang.outofmemoryerror: java heap space问题处理
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-05-20 15:07:11 / 修改时间：22:30:56" itemprop="dateCreated datePublished" datetime="2018-05-20T15:07:11+08:00">2018-05-20</time>
-            
-
-            
-              
-
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/错误处理/" itemprop="url" rel="index"><span itemprop="name">错误处理</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/05/20/Spark报错——java-lang-outofmemoryerror-java-heap-space问题处理/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/05/20/Spark报错——java-lang-outofmemoryerror-java-heap-space问题处理/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>最近在用spark处理数据的时候遇到内存不足的报错，主要的报错信息是在executor端的log中显示java.lang.outofmemoryerror: java heap space。</p>
-</blockquote>
-<h4 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h4><p>具体的问题是spark在执行到最后一个stage后有一个task一直执行不成功，每次都是重试四次后失败。下面的两张图是具体失败的信息：
-<img src="/images/spark_outofmemory1.png" alt="四次task失败信息">
-<img src="/images/spark_outofmemory2.png" alt="具体失败的log"></p>
-<p>task的失败的信息图中显示：失败的任务的Shffle Read Size是0，这个是不对的，因为这个信息在任务失败的时候都会被置零，实际上在任务在运行的时候这个值是六百多M，远远大于其他task的输入的20多M。</p>
-<p>从上面失败的信息中我们可以看到失败的原因是有一个task的输入的数据量太大，以至于spark executor运行的时候需要的内存大大增加，这才导致了内存不足的异常。</p>
-<h4 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h4><h5 id="解决尝试一"><a href="#解决尝试一" class="headerlink" title="解决尝试一"></a>解决尝试一</h5><p>最简单直接的解决方法是直接通过增大executor-memory的值来增加executor最大的内存使用量，由于yarn默认的每个executor的core是一个，如果本身启动的executor比较多的话，增加executor-memory的值的话，yarn集群就要多消耗executor的数量✖️增加的内存量的内存，内存的消耗会比较大。所以可以减少executor的数量，为每个executor分配多个core，这样需要的内存量就大大的减少了，但是每个executor可以使用的内存量又可以增加，这样的配置可以减少因为数据倾斜导致任务失败的概率。  </p>
-<p>最终我们用这个方法把每个executor的executor-memory值增大到了12G，但是最后还是由于内存不够失败了。</p>
-<h5 id="解决尝试二"><a href="#解决尝试二" class="headerlink" title="解决尝试二"></a>解决尝试二</h5><p>由于某个task需要的内存量非常的大，然而其他task的内存量都很小，这应该不是简单的数据倾斜。spark sql只是对玩家的登陆数据进行以device_id为key的group by操作，数据的倾斜不可能这么严重。</p>
-<p>在重新观察了玩家的登陆数据后，我发现有很多数据的device_id为null。这下就很清楚的知道数据倾斜的原因了，接着对device_id为null的数据进行过滤后，问题就迎刃而解了。</p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>在处理数据倾斜问题的时候可以通过调整spark的参数来优化任务的执行。但是如果想更彻底的优化任务的执行的话，要观察数据，知道是什么原因造成的数据倾斜。这样才能进行更彻底的优化。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2157,7 +2156,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-count">45</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2273,7 +2272,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">31</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">33</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

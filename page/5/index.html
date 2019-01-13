@@ -340,6 +340,197 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/05/01/吴恩达机器学习课程练习实现/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/05/01/吴恩达机器学习课程练习实现/" itemprop="url">
+                  吴恩达机器学习课程练习实现
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-05-01 12:30:06" itemprop="dateCreated datePublished" datetime="2017-05-01T12:30:06+08:00">2017-05-01</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/代码/" itemprop="url" rel="index"><span itemprop="name">代码</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/05/01/吴恩达机器学习课程练习实现/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/05/01/吴恩达机器学习课程练习实现/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>由于当前机器学习大火，让我对机器学习产生浓厚的兴趣，所以我就上网查了下机器学习的入门教程，大多数的人还是比较推荐吴恩达老师的机器学习课程的。所以我就在Coursera上面学习了吴恩达的机器学习课程，现在已经顺利的毕业了。
+在Coursera上面每学完一小节课程都会有相应的练习，系统会自动对你提交的练习进行打分，要达到指定的分数才能顺利通过，这点Coursera的体验还是做的比较好的，但是由于国内网络的原因，在Coursera上面看视频，如果不使用科学上网的话，有时候是看不了的。
+我做练习用的是Octave，用Octave提交代码的时候会报错，需要在练习中进行以下的代码替换:</p>
+<blockquote>
+<p>lib/submitWithConfiguration.m 文件66行</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">responseBody = urlread(submissionUrl, &apos;post&apos;, params);</span><br></pre></td></tr></table></figure>
+<p>替换成：
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[code, responseBody] = system(sprintf(&apos;echo jsonBody=%s | curl -k -X POST -d @- %s&apos;, body, submissionUrl));</span><br></pre></td></tr></table></figure></p>
+<p>最后附上我的练习代码，有需要的可以自取，如果对你有帮助的话，记得给我星星哈～
+代码地址：<a href="https://github.com/lintingbin2009/machine-learning-ex" target="_blank" rel="noopener">https://github.com/lintingbin2009/machine-learning-ex</a></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/05/01/剑指offer——C语言实现/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1328,7 +1519,7 @@ Erlang的进程是Erlang虚拟机内部自己实现的进程，非常轻量级�
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-count">45</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1444,7 +1635,11 @@ Erlang的进程是Erlang虚拟机内部自己实现的进程，非常轻量级�
                     
                       
                     
-                    <span class="site-state-item-count">31</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">33</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

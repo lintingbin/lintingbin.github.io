@@ -340,6 +340,201 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/10/15/efficiency-guide-表和数据库/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/10/15/efficiency-guide-表和数据库/" itemprop="url">
+                  efficiency-guide:表和数据库
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-10-15 13:36:22" itemprop="dateCreated datePublished" datetime="2017-10-15T13:36:22+08:00">2017-10-15</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang-Efficiency-Guide/" itemprop="url" rel="index"><span itemprop="name">Erlang Efficiency Guide</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/10/15/efficiency-guide-表和数据库/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/10/15/efficiency-guide-表和数据库/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>这篇文件主要讲一些简单的Erlang数据库注意要点，干货好像没那么多，可以快速浏览下。</p>
+</blockquote>
+<h4 id="Ets、Dets、Mnesia"><a href="#Ets、Dets、Mnesia" class="headerlink" title="Ets、Dets、Mnesia"></a>Ets、Dets、Mnesia</h4><p>每个Ets的例子都有一个与之对应的Mnesia的例子。一般来说，所有Ets示例也适用于Dets表。</p>
+<h5 id="Select-Match操作"><a href="#Select-Match操作" class="headerlink" title="Select/Match操作"></a>Select/Match操作</h5><p>在Ets和Mnesia表上的Select/Match操作是非常低效的。他们通常需要扫描整个表。需要优化数据的结构来减少对Select/Match操作的使用。但是，如果确实需要Select/Match操作，它仍然比使用tab2list更有效率。函数ets:select/2和mnesia:select/3是优于ets:match/2、ets:match_object/2和mnesia:match_object/3的。
+在某些情况下，Select/Match操作是不需要扫描整张表的。例如，在ordered_set的表中搜索，或者搜索的Mnesia表的字段是有建立索引的。
+当创建要在Select/Match操作中使用的记录时，如果希望大多数字段具有值“_”。最简单和最快捷的方法如下：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#person&#123;age = <span class="number">42</span>, _ = '_'&#125;.</span><br></pre></td></tr></table></figure></p>
+<h5 id="删除一个元素"><a href="#删除一个元素" class="headerlink" title="删除一个元素"></a>删除一个元素</h5><p>如果元素不存在于表中，则删除操作被认为是成功的。因此，在删除之前，所有尝试检查元素是否存在于Ets / Mnesia表中都是不必要的。以下是Ets表的示例：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% 直接删就可以了</span></span><br><span class="line">...</span><br><span class="line">ets:delete(Tab, Key),</span><br><span class="line">...</span><br><span class="line"><span class="comment">%% 这样做，效率低而且没有意义</span></span><br><span class="line">...</span><br><span class="line"><span class="keyword">case</span> ets:lookup(Tab, Key) <span class="keyword">of</span></span><br><span class="line">    [] -&gt;</span><br><span class="line">        ok;</span><br><span class="line">    [_|_] -&gt;</span><br><span class="line">        ets:delete(Tab, Key)</span><br><span class="line"><span class="keyword">end</span>,</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<h5 id="非持久数据库存储"><a href="#非持久数据库存储" class="headerlink" title="非持久数据库存储"></a>非持久数据库存储</h5><p>对于非持久数据库存储，优先考虑Ets表，而不是Mnesia local_content表。与Ets写入相比，即使是Mnesia dirty_write操作具有常量的开销。 Mnesia也必须检查表是否被复制或具有索引，这涉及每个dirty_write至少一次Ets查找。因此，Ets总是比Mnesia写的快。</p>
+<h5 id="tab2list"><a href="#tab2list" class="headerlink" title="tab2list"></a>tab2list</h5><p>简单的说tab2list肯定不要用，除非是需要返回所有的Ets数据。如果需要选择一部分的数据可以用Select/Match操作，因为获取Ets的数据是需要拷贝的，tab2list返回所有的数据，需要大量的拷贝，效率非常低。</p>
+<h5 id="ordered-set表"><a href="#ordered-set表" class="headerlink" title="ordered_set表"></a>ordered_set表</h5><p>ordered_set仅保证按Key的顺序处理对象。即使Key不包含在结果中，也可以按Key顺序显示ets:select/2等函数的结果（还有select,match_object,foldl,first,next等函数）。</p>
+<h4 id="优化掉Select-Match操作"><a href="#优化掉Select-Match操作" class="headerlink" title="优化掉Select/Match操作"></a>优化掉Select/Match操作</h4><h5 id="Ets"><a href="#Ets" class="headerlink" title="Ets"></a>Ets</h5><p>由于Ets用Key来Lookup获取数据是可以在常量的时间内完成的（使用哈希和树结构），所以如果要优化掉Select操作，可以再建一个要Select的字段到先前的Ets的Key的新的Ets表就可以了，这样通过两次lookup就可以取得想要的数据了。</p>
+<h5 id="Mnesia"><a href="#Mnesia" class="headerlink" title="Mnesia"></a>Mnesia</h5><p>在Mnesia中只要多建立一些想要Select字段的索引就可以，这样就不用扫描整张表了。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/10/15/efficiency-guide-函数/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -2215,195 +2410,6 @@ BEAM是一个线程代码解释器。每个指令是直接指向可执行C代码
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/07/06/设置Shell脚本执行错误自动退出/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/07/06/设置Shell脚本执行错误自动退出/" itemprop="url">
-                  设置Shell脚本执行错误自动退出
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-07-06 21:44:10" itemprop="dateCreated datePublished" datetime="2017-07-06T21:44:10+08:00">2017-07-06</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/备忘/" itemprop="url" rel="index"><span itemprop="name">备忘</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/07/06/设置Shell脚本执行错误自动退出/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/07/06/设置Shell脚本执行错误自动退出/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>这是一篇备忘记录，以后再写Shell脚本的时候需要注意！</p>
-</blockquote>
-<p>之前项目使用Jenkins打包的时候，有时候因为一些错误的提交，导致出包的时候编译失败，从而导致打包出来的包里面只有部分的代码，这是因为我们写的Shell脚本没有对每条Shell命令的结果进行检查，不管执行结果是否成功都会继续往下执行。所以即使我们在编译环节有错误产生，打包的脚本还是会继续执行后面的打包指令。所以必须让脚本在某条命令执行失败的时候停止执行后续的指令。<br>在Shell脚本中加入：</p>
-<p>#!/bin/bash -e
-或者
-set -e</p>
-<p>就能够让脚本在有错误的时候退出。下面是网上查的拓展：</p>
-<h4 id="使用set-e"><a href="#使用set-e" class="headerlink" title="使用set -e"></a>使用set -e</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">你写的每一个脚本的开始都应该包含set -e。这告诉bash一但有任何一个语句返回非真的值，则退出bash。 </span><br><span class="line"></span><br><span class="line">使用-e的好处是避免错误滚雪球般的变成严重错误，能尽早的捕获错误。更加可读的版本：set -o errexit </span><br><span class="line"></span><br><span class="line">使用-e把你从检查错误中解放出来。如果你忘记了检查，bash会替你做这件事。</span><br><span class="line"></span><br><span class="line">不过你也没有办法使用$? 来获取命令执行状态了，因为bash无法获得任何非0的返回值。</span><br><span class="line"></span><br><span class="line">你可以使用另一种结构，使用command</span><br></pre></td></tr></table></figure>
-<h4 id="使用command"><a href="#使用command" class="headerlink" title="使用command"></a>使用command</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">if [ "$?"-ne 0]; then echo "command failed"; exit 1; fi "</span><br><span class="line"></span><br><span class="line">可以替换成： </span><br><span class="line"></span><br><span class="line">command ||  echo "command failed"; exit 1; （这种写法并不严谨，我当时的场景是执行ssh "commond"，</span><br><span class="line">所以可以返回退出码后面通过[ #？ -eq 0 ]来做判断，如果是在shell中无论成功还是失败都会exit）</span><br><span class="line"></span><br><span class="line">修改如下（谢谢评论的朋友指正）</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">command ||  （echo "command failed"; exit 1） ; </span><br><span class="line"></span><br><span class="line">或者使用： </span><br><span class="line"></span><br><span class="line">if ! command; then echo "command failed"; exit 1; fi</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2453,7 +2459,7 @@ set -e</p>
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-count">45</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2569,7 +2575,11 @@ set -e</p>
                     
                       
                     
-                    <span class="site-state-item-count">31</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">33</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
