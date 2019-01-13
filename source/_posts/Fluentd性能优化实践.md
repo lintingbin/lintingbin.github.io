@@ -32,5 +32,137 @@ categories: 日志收集
 2. 新架构第一层的flush_interval（推荐1秒）和buffer_chunk_size（推荐1M）要配置的尽量小，这样数据才能尽快的发送到第二层进行处理。其实如果配置的比较大的话，到时候第二层会有报警的。
 3. 新架构的缺点是同一种Log会有多个处理进程，这样的话就会导致一些只能单进程处理的操作变得不那么优美了。比如webhdfs插件，现在使用新的多进程架构后，因为每个hdfs文件只能由一个进程写入，所以现在同一种Log是由多个进程写入的，只能写入到多个不同的文件，这样会造成hdfs文件数量成倍的增加。
 
+##### 配置实例
+下面给出了一个比较简单的配置实例，该实例只适用于单机版本。如果数据比较多的话，还可以把out_fluent.x.conf的配置文件扩展到多台机器。
+
+multiprocess.conf
+```
+<source>
+  @type monitor_agent
+  bind 0.0.0.0
+  port 24220
+</source>
+
+<source>
+  @type multiprocess
+  <process>
+    cmdline -c in_fluentd.conf --log logs/in_fluentd.conf.log
+    sleep_before_start 1s
+    sleep_before_shutdown 5s
+  </process>
+  <process>
+    cmdline -c out_fluent.0.conf --log logs/out_fluent.0.conf.log
+    sleep_before_start 1s
+    sleep_before_shutdown 5s
+  </process>
+  <process>
+    cmdline -c out_fluent.1.conf --log logs/out_fluent.1.conf.log
+    sleep_before_start 1s
+    sleep_before_shutdown 5s
+  </process>
+</source>
+```
+in_fluentd.conf
+```
+<source>
+  @type tail
+  @log_level warn
+  format tsv
+  keys source,version,event_time
+  time_key event_time
+  time_format %Y-%m-%d %H:%M:%S
+  path /data/*/rolelogout.*
+  pos_file logs/fluentd/pos/rolelogout.pos
+  refresh_interval 10s
+  read_from_head true
+  keep_time_key true
+  tag pro_role_logout
+</source>
+
+<match pro_role_logout>
+  @type forward
+  num_threads 4
+  buffer_type file
+  buffer_queue_limit 2048
+  buffer_chunk_limit 10m
+  flush_interval 10s
+  buffer_path logs/fluentd/buffer/in_pro_role_logout.buffer
+  <server>
+    host 127.0.0.1
+    port 24000
+  </server>
+  <server>
+    host 127.0.0.1
+    port 24001
+  </server>
+</match>
+```
+out_fluent.0.conf
+```
+<source>
+  @type forward
+  port 24000
+  bind 0.0.0.0
+</source>
+
+<match pro_role_logout>
+  @type forest
+  subtype webhdfs
+  <template>
+    username webuser
+    namenode tsh-hdp-namenode-001:50070
+    standby_namenode tsh-hdp-namenode-002:50070
+    path /raw_logs/dt=%Y-%m-%d/role_logout.${tag}.%Y%m%d%H.VPROFLTDSG.0.log
+    flush_interval 10s
+    field_separator TAB
+    buffer_queue_limit 1024
+    buffer_chunk_limit 16m
+    buffer_type file
+    buffer_path logs/fluentd/buffer/webhdfs_role_logout.${tag}.VPROFLTDSG.0.buffer
+    output_include_time false
+    output_include_tag false
+    output_data_type attr:version,event_time
+    flush_at_shutdown true
+    retry_wait 30s
+    num_threads 1
+    read_timeout 180
+    open_timeout 120
+  </template>
+</match>
+```
+out_fluent.1.conf
+```
+<source>
+  @type forward
+  port 24001
+  bind 0.0.0.0
+</source>
+
+<match pro_role_logout>
+  @type forest
+  subtype webhdfs
+  <template>
+    username webuser
+    namenode tsh-hdp-namenode-001:50070
+    standby_namenode tsh-hdp-namenode-002:50070
+    path /raw_logs/dt=%Y-%m-%d/rrole_logout.${tag}.%Y%m%d%H.VPROFLTDSG.1.log
+    flush_interval 10s
+    field_separator TAB
+    buffer_queue_limit 1024
+    buffer_chunk_limit 16m
+    buffer_type file
+    buffer_path logs/fluentd/buffer/webhdfs_role_logout.${tag}.VPROFLTDSG.0.buffer
+    output_include_time false
+    output_include_tag false
+    output_data_type attr:version,event_time
+    flush_at_shutdown true
+    retry_wait 30s
+    num_threads 1
+    read_timeout 180
+    open_timeout 120
+  </template>
+</match>
+```
+
 #### 总结
 通过这次架构的升级，Fluentd的性能已经得到了很大的提升，而且配置也变得更加简单了，好的架构往往能够事半功倍。
