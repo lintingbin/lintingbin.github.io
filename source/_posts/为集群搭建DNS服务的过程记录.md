@@ -11,6 +11,7 @@ categories: 教程
 
 #### 集群机器的配置
 集群的机器配置主要是修改dns服务器的地址，把`/etc/resolv.conf`文件的内容修改为：`nameserver 192.168.1.1（你自己的dns服务器地址）`。  
+如果只是修改`/etc/resolv.conf`文件的话，centos7会在重启的时候重新生成该文件，把修改的内容覆盖。要解决这个问题的话需要在`/etc/sysconfig/network-scripts/ifcfg-eth0`文件中增加`DNS1=8.8.8.8`和`DNS2=8.8.4.4`类似配置，重启后`/etc/resolv.conf`文件的内容就会从`ifcfg-eth0`文件中生成。  
 在这步，我遇到了一个问题：用dig和nslookup可以找到一个hostname对应的ip，但是使用ping或者telnet的时候就会返回`Name or service not known`。我在网上查了很多的资料，有人遇到类似的问题，但是他们的问题是因为`/etc/nsswitch.conf`的host配置没配好，而我这边并没有该配置问题。最后我在一个帖子回答中找到了解决方法，原来是我启用了nscd服务，这样的话，修改dns服务器就需要把该服务重启下，重启完后问题就解决了。
 
 #### 配置优化
