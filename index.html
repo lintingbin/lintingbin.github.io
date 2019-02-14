@@ -340,6 +340,193 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2019/02/14/Hadoop系统Parquet文件的Timestamp类型的时区问题/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/02/14/Hadoop系统Parquet文件的Timestamp类型的时区问题/" itemprop="url">
+                  Hadoop系统Parquet文件的Timestamp类型的时区问题
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-02-14 18:55:32 / 修改时间：20:13:33" itemprop="dateCreated datePublished" datetime="2019-02-14T18:55:32+08:00">2019-02-14</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/问题研究/" itemprop="url" rel="index"><span itemprop="name">问题研究</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/02/14/Hadoop系统Parquet文件的Timestamp类型的时区问题/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/02/14/Hadoop系统Parquet文件的Timestamp类型的时区问题/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>在数据仓库离线处理中，为了能够兼容不同的数据处理引擎，我们通常会把数据保存成Parquet格式的文件。但是在不同的数据处理引擎中会出现时间读取不一致的问题，比如我用impala写入的时间，在用hive和spark读取的时候会差几个小时，这是为什么呢？</p>
+</blockquote>
+<h4 id="Hive中的Timestamp"><a href="#Hive中的Timestamp" class="headerlink" title="Hive中的Timestamp"></a>Hive中的Timestamp</h4><p>Hive在0.8的版本后开始支持Timestamp的格式。Hive在储存时间戳的时候会先把时间转成UTC的时间，然后再把转换后的时间存储到Parquet文件中。在读取Parquet文件的时候Hive会把时间从UTC时间再转化回成本地的时间。这样的话，如果存和读取都是用Hive的话，时间不会有任何的问题。上述说的是用Parquet文件来存取时间格式流程，如果是存成普通的文本文件的话，存取都不会进行任何时间的转换。</p>
+<h4 id="Impala中的Timestamp"><a href="#Impala中的Timestamp" class="headerlink" title="Impala中的Timestamp"></a>Impala中的Timestamp</h4><p>Impala在存取Parquet格式的时间的时候和Hive不一样，Impala在存储时间的时候不转换成UTC的时间，而是直接保存当前时区的时间。所以Impala在读的时候也不进行任何的转换，是直接读取Parquet文件中的时间。这样的话，如果存和读取都是用Impala的话，时间也不会有任何的问题。但是如果用Hive存，但是用Impala读的话，就会出现时间不一致的问题，反之亦然。 
+由于让Impala和Hive之间的时间格式互相兼容是一件比较重要的事情，从而出现了让两个系统的时间格式互相兼容的解决方案。</p>
+<h4 id="让Hive和Impala互相兼容"><a href="#让Hive和Impala互相兼容" class="headerlink" title="让Hive和Impala互相兼容"></a>让Hive和Impala互相兼容</h4><h5 id="Impala正确读取Hive存储的Parquet时间"><a href="#Impala正确读取Hive存储的Parquet时间" class="headerlink" title="Impala正确读取Hive存储的Parquet时间"></a>Impala正确读取Hive存储的Parquet时间</h5><p>在Impala的配置里面设置 </p>
+<blockquote>
+<p>convert_legacy_hive_parquet_utc_timestamps=true (default false) </p>
+</blockquote>
+<p>该参数会让Impala在读取Parquet文件的时候，会先检查Parquet文件的meta信息，查看该Parquet文件是否由Hive创建，如果是由Hive创建的话，在读取的时候会进行时间格式的转换，这样读取出来的时间就能和Hive存进去的时间一致了。</p>
+<h5 id="Hive正确读取Impala存储的Parquet时间"><a href="#Hive正确读取Impala存储的Parquet时间" class="headerlink" title="Hive正确读取Impala存储的Parquet时间"></a>Hive正确读取Impala存储的Parquet时间</h5><p>同样在Hive里面有配置可以设置</p>
+<blockquote>
+<p>hive.parquet.timestamp.skip.conversion=true (default true)</p>
+</blockquote>
+<p>Hive设置了该参数后，在读取Parquet文件的时候，同样会读取该Parquet文件的meta信息，如果是由Impala创建的Parquet文件的话，在读取的时候就不会进行时间格式的转换了。</p>
+<h4 id="Spark和Presto的Timestamp"><a href="#Spark和Presto的Timestamp" class="headerlink" title="Spark和Presto的Timestamp"></a>Spark和Presto的Timestamp</h4><p>Spark和Presto同Hive是兼容的，所以时间读取方面不会有问题。但是这样就意味着Spark和Presto就不能与Impala的时间相互兼容了，现在Spark和Presto似乎还没有和Impala相互兼容的解决方案。所以如果数据是由Impala来存储的，但是数据处理又是用Spark或者Presto的话，就要手动进行时区转换。</p>
+<h4 id="Parquet中的Timestamp"><a href="#Parquet中的Timestamp" class="headerlink" title="Parquet中的Timestamp"></a>Parquet中的Timestamp</h4><p>Parquet文件格式是当前Hadoop生态中最流行的列式存储格式。Parquet支持的类型有BOOLEAN、INT32、INT64、INT96、FLOAT、DOUBLE、BYTE_ARRAY，所以Timestamp其实是一种逻辑类型。由于Impala存储的时间精度达到纳秒的级别，所以在Parquet文件中用INT96来存储时间。其他的数据处理引擎也跟进该精度，所以也用INT96来存储，但是在时区兼容性方面做得并不好。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>不同的计算引擎之间的时间兼容性还是有一定的问题的，Hive和Impala之间有现成的解决方案来解决时间兼容性问题，但是Impala和Spark还有Presto之间暂时还没有好的解决方案，一个比较好的解决方法使用string来存储时间，这样不同的数据处理引擎之间就不会有时区问题了。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2019/01/13/使用k8s部署Django项目/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1925,200 +2112,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/05/20/在Spark中使用Python单例的技巧/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/05/20/在Spark中使用Python单例的技巧/" itemprop="url">
-                  在Spark中使用Python单例的技巧
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-05-20 22:33:03" itemprop="dateCreated datePublished" datetime="2018-05-20T22:33:03+08:00">2018-05-20</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-10-27 20:05:19" itemprop="dateModified" datetime="2018-10-27T20:05:19+08:00">2018-10-27</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/python/" itemprop="url" rel="index"><span itemprop="name">python</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/05/20/在Spark中使用Python单例的技巧/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/05/20/在Spark中使用Python单例的技巧/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>在使用spark编程的时候，我们需要知道我们编写的某一段代码是在driver端执行，还是在executor端执行。如果是在executor端执行的话，就要注意这些代码是否是可以序列化发送到executor端执行，如果不行的话就会报错。接下来这篇文章主要讨论Python单例在使用Spark的时候解决的问题。</p>
-</blockquote>
-<h4 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h4><p>在使用spark的时候经常会用到map来对数据进行处理，在map函数里面的代码会被序列化，然后发送到executor端执行。但是并不是所有的代码都是可以被序列化的，比如一个mysql连接的实例就不能被序列化，然后发送到executor端执行。要解决这个问题很简单，如果一个mysql连接的实例不能被序列化发送的话，可以在executor端实例化一个mysql连接，然后使用这个连接。
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">transform</span><span class="params">(row)</span>:</span></span><br><span class="line">    connector = mysql.connector.connect(**mysql_conf)</span><br><span class="line">    <span class="comment"># Do something</span></span><br><span class="line">rdd.map(transform)</span><br></pre></td></tr></table></figure></p>
-<p>上述的代码可以正确的运行，但是有一个比较严重的问题：map函数在每执行一次转换的时候都需要实例化一个mysql的实例，在实例化的时候要与mysql服务器建立连接，这个开销是比较大的，可想而知效率会非常的低。</p>
-<p>要解决这个问题我们可以用mapPartitions接口来代替map，mapPartitions接口不是对每行数据进行操作的时候都执行一个mysql实例化操作，而是对一个partition的数据执行操作时候才执行一个mysql实例化操作，这样效率会大大的提升，上述的代码可以改成如下的代码。
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">transform</span><span class="params">(rows)</span>:</span></span><br><span class="line">    connector = mysql.connector.connect(**mysql_conf)</span><br><span class="line">    <span class="keyword">for</span> row <span class="keyword">in</span> rows:</span><br><span class="line">        <span class="comment"># Do something</span></span><br><span class="line">rdd.mapPartitions(transform)</span><br></pre></td></tr></table></figure></p>
-<p>这样问题似乎已经解决了，但是解决的还不完全，或者说只解决rdd的问题，因为虽然spark的rdd支持mapPartitions操作，但是DataFrame并不支持mapPartitions的操作（对DataFrame执行map操作可以注册一个udf函数，然后调用这个udf函数）。有一个不太优美的做法是先把DataFrame转化成rdd进行mapPartitions，然后再把处理后的rdd转化成DataFrame。要在两种数据结构之间来回转化，这个操作实在是不够优美，而且效率低下。所以我们需要找到一个让mysql在map操作中只实例化一次的方法。</p>
-<h4 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h4><p>要优美的解决上面提到的这个问题的话，我们就需要用到Python的单例了。Python的单例实现方式有很多种，这在边我只介绍最简单的一种。利用Python的import机制可以确保一个模块只被导入一次，如果在这个模块里面实例化一个mysql实例的话，那么即使被多次导入，也只会被实例化一次。
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># SingletonMysql.py</span></span><br><span class="line">connector = mysql.connector.connect(**mysql_conf)</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">transform</span><span class="params">(row)</span>:</span></span><br><span class="line">    <span class="keyword">from</span> SingletonMysql <span class="keyword">import</span> connector</span><br><span class="line">    <span class="comment"># Do something</span></span><br><span class="line">rdd.map(transform)</span><br><span class="line">spark.udf.register(<span class="string">"transform"</span>, transform)</span><br><span class="line">spark.sql(<span class="string">"select transform(name) from table"</span>)</span><br></pre></td></tr></table></figure>
-<p>通过上面的代码，我们就可以在map函数里面使用mysql实例，而且能够保证它只会在第一次使用的时候被实例化。</p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>在一些第三方库的接口已经确定的情况下，有时候我们必须使用一些语言的特性才能达到一些特定的目标。这个Python单例的使用只是其中的一个例子，如果Spark本身的接口支持在executor端进行一些初始化操作的话就不需要用到单例了。还有，比如map里面的函数只能是一个参数的函数，但是有时候我们需要一些额外的信息，所以这时候就要用匿名函数来达到这个目的了。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2168,7 +2161,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">45</span>
+                    <span class="site-state-item-count">46</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2209,7 +2202,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -2288,7 +2283,17 @@
                     
                       
                     
-                    <span class="site-state-item-count">33</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">38</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://lintingbin2009.github.io/"/>
-  <updated>2019-01-13T08:57:13.990Z</updated>
+  <updated>2019-02-14T12:13:33.286Z</updated>
   <id>https://lintingbin2009.github.io/</id>
   
   <author>
@@ -15,6 +15,40 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Hadoop系统Parquet文件的Timestamp类型的时区问题</title>
+    <link href="https://lintingbin2009.github.io/2019/02/14/Hadoop%E7%B3%BB%E7%BB%9FParquet%E6%96%87%E4%BB%B6%E7%9A%84Timestamp%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%97%B6%E5%8C%BA%E9%97%AE%E9%A2%98/"/>
+    <id>https://lintingbin2009.github.io/2019/02/14/Hadoop系统Parquet文件的Timestamp类型的时区问题/</id>
+    <published>2019-02-14T10:55:32.000Z</published>
+    <updated>2019-02-14T12:13:33.286Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>在数据仓库离线处理中，为了能够兼容不同的数据处理引擎，我们通常会把数据保存成Parquet格式的文件。但是在不同的数据处理引擎中会出现时间读取不一致的问题，比如我用impala写入的时间，在用hive和spark读取的时候会差几个小时，这是为什么呢？</p></blockquote><h4 id="Hive中的Timestamp"><a href="#Hive中的Timestamp" class="headerlink" title="Hive中的Timestamp"></a>Hive中的Timestamp</h4><p>Hive在0.8的版本后开始支持Timestamp的格式。Hive在储存时间戳的时候会先把时间转成UTC的时间，然后再把转换后的时间存储到Parquet文件中。在读取Parquet文件的时候Hive会把时间从UTC时间再转化回成本地的时间。这样的话，如果存和读取都是用Hive的话，时间不会有任何的问题。上述说的是用Parquet文件来存取时间格式流程，如果是存成普通的文本文件的话，存取都不会进行任何时间的转换。</p><h4 id="Impala中的Timestamp"><a href="#Impala中的Timestamp" class="headerlink" title="Impala中的Timestamp"></a>Impala中的Timestamp</h4><p>Impala在存取Parquet格式的时间的时候和Hive不一样，Impala在存储时间的时候不转换成UTC的时间，而是直接保存当前时区的时间。所以Impala在读的时候也不进行任何的转换，是直接读取Parquet文件中的时间。这样的话，如果存和读取都是用Impala的话，时间也不会有任何的问题。但是如果用Hive存，但是用Impala读的话，就会出现时间不一致的问题，反之亦然。 由于让Impala和Hive之间的时间格式互相兼容是一件比较重要的事情，从而出现了让两个系统的时间格式互相兼容的解决方案。</p><h4 id="让Hive和Impala互相兼容"><a href="#让Hive和Impala互相兼容" class="headerlink" title="让Hive和Impala互相兼容"></a>让Hive和Impala互相兼容</h4><h5 id="Impala正确读取Hive存储的Parquet时间"><a href="#Impala正确读取Hive存储的Parquet时间" class="headerlink" title="Impala正确读取Hive存储的Parquet时间"></a>Impala正确读取Hive存储的Parquet时间</h5><p>在Impala的配置里面设置 </p><blockquote><p>convert_legacy_hive_parquet_utc_timestamps=true (default false) </p></blockquote><p>该参数会让Impala在读取Parquet文件的时候，会先检查Parquet文件的meta信息，查看该Parquet文件是否由Hive创建，如果是由Hive创建的话，在读取的时候会进行时间格式的转换，这样读取出来的时间就能和Hive存进去的时间一致了。</p><h5 id="Hive正确读取Impala存储的Parquet时间"><a href="#Hive正确读取Impala存储的Parquet时间" class="headerlink" title="Hive正确读取Impala存储的Parquet时间"></a>Hive正确读取Impala存储的Parquet时间</h5><p>同样在Hive里面有配置可以设置</p><blockquote><p>hive.parquet.timestamp.skip.conversion=true (default true)</p></blockquote><p>Hive设置了该参数后，在读取Parquet文件的时候，同样会读取该Parquet文件的meta信息，如果是由Impala创建的Parquet文件的话，在读取的时候就不会进行时间格式的转换了。</p><h4 id="Spark和Presto的Timestamp"><a href="#Spark和Presto的Timestamp" class="headerlink" title="Spark和Presto的Timestamp"></a>Spark和Presto的Timestamp</h4><p>Spark和Presto同Hive是兼容的，所以时间读取方面不会有问题。但是这样就意味着Spark和Presto就不能与Impala的时间相互兼容了，现在Spark和Presto似乎还没有和Impala相互兼容的解决方案。所以如果数据是由Impala来存储的，但是数据处理又是用Spark或者Presto的话，就要手动进行时区转换。</p><h4 id="Parquet中的Timestamp"><a href="#Parquet中的Timestamp" class="headerlink" title="Parquet中的Timestamp"></a>Parquet中的Timestamp</h4><p>Parquet文件格式是当前Hadoop生态中最流行的列式存储格式。Parquet支持的类型有BOOLEAN、INT32、INT64、INT96、FLOAT、DOUBLE、BYTE_ARRAY，所以Timestamp其实是一种逻辑类型。由于Impala存储的时间精度达到纳秒的级别，所以在Parquet文件中用INT96来存储时间。其他的数据处理引擎也跟进该精度，所以也用INT96来存储，但是在时区兼容性方面做得并不好。</p><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>不同的计算引擎之间的时间兼容性还是有一定的问题的，Hive和Impala之间有现成的解决方案来解决时间兼容性问题，但是Impala和Spark还有Presto之间暂时还没有好的解决方案，一个比较好的解决方法使用string来存储时间，这样不同的数据处理引擎之间就不会有时区问题了。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;blockquote&gt;
+&lt;p&gt;在数据仓库离线处理中，为了能够兼容不同的数据处理引擎，我们通常会把数据保存成Parquet格式的文件。但是在不同的数据处理引擎中会出现时间读取不一致的问题，比如我用impala写入的时间，在用hive和spark读取的时候会差几个小时，这是为什么呢
+      
+    
+    </summary>
+    
+      <category term="问题研究" scheme="https://lintingbin2009.github.io/categories/%E9%97%AE%E9%A2%98%E7%A0%94%E7%A9%B6/"/>
+    
+    
+      <category term="parquet" scheme="https://lintingbin2009.github.io/tags/parquet/"/>
+    
+      <category term="timestamp" scheme="https://lintingbin2009.github.io/tags/timestamp/"/>
+    
+      <category term="hive" scheme="https://lintingbin2009.github.io/tags/hive/"/>
+    
+      <category term="impala，spark" scheme="https://lintingbin2009.github.io/tags/impala%EF%BC%8Cspark/"/>
+    
+      <category term="presto" scheme="https://lintingbin2009.github.io/tags/presto/"/>
+    
+  </entry>
   
   <entry>
     <title>使用k8s部署Django项目</title>
@@ -521,34 +555,6 @@
       <category term="erlang-mysql-driver" scheme="https://lintingbin2009.github.io/tags/erlang-mysql-driver/"/>
     
       <category term="emysql" scheme="https://lintingbin2009.github.io/tags/emysql/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>efficiency-guide:进程</title>
-    <link href="https://lintingbin2009.github.io/2017/10/15/efficiency-guide-%E8%BF%9B%E7%A8%8B/"/>
-    <id>https://lintingbin2009.github.io/2017/10/15/efficiency-guide-进程/</id>
-    <published>2017-10-15T06:38:57.000Z</published>
-    <updated>2018-05-04T15:15:55.984Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote><p>这篇文章主要介绍进程的堆大小的优化，以及模块内的常量池，如果之前没有看过的，值得一看。</p></blockquote><h4 id="创建一个进程"><a href="#创建一个进程" class="headerlink" title="创建一个进程"></a>创建一个进程</h4><p>与操作系统中的线程和进程相比，Erlang进程是轻量级的。新创建的Erlang进程在非SMP和非HiPE模式下中使用309个字的内存。（SMP和HiPE支持会增加一些内存）进程占用的内存大小可以通过以下方式得到：</p><blockquote><p>Erlang (BEAM) emulator version 5.6 [async-threads:0] [kernel-poll:false]Eshell V5.6  (abort with ^G)1&gt; Fun = fun() -&gt; receive after infinity -&gt; ok end end.</p></blockquote><p>#Fun&lt;…&gt;2&gt; {_,Bytes} = process_info(spawn(Fun), memory).{memory,1232}3&gt; Bytes div erlang:system_info(wordsize).309</p><p>此大小包括堆区域（包括堆栈）的233个字。垃圾收集器根据需要增加堆。进程的主（外）循环必须是尾递归的。否则，堆栈会一直增长直到进程终止。<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% 不要这样做</span></span><br><span class="line"><span class="function"><span class="title">loop</span><span class="params">()</span> -&gt;</span> </span><br><span class="line">  <span class="keyword">receive</span></span><br><span class="line">     &#123;sys, Msg&#125; -&gt;</span><br><span class="line">         handle_sys_msg(Msg),</span><br><span class="line">         loop();</span><br><span class="line">     &#123;From, Msg&#125; -&gt;</span><br><span class="line">          Reply = handle_msg(Msg),</span><br><span class="line">          From ! Reply,</span><br><span class="line">          loop()</span><br><span class="line">  <span class="keyword">end</span>,</span><br><span class="line">  io:format(<span class="string">"Message is processed~n"</span>, []).</span><br></pre></td></tr></table></figure></p><p>对io:format/2的调用永远不会被执行，但是每次loop/0被递归调用时，返回地址仍然被推送到堆栈。该函数的正确尾递归版本如下所示：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">loop</span><span class="params">()</span> -&gt;</span> </span><br><span class="line">   <span class="keyword">receive</span></span><br><span class="line">      &#123;sys, Msg&#125; -&gt;</span><br><span class="line">         handle_sys_msg(Msg),</span><br><span class="line">         loop();</span><br><span class="line">      &#123;From, Msg&#125; -&gt;</span><br><span class="line">         Reply = handle_msg(Msg),</span><br><span class="line">         From ! Reply,</span><br><span class="line">         loop()</span><br><span class="line"> <span class="keyword">end</span>.</span><br></pre></td></tr></table></figure></p><h5 id="初始堆大小"><a href="#初始堆大小" class="headerlink" title="初始堆大小"></a>初始堆大小</h5><p>对于具有数十万甚至数百万个进程的Erlang系统，默认的初始堆大小为233个字节是相当保守的。垃圾收集器根据需要增加和收缩堆。在使用相对较少进程的系统中，可以通过使用erl的+h选项或使用spawn_opt/4的min_heap_size选项在每个进程的基础上增加最小堆大小来提高性能。主要有以下两个好处：</p><ul><li>虽然垃圾收集器可以逐步增长堆的大小，但这比生成进程时直接建立更大的堆来的低效。</li><li>垃圾收集器还可以收缩堆，如果它比存储在其上的数据量大得多;设置最小堆大小可以防止这种情况发生。<blockquote><p>注意：由于虚拟机可以使用更多的内存，则内存回收的次数将减少，因此Binary可以被保存的更久才进行内存回收</p></blockquote></li></ul><p>在具有许多进程的系统中，运行时间很短的计算任务可以生成具有更大最小堆大小的新进程。当进程完成后，它将计算结果发送到另一个进程并终止。如果正确计算最小堆大小，则该过程可能根本不需要执行任何垃圾回收。<strong>如果没有进行适当的测量，则不进行此优化。</strong></p><h4 id="进程消息"><a href="#进程消息" class="headerlink" title="进程消息"></a>进程消息</h4><p>除了在同一个Erlang节点上的refc binary，Erlang进程之间的所有消息都会被复制。当消息发送到另一个Erlang节点上的进程时，它首先被编码为Erlang外部格式，然后通过TCP/IP套接字发送。接收的Erlang节点解码消息并将其分发到相应的进程。</p><h5 id="常量池（Constant-Pool）"><a href="#常量池（Constant-Pool）" class="headerlink" title="常量池（Constant Pool）"></a>常量池（Constant Pool）</h5><p>Erlang常量（也称为文字(literals)）保存在常量池中;每个加载的模块都有自己的池。以下函数不会在每次调用时构建元组（仅在下次运行垃圾回收时丢弃它），因为元组位于模块的常量池中：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">days_in_month</span><span class="params">(M)</span> -&gt;</span></span><br><span class="line">    element(M, &#123;<span class="number">31</span>,<span class="number">28</span>,<span class="number">31</span>,<span class="number">30</span>,<span class="number">31</span>,<span class="number">30</span>,<span class="number">31</span>,<span class="number">31</span>,<span class="number">30</span>,<span class="number">31</span>,<span class="number">30</span>,<span class="number">31</span>&#125;).</span><br></pre></td></tr></table></figure></p><p>但是如果一个常量被发送到另一个进程（或存储在一个Ets表中），那么它将被复制。原因是运行时系统必须能够跟踪所有对常量的引用，以正确卸载包含常量的代码。（当代码被卸载时，这些常量被复制到引用它们的进程的堆中。）复制常量可能在将来的Erlang/OTP版本中被删除。</p><h5 id="共享丢失"><a href="#共享丢失" class="headerlink" title="共享丢失"></a>共享丢失</h5><p>在以下情况下，共享不会保留：</p><ul><li>当一个共享变量被发送到另一个进程 </li><li>当一个共享变量作为spawn调用中的初始进程参数传递时</li><li>当共享变量被存储在Ets表中时</li></ul><p>这是一个优化。大多数应用不发送带有共享变量的消息。以下示例显示如何创建共享变量：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">kilo_byte</span><span class="params">()</span> -&gt;</span></span><br><span class="line">    kilo_byte(<span class="number">10</span>, [<span class="number">42</span>]).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">kilo_byte</span><span class="params">(<span class="number">0</span>, Acc)</span> -&gt;</span></span><br><span class="line">    Acc;</span><br><span class="line"><span class="function"><span class="title">kilo_byte</span><span class="params">(N, Acc)</span> -&gt;</span></span><br><span class="line">    kilo_byte(N-<span class="number">1</span>, [Acc|Acc]).</span><br></pre></td></tr></table></figure></p><p>kilo_byte/1创建一个嵌套列表。如果调用list_to_binary/1，则可以将嵌套列表转换为1024字节的Binary：</p><blockquote><p>1&gt; byte_size(list_to_binary(efficiency_guide:kilo_byte())).1024</p></blockquote><p>使用erts_debug:size/1 BIF，可以看出嵌套列表只需要22个字的堆空间：</p><blockquote><p>2&gt; erts_debug:size(efficiency_guide:kilo_byte()).22</p></blockquote><p>使用erts_debug:flat_size/1 BIF，可以忽略共享来计算嵌套列表的大小。当它被发送到另一个进程或存储在Ets表中时，它将成为列表的实际大小：</p><blockquote><p>3&gt; erts_debug:flat_size(efficiency_guide:kilo_byte()).4094</p></blockquote><p>将数据插入到Ets表中，则可以确认共享丢失：</p><blockquote><p>4&gt; T = ets:new(tab, []).</p></blockquote><p>#Ref&lt;0.1662103692.2407923716.214181&gt;5&gt; ets:insert(T, {key,efficiency_guide:kilo_byte()}).true6&gt; erts_debug:size(element(2, hd(ets:lookup(T, key)))).40947&gt; erts_debug:flat_size(element(2, hd(ets:lookup(T, key)))).4094</p><p>当数据被插入到Ets表时，erts_debug:size/1和erts_debug:flat_size/1返回相同的值。共享已经丢失。在未来的Erlang/OTP版本中，可能会实现一种方式（可选）保留共享。</p><h4 id="SMP"><a href="#SMP" class="headerlink" title="SMP"></a>SMP</h4><p>SMP模式（在R11B中引入）通过运行多个Erlang调度器线程（通常与内核数相同）来利用多核计算机的性能。每个调度器线程以与非SMP模式中的Erlang调度器相同的方式调度Erlang进程。</p><p>为了通过使用SMP模式获得更多的性能提升，应用程序<strong>大多数时候都必须有多个可运行的Erlang进程</strong>。否则，Erlang虚拟机仍然只能运行一个Erlang进程，但是仍然必须增加锁的开销。尽管Erlang/OTP尝试尽可能减少锁开销，但它永远不会变为零。</p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;blockquote&gt;
-&lt;p&gt;这篇文章主要介绍进程的堆大小的优化，以及模块内的常量池，如果之前没有看过的，值得一看。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h4 id=&quot;创建一个进程&quot;&gt;&lt;a href=&quot;#创建一个进程&quot; class=&quot;headerlink&quot; title=&quot;创建
-      
-    
-    </summary>
-    
-      <category term="Erlang Efficiency Guide" scheme="https://lintingbin2009.github.io/categories/Erlang-Efficiency-Guide/"/>
-    
-    
-      <category term="Erlang" scheme="https://lintingbin2009.github.io/tags/Erlang/"/>
     
   </entry>
   

@@ -340,6 +340,260 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/10/15/efficiency-guide-进程/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/10/15/efficiency-guide-进程/" itemprop="url">
+                  efficiency-guide:进程
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-10-15 14:38:57" itemprop="dateCreated datePublished" datetime="2017-10-15T14:38:57+08:00">2017-10-15</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang-Efficiency-Guide/" itemprop="url" rel="index"><span itemprop="name">Erlang Efficiency Guide</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/10/15/efficiency-guide-进程/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/10/15/efficiency-guide-进程/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>这篇文章主要介绍进程的堆大小的优化，以及模块内的常量池，如果之前没有看过的，值得一看。</p>
+</blockquote>
+<h4 id="创建一个进程"><a href="#创建一个进程" class="headerlink" title="创建一个进程"></a>创建一个进程</h4><p>与操作系统中的线程和进程相比，Erlang进程是轻量级的。
+新创建的Erlang进程在非SMP和非HiPE模式下中使用309个字的内存。（SMP和HiPE支持会增加一些内存）进程占用的内存大小可以通过以下方式得到：</p>
+<blockquote>
+<p>Erlang (BEAM) emulator version 5.6 [async-threads:0] [kernel-poll:false]
+Eshell V5.6  (abort with ^G)
+1&gt; Fun = fun() -&gt; receive after infinity -&gt; ok end end.</p>
+</blockquote>
+<p>#Fun&lt;…&gt;
+2&gt; {_,Bytes} = process_info(spawn(Fun), memory).
+{memory,1232}
+3&gt; Bytes div erlang:system_info(wordsize).
+309</p>
+<p>此大小包括堆区域（包括堆栈）的233个字。垃圾收集器根据需要增加堆。
+进程的主（外）循环必须是尾递归的。否则，堆栈会一直增长直到进程终止。
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% 不要这样做</span></span><br><span class="line"><span class="function"><span class="title">loop</span><span class="params">()</span> -&gt;</span> </span><br><span class="line">  <span class="keyword">receive</span></span><br><span class="line">     &#123;sys, Msg&#125; -&gt;</span><br><span class="line">         handle_sys_msg(Msg),</span><br><span class="line">         loop();</span><br><span class="line">     &#123;From, Msg&#125; -&gt;</span><br><span class="line">          Reply = handle_msg(Msg),</span><br><span class="line">          From ! Reply,</span><br><span class="line">          loop()</span><br><span class="line">  <span class="keyword">end</span>,</span><br><span class="line">  io:format(<span class="string">"Message is processed~n"</span>, []).</span><br></pre></td></tr></table></figure></p>
+<p>对io:format/2的调用永远不会被执行，但是每次loop/0被递归调用时，返回地址仍然被推送到堆栈。该函数的正确尾递归版本如下所示：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">loop</span><span class="params">()</span> -&gt;</span> </span><br><span class="line">   <span class="keyword">receive</span></span><br><span class="line">      &#123;sys, Msg&#125; -&gt;</span><br><span class="line">         handle_sys_msg(Msg),</span><br><span class="line">         loop();</span><br><span class="line">      &#123;From, Msg&#125; -&gt;</span><br><span class="line">         Reply = handle_msg(Msg),</span><br><span class="line">         From ! Reply,</span><br><span class="line">         loop()</span><br><span class="line"> <span class="keyword">end</span>.</span><br></pre></td></tr></table></figure></p>
+<h5 id="初始堆大小"><a href="#初始堆大小" class="headerlink" title="初始堆大小"></a>初始堆大小</h5><p>对于具有数十万甚至数百万个进程的Erlang系统，默认的初始堆大小为233个字节是相当保守的。垃圾收集器根据需要增加和收缩堆。
+在使用相对较少进程的系统中，可以通过使用erl的+h选项或使用spawn_opt/4的min_heap_size选项在每个进程的基础上增加最小堆大小来提高性能。主要有以下两个好处：</p>
+<ul>
+<li>虽然垃圾收集器可以逐步增长堆的大小，但这比生成进程时直接建立更大的堆来的低效。</li>
+<li>垃圾收集器还可以收缩堆，如果它比存储在其上的数据量大得多;设置最小堆大小可以防止这种情况发生。<blockquote>
+<p>注意：由于虚拟机可以使用更多的内存，则内存回收的次数将减少，因此Binary可以被保存的更久才进行内存回收</p>
+</blockquote>
+</li>
+</ul>
+<p>在具有许多进程的系统中，运行时间很短的计算任务可以生成具有更大最小堆大小的新进程。当进程完成后，它将计算结果发送到另一个进程并终止。如果正确计算最小堆大小，则该过程可能根本不需要执行任何垃圾回收。<strong>如果没有进行适当的测量，则不进行此优化。</strong></p>
+<h4 id="进程消息"><a href="#进程消息" class="headerlink" title="进程消息"></a>进程消息</h4><p>除了在同一个Erlang节点上的refc binary，Erlang进程之间的所有消息都会被复制。
+当消息发送到另一个Erlang节点上的进程时，它首先被编码为Erlang外部格式，然后通过TCP/IP套接字发送。接收的Erlang节点解码消息并将其分发到相应的进程。</p>
+<h5 id="常量池（Constant-Pool）"><a href="#常量池（Constant-Pool）" class="headerlink" title="常量池（Constant Pool）"></a>常量池（Constant Pool）</h5><p>Erlang常量（也称为文字(literals)）保存在常量池中;每个加载的模块都有自己的池。以下函数不会在每次调用时构建元组（仅在下次运行垃圾回收时丢弃它），因为元组位于模块的常量池中：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">days_in_month</span><span class="params">(M)</span> -&gt;</span></span><br><span class="line">    element(M, &#123;<span class="number">31</span>,<span class="number">28</span>,<span class="number">31</span>,<span class="number">30</span>,<span class="number">31</span>,<span class="number">30</span>,<span class="number">31</span>,<span class="number">31</span>,<span class="number">30</span>,<span class="number">31</span>,<span class="number">30</span>,<span class="number">31</span>&#125;).</span><br></pre></td></tr></table></figure></p>
+<p>但是如果一个常量被发送到另一个进程（或存储在一个Ets表中），那么它将被复制。原因是运行时系统必须能够跟踪所有对常量的引用，以正确卸载包含常量的代码。（当代码被卸载时，这些常量被复制到引用它们的进程的堆中。）复制常量可能在将来的Erlang/OTP版本中被删除。</p>
+<h5 id="共享丢失"><a href="#共享丢失" class="headerlink" title="共享丢失"></a>共享丢失</h5><p>在以下情况下，共享不会保留：</p>
+<ul>
+<li>当一个共享变量被发送到另一个进程 </li>
+<li>当一个共享变量作为spawn调用中的初始进程参数传递时</li>
+<li>当共享变量被存储在Ets表中时</li>
+</ul>
+<p>这是一个优化。大多数应用不发送带有共享变量的消息。
+以下示例显示如何创建共享变量：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">kilo_byte</span><span class="params">()</span> -&gt;</span></span><br><span class="line">    kilo_byte(<span class="number">10</span>, [<span class="number">42</span>]).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">kilo_byte</span><span class="params">(<span class="number">0</span>, Acc)</span> -&gt;</span></span><br><span class="line">    Acc;</span><br><span class="line"><span class="function"><span class="title">kilo_byte</span><span class="params">(N, Acc)</span> -&gt;</span></span><br><span class="line">    kilo_byte(N-<span class="number">1</span>, [Acc|Acc]).</span><br></pre></td></tr></table></figure></p>
+<p>kilo_byte/1创建一个嵌套列表。如果调用list_to_binary/1，则可以将嵌套列表转换为1024字节的Binary：</p>
+<blockquote>
+<p>1&gt; byte_size(list_to_binary(efficiency_guide:kilo_byte())).
+1024</p>
+</blockquote>
+<p>使用erts_debug:size/1 BIF，可以看出嵌套列表只需要22个字的堆空间：</p>
+<blockquote>
+<p>2&gt; erts_debug:size(efficiency_guide:kilo_byte()).
+22</p>
+</blockquote>
+<p>使用erts_debug:flat_size/1 BIF，可以忽略共享来计算嵌套列表的大小。当它被发送到另一个进程或存储在Ets表中时，它将成为列表的实际大小：</p>
+<blockquote>
+<p>3&gt; erts_debug:flat_size(efficiency_guide:kilo_byte()).
+4094</p>
+</blockquote>
+<p>将数据插入到Ets表中，则可以确认共享丢失：</p>
+<blockquote>
+<p>4&gt; T = ets:new(tab, []).</p>
+</blockquote>
+<p>#Ref&lt;0.1662103692.2407923716.214181&gt;
+5&gt; ets:insert(T, {key,efficiency_guide:kilo_byte()}).
+true
+6&gt; erts_debug:size(element(2, hd(ets:lookup(T, key)))).
+4094
+7&gt; erts_debug:flat_size(element(2, hd(ets:lookup(T, key)))).
+4094</p>
+<p>当数据被插入到Ets表时，erts_debug:size/1和erts_debug:flat_size/1返回相同的值。共享已经丢失。
+在未来的Erlang/OTP版本中，可能会实现一种方式（可选）保留共享。</p>
+<h4 id="SMP"><a href="#SMP" class="headerlink" title="SMP"></a>SMP</h4><p>SMP模式（在R11B中引入）通过运行多个Erlang调度器线程（通常与内核数相同）来利用多核计算机的性能。每个调度器线程以与非SMP模式中的Erlang调度器相同的方式调度Erlang进程。</p>
+<p>为了通过使用SMP模式获得更多的性能提升，应用程序<strong>大多数时候都必须有多个可运行的Erlang进程</strong>。否则，Erlang虚拟机仍然只能运行一个Erlang进程，但是仍然必须增加锁的开销。尽管Erlang/OTP尝试尽可能减少锁开销，但它永远不会变为零。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/10/15/efficiency-guide-表和数据库/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -2216,200 +2470,6 @@ BEAM是一个线程代码解释器。每个指令是直接指向可执行C代码
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/07/13/基于Erlang的全区服分数竞技场的设计的优化/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/07/13/基于Erlang的全区服分数竞技场的设计的优化/" itemprop="url">
-                  基于Erlang的全区服分数竞技场的设计的优化
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-07-13 21:47:51" itemprop="dateCreated datePublished" datetime="2017-07-13T21:47:51+08:00">2017-07-13</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/算法设计/" itemprop="url" rel="index"><span itemprop="name">算法设计</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/07/13/基于Erlang的全区服分数竞技场的设计的优化/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/07/13/基于Erlang的全区服分数竞技场的设计的优化/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>在上一篇文章<a href="/2017/05/01/Erlang动态代码载入小实验/" title="Erlang动态代码载入小实验">Erlang动态代码载入小实验</a>中，我提到的竞技场设计中存在一些性能问题，这篇文章主要是针对上一篇文章提到的性能问题在整体设计方案不进行大改的情况下进行优化。</p>
-</blockquote>
-<h4 id="主要性能问题"><a href="#主要性能问题" class="headerlink" title="主要性能问题"></a>主要性能问题</h4><p>回顾上一篇文章，我们知道之前的设计方案的主要问题是：频繁的在分数ETS中拿取和更新新的玩家List，而且该List的大小有可能是几十万的级别的，主要的性能问题是ETS和排行榜进程之间的数据拷贝。</p>
-<p>在同一分数段的所有玩家都用List来存储的话，每次在一个分数中增加一个玩家的代价是，先从ets中lookup拿出所有这一分数的玩家，然后在这个列表中增加新的玩家，最后再把新的玩家列表更新回去，删除也是如此。如果每个分数的玩家列表都不是很大的话，这个应该问题也不会很大，但是由于同一分数段的玩家比较多，所以这个方案的性能就很差了。</p>
-<h4 id="优化一"><a href="#优化一" class="headerlink" title="优化一"></a>优化一</h4><p>既然主要的性能问题出在List的更新和删除的操作，所以这个优化方案的主要方法是把List替换成ETS，当List的长度大于N(N可以自己设置，比如100、200之类)时，同一分数的所有玩家都存储在ETS中，这样在一个分数的玩家列表中增加一个玩家也只是在ETS中增加一个玩家ID而已，删除一个玩家的话，也只是在ETS中删除一个玩家ID，这两个操作都非常的快。</p>
-<p>经过这一次的优化，竞技场玩家已经可以在正式环境中上线，但是在游戏最高峰的时间段，玩家还是会有点卡，此时游戏服务器（16核）的cpu几乎全部跑满，所以还需要进一步的优化。</p>
-<h4 id="优化二"><a href="#优化二" class="headerlink" title="优化二"></a>优化二</h4><p>通过上一次优化我们知道，服务器在高峰的时候几乎把cpu全部跑满。这时候我就开始怀疑寻找对手的算法是否有问题，之前寻找对手都是现算的，把玩家的对手的排名算出来，然后在分数的ETS里面开始从头到尾遍历所有分数，找出符合对手排名的玩家。这样子寻找一个玩家的三个对手，大概要遍历分数ETS一千多次，在平时的时候还是非常快的，下面是我用eprof测量的在平时寻找一次对手的一些关键操作的开销：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">legend_arena_global_rank:query_apprentice_rank/<span class="number">7</span>              <span class="number">389</span>   <span class="number">4.25</span>   <span class="number">290</span>  [      <span class="number">0.75</span>]</span><br><span class="line">legend_arena_global_rank:query_apprentice_key/<span class="number">3</span>              <span class="number">1076</span>   <span class="number">7.45</span>   <span class="number">508</span>  [      <span class="number">0.47</span>]</span><br><span class="line">ets:lookup_element/<span class="number">3</span>                                         <span class="number">1465</span>  <span class="number">34.31</span>  <span class="number">2340</span>  [      <span class="number">1.60</span>]</span><br><span class="line">ets:prev/<span class="number">2</span>                                                   <span class="number">1459</span>  <span class="number">45.52</span>  <span class="number">3105</span>  [      <span class="number">2.13</span>]</span><br></pre></td></tr></table></figure></p>
-<p>再下面的是我用eprof测试的在小高峰期寻找一次对手的一些关键操作的开销：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">legend_arena_global_rank:query_apprentice_rank/<span class="number">7</span>              <span class="number">386</span>   <span class="number">1.16</span>    <span class="number">216</span>  [      <span class="number">0.56</span>]</span><br><span class="line">legend_arena_global_rank:query_apprentice_key/<span class="number">3</span>              <span class="number">1029</span>   <span class="number">2.95</span>    <span class="number">551</span>  [      <span class="number">0.54</span>]</span><br><span class="line">ets:lookup_element/<span class="number">3</span>                                         <span class="number">1415</span>  <span class="number">39.47</span>   <span class="number">7371</span>  [      <span class="number">5.21</span>]</span><br><span class="line">ets:prev/<span class="number">2</span>                                                   <span class="number">1409</span>  <span class="number">54.38</span>  <span class="number">10157</span>  [      <span class="number">7.21</span>]</span><br></pre></td></tr></table></figure></p>
-<p>通过上面两次的测量可以看到：分数ETS在大量访问的时候出现了性能下降，本来ets:prev/2操作只需要2.13us，在高峰期居然需要7.21us；本来ets:lookup_element/3操作只需要1.6us，在高峰期居然需要5.21us。</p>
-<p>所以这次的主要优化方法是把对分数ETS的访问次数降下来，建立一些排名的缓存，当一个玩家寻找对手的时候直接在缓存中寻找，同时每秒钟刷新一次缓存（确保排名比较正确）。这样不管是在高峰期还是平时，分数ETS都不会有非常明显的访问量的提升。</p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>通过这次的优化，我认为不管用什么语言来实现一个系统，都要了解这个语言的优势和劣势，这样才能找出一个合理的解决方案来解决一些比较棘手的问题。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2459,7 +2519,7 @@ BEAM是一个线程代码解释器。每个指令是直接指向可执行C代码
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">45</span>
+                    <span class="site-state-item-count">46</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2500,7 +2560,9 @@ BEAM是一个线程代码解释器。每个指令是直接指向可执行C代码
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -2579,7 +2641,17 @@ BEAM是一个线程代码解释器。每个指令是直接指向可执行C代码
                     
                       
                     
-                    <span class="site-state-item-count">33</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">38</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
