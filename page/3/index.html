@@ -340,6 +340,208 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/03/10/timeout的bug分析/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/10/timeout的bug分析/" itemprop="url">
+                  关于erlang-mysql-driver timeout的bug分析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-03-10 22:08:17" itemprop="dateCreated datePublished" datetime="2018-03-10T22:08:17+08:00">2018-03-10</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang/" itemprop="url" rel="index"><span itemprop="name">Erlang</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/03/10/timeout的bug分析/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/03/10/timeout的bug分析/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>我们游戏之前使用的是erlang-mysql-driver来连接数据库，经常会碰到一些timeout和一条纪录被重复插入多次的bug，后面把erlang-mysql-driver替换成emysql就没有问题了。研究了下erlang-mysql-driver的源代码才知道具体的问题出在哪里，下面就简单的介绍下这个问题，同时介绍下emysql是如何避免这个问题的</p>
+</blockquote>
+<h4 id="erlang-mysql-driver-用法"><a href="#erlang-mysql-driver-用法" class="headerlink" title="erlang-mysql-driver 用法"></a>erlang-mysql-driver 用法</h4><figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql:start_link(DB, Pool, Server, Port, User, Passwd, DBName, <span class="keyword">fun</span> mysql_log/<span class="number">4</span>, utf8),</span><br><span class="line">[mysql:connect(DB, Pool, Server, Port, User, Passwd, DBName, utf8, <span class="literal">true</span>, <span class="literal">true</span>) </span><br><span class="line">|| _ &lt;- lists:seq(<span class="number">1</span>, PoolCount)]</span><br></pre></td></tr></table></figure>
+<p>使用erlang-mysql-driver的时候首先要用mysql:start_link来建立一个连接池，然后再自己调用mysql:connect来建立多个连接。对应的erlang-mysql-driver库里面会创建一个名为DB的连接池gen_server，然后再建立多个mysql数据库的连接，每个连接会有一个进程来接管，并把这些进程和连接信息放入连接池gen_server中。按道理我们建立了多个数据库的连接，在进行数据库操作的时候应该能够并发访问数据库的，确实erlang-mysql-driver实现也是多进程访问数据库的，但是由于连接池gen_server的单点瓶颈，会导致一些事实上成功的操作被认为是失败的。</p>
+<h4 id="erlang-mysql-driver-的sql执行过程"><a href="#erlang-mysql-driver-的sql执行过程" class="headerlink" title="erlang-mysql-driver 的sql执行过程"></a>erlang-mysql-driver 的sql执行过程</h4><p>在我们执行一个mysql:execute的函数的时候，具体的执行过程如下：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% mysql.erl 文件中的代码</span></span><br><span class="line"><span class="function"><span class="title">execute</span><span class="params">(SvrName, PoolId, Name, Params, Timeout)</span> -&gt;</span></span><br><span class="line">  <span class="keyword">case</span> get(?STATE_VAR) <span class="keyword">of</span></span><br><span class="line">    undefined -&gt;</span><br><span class="line">      call_server(SvrName, &#123;execute, SvrName, PoolId, Name, Params&#125;, Timeout);</span><br><span class="line">    State -&gt;</span><br><span class="line">      <span class="keyword">case</span> mysql_conn:execute_local(SvrName, State, Name, Params) <span class="keyword">of</span></span><br><span class="line">        &#123;ok, Res, NewState&#125; -&gt;</span><br><span class="line">          put(?STATE_VAR, NewState),</span><br><span class="line">          Res;</span><br><span class="line">        Err -&gt;</span><br><span class="line">          Err</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span>.</span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="title">handle_call</span><span class="params">(&#123;execute, SvrName, PoolId, Name, Params&#125;, From, State)</span> -&gt;</span></span><br><span class="line">  with_next_conn(PoolId, State,</span><br><span class="line">    <span class="keyword">fun</span>(Conn, State1) -&gt;</span><br><span class="line">      <span class="keyword">case</span> gb_trees:lookup(Name, State1#state.prepares) <span class="keyword">of</span></span><br><span class="line">        none -&gt;</span><br><span class="line">          &#123;reply, &#123;error, &#123;no_such_statement, Name&#125;&#125;, State1&#125;;</span><br><span class="line">        &#123;value, &#123;_Stmt, Version&#125;&#125; -&gt;</span><br><span class="line">          mysql_conn:execute(SvrName, Conn#conn.pid, Name,</span><br><span class="line">            Version, Params, From),</span><br><span class="line">          &#123;noreply, State1&#125;</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span>);</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% mysql_conn的代码</span></span><br><span class="line"><span class="function"><span class="title">execute</span><span class="params">(SvrName, Pid, Name, Version, Params, From, Timeout)</span> -&gt;</span></span><br><span class="line">    send_msg(Pid, &#123;execute, SvrName, Name, Version, Params, From&#125;, From, Timeout).</span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="title">loop</span><span class="params">(State)</span> -&gt;</span></span><br><span class="line">    RecvPid = State#state.recv_pid,</span><br><span class="line">    LogFun = State#state.log_fun,</span><br><span class="line">    <span class="keyword">receive</span></span><br><span class="line">    ....</span><br><span class="line">    &#123;execute, SvrName, Name, Version, Params, From&#125; -&gt;</span><br><span class="line">        State1 =</span><br><span class="line">        <span class="keyword">case</span> do_execute(State, SvrName, Name, Params, Version) <span class="keyword">of</span></span><br><span class="line">            &#123;error, _&#125; = Err -&gt;</span><br><span class="line">            send_reply(From, Err),</span><br><span class="line">            State;</span><br><span class="line">            &#123;ok, Result, NewState&#125; -&gt;</span><br><span class="line">            send_reply(From, Result),</span><br><span class="line">            NewState</span><br><span class="line">        <span class="keyword">end</span>,</span><br><span class="line">        loop(State1);</span><br><span class="line">        </span><br><span class="line"><span class="function"><span class="title">send_reply</span><span class="params">(GenSrvFrom, Res)</span> -&gt;</span></span><br><span class="line">    gen_server:reply(GenSrvFrom, Res).</span><br></pre></td></tr></table></figure>
+<p>mysql:execute在执行的过程中首先调用名为DB的连接池gen_server，该gen_server会执行with_next_conn选择一个持有数据库连接的进程（进程x），然后通过mysql_conn中的send_msg函数向进程x发送需要执行的sql语句，sql语句发送成功后gen_server会返回noreply，这时调用mysql:execute的进程会一直阻塞，直到进程x执行gen_server:reply来返回结果。</p>
+<p>通过上面的执行过程我们可以知道以下两点：</p>
+<ol>
+<li>mysql:execute的timeout为gen_server:call调用的timeout时间</li>
+<li>连接池gen_server只要把sql语句发送给进程x，进程x就会去执行（可能执行的比较慢，但是已经加入进程x的信箱）</li>
+</ol>
+<p>现在我们可以知道mysql:execute返回timeout的情况有两种：</p>
+<ol>
+<li>连接池gen_server太过繁忙，mysql:execute的请求还没执行，mysql:execute就已经timeout</li>
+<li>连接池gen_server已经成功执行请求，返回noreply，mysql:execute的执行进程一直在等待进程x的返回，而进程x一直不返回，这时mysql:execute触发timeout</li>
+</ol>
+<p>不管是上述那种timeout情况，只要是mysql数据库没有问题，sql语句都能够执行成功（可能会执行的慢点）。mysql:execute的调用者在发现mysql:execute返回timeout的情况下，肯定会认为sql语句没有执行成功，这时候会重新调用mysql:execute，导致一条相同的记录被多次插入。</p>
+<h4 id="emysql-的sql执行过程"><a href="#emysql-的sql执行过程" class="headerlink" title="emysql 的sql执行过程"></a>emysql 的sql执行过程</h4><p>emysql的连接池也会有一个gen_server进行管理，emysql:execute在执行的过程中是去向该gen_server申请一个可用的连接，然后再spawn一个进程来执行sql语句，而不是委托该gen_server来执行sql语句，从而避免了这个timeout的bug。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>通过上面的分析，我觉得erlang-mysql-driver会写出这个bug的原因主要是对gen_server noreply的误用。所以以后如果有需要用noreply的话，要注意避免该问题。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/10/15/efficiency-guide-进程/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -2277,199 +2479,6 @@ BEAM是一个线程代码解释器。每个指令是直接指向可执行C代码
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/08/18/mochiweb的x-forwarded-for实现引发的线上掉单/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/08/18/mochiweb的x-forwarded-for实现引发的线上掉单/" itemprop="url">
-                  mochiweb的x-forwarded-for实现引发的线上掉单
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-08-18 21:13:44" itemprop="dateCreated datePublished" datetime="2017-08-18T21:13:44+08:00">2017-08-18</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang/" itemprop="url" rel="index"><span itemprop="name">Erlang</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/08/18/mochiweb的x-forwarded-for实现引发的线上掉单/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/08/18/mochiweb的x-forwarded-for实现引发的线上掉单/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>记录一次线上充值服的掉单问题，同时学习下什么是x-forwarded-for</p>
-</blockquote>
-<h4 id="掉单原因？"><a href="#掉单原因？" class="headerlink" title="掉单原因？"></a>掉单原因？</h4><p>因为充值服都设有白名单，如果充值请求的机器的IP不在白名单里面的话会被视为非法IP，在掉单期间，线上的充值服发现有大量的100.116.<em> .</em> 的非法IP的访问，之后在网上一查，原来100.64.0.0/10也是属于内网IP的。我们的充值服务器使用了负载均衡，所以100.116.<em>.</em>的IP应该是负载均衡机器的内网IP，同时由于我们充值服务器使用的是mochiweb的服务器，所以第一时间查看了下mochiweb获取IP的源代码：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">get</span><span class="params">(peer, &#123;?MODULE, [Socket, _Opts, _Method, _RawPath, _Version, _Headers]&#125;=THIS)</span> -&gt;</span></span><br><span class="line">    <span class="keyword">case</span> mochiweb_socket:peername(Socket) <span class="keyword">of</span></span><br><span class="line">        &#123;ok, &#123;Addr=&#123;<span class="number">10</span>, _, _, _&#125;, _Port&#125;&#125; -&gt;</span><br><span class="line">            <span class="keyword">case</span> get_header_value(<span class="string">"x-forwarded-for"</span>, THIS) <span class="keyword">of</span></span><br><span class="line">                undefined -&gt;</span><br><span class="line">                    inet_parse:ntoa(Addr);</span><br><span class="line">                Hosts -&gt;</span><br><span class="line">                    string:strip(lists:last(string:tokens(Hosts, <span class="string">","</span>)))</span><br><span class="line">            <span class="keyword">end</span>;</span><br><span class="line">        <span class="comment">%% Copied this syntax from webmachine contributor Steve Vinoski</span></span><br><span class="line">        &#123;ok, &#123;Addr=&#123;<span class="number">172</span>, Second, _, _&#125;, _Port&#125;&#125; <span class="keyword">when</span> (Second &gt; <span class="number">15</span>) <span class="keyword">andalso</span> (Second &lt; <span class="number">32</span>) -&gt;</span><br><span class="line">            <span class="keyword">case</span> get_header_value(<span class="string">"x-forwarded-for"</span>, THIS) <span class="keyword">of</span></span><br><span class="line">                undefined -&gt;</span><br><span class="line">                    inet_parse:ntoa(Addr);</span><br><span class="line">                Hosts -&gt;</span><br><span class="line">                    string:strip(lists:last(string:tokens(Hosts, <span class="string">","</span>)))</span><br><span class="line">            <span class="keyword">end</span>;</span><br><span class="line">        &#123;ok, &#123;Addr=&#123;<span class="number">192</span>, <span class="number">168</span>, _, _&#125;, _Port&#125;&#125; -&gt;</span><br><span class="line">            <span class="keyword">case</span> get_header_value(<span class="string">"x-forwarded-for"</span>, THIS) <span class="keyword">of</span></span><br><span class="line">                undefined -&gt;</span><br><span class="line">                    inet_parse:ntoa(Addr);</span><br><span class="line">                Hosts -&gt;</span><br><span class="line">                    string:strip(lists:last(string:tokens(Hosts, <span class="string">","</span>)))</span><br><span class="line">            <span class="keyword">end</span>;</span><br><span class="line">        &#123;ok, &#123;&#123;<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>&#125;, _Port&#125;&#125; -&gt;</span><br><span class="line">            <span class="keyword">case</span> get_header_value(<span class="string">"x-forwarded-for"</span>, THIS) <span class="keyword">of</span></span><br><span class="line">                undefined -&gt;</span><br><span class="line">                    <span class="string">"127.0.0.1"</span>;</span><br><span class="line">                Hosts -&gt;</span><br><span class="line">                    string:strip(lists:last(string:tokens(Hosts, <span class="string">","</span>)))</span><br><span class="line">            <span class="keyword">end</span>;</span><br><span class="line">        &#123;ok, &#123;Addr, _Port&#125;&#125; -&gt;</span><br><span class="line">            inet_parse:ntoa(Addr);</span><br><span class="line">        &#123;error, enotconn&#125; -&gt;</span><br><span class="line">            exit(normal)</span><br><span class="line">    <span class="keyword">end</span>;</span><br></pre></td></tr></table></figure></p>
-<p>从上面的代码可以看出，如果在服务器内网里面使用了代理服务器之后，mochiweb是能够自动获取原始的访问IP。但是仅限内网代理服务器的IP是一些常见的内网IP，100.64.0.0/10段的IP地址并不包括在里面，所以这时候获取的IP就不是原始IP，而是负载均衡机器的内网IP。</p>
-<h4 id="内网IP段有哪些？"><a href="#内网IP段有哪些？" class="headerlink" title="内网IP段有哪些？"></a>内网IP段有哪些？</h4><p>10.0.0.0/8<br>10.0.0.0 - 10.255.255.255 </p>
-<p>172.16.0.0/12<br>172.16.0.0 - 172.31.255.255  </p>
-<p>192.168.0.0/16<br>192.168.0.0 - 192.168.255.255  </p>
-<p>以上三个网段分别属于A、B、C三类IP地址</p>
-<p>100.64.0.0/10<br>100.64.0.0 - 100.127.255.255<br>由运营商使用的私网IP段，随着IPv4地址池的耗光，会有更多用户被分配到这个网段。我们的线上掉单问题就是因为阿里云把内网IP切换到这个网段造成的。</p>
-<h4 id="http协议头标：x-forwarded-for"><a href="#http协议头标：x-forwarded-for" class="headerlink" title="http协议头标：x-forwarded-for"></a>http协议头标：x-forwarded-for</h4><p>X-Forwarded-For(XFF)是用来识别通过HTTP代理或负载均衡方式连接到Web服务器的客户端最原始的IP地址的HTTP请求头字段。 Squid 缓存代理服务器的开发人员最早引入了这一HTTP头字段，并由IETF在Forwarded-For HTTP头字段标准化草案中正式提出。</p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>这次的掉单问题算起来应该算是一个不太能够发现的坑，主要是依赖第三方库的实现，我们这边相关的同事已经把修复代码提交pull request到mochiweb的github主页了，防止有更多的人碰到这个坑。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2519,7 +2528,7 @@ BEAM是一个线程代码解释器。每个指令是直接指向可执行C代码
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">46</span>
+                    <span class="site-state-item-count">47</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2562,7 +2571,9 @@ BEAM是一个线程代码解释器。每个指令是直接指向可执行C代码
                     
                       
                     
-                    <span class="site-state-item-count">15</span>
+                      
+                    
+                    <span class="site-state-item-count">16</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -2651,7 +2662,9 @@ BEAM是一个线程代码解释器。每个指令是直接指向可执行C代码
                     
                       
                     
-                    <span class="site-state-item-count">38</span>
+                      
+                    
+                    <span class="site-state-item-count">39</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

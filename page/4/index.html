@@ -340,6 +340,199 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/08/18/mochiweb的x-forwarded-for实现引发的线上掉单/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/08/18/mochiweb的x-forwarded-for实现引发的线上掉单/" itemprop="url">
+                  mochiweb的x-forwarded-for实现引发的线上掉单
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-08-18 21:13:44" itemprop="dateCreated datePublished" datetime="2017-08-18T21:13:44+08:00">2017-08-18</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang/" itemprop="url" rel="index"><span itemprop="name">Erlang</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/08/18/mochiweb的x-forwarded-for实现引发的线上掉单/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/08/18/mochiweb的x-forwarded-for实现引发的线上掉单/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>记录一次线上充值服的掉单问题，同时学习下什么是x-forwarded-for</p>
+</blockquote>
+<h4 id="掉单原因？"><a href="#掉单原因？" class="headerlink" title="掉单原因？"></a>掉单原因？</h4><p>因为充值服都设有白名单，如果充值请求的机器的IP不在白名单里面的话会被视为非法IP，在掉单期间，线上的充值服发现有大量的100.116.<em> .</em> 的非法IP的访问，之后在网上一查，原来100.64.0.0/10也是属于内网IP的。我们的充值服务器使用了负载均衡，所以100.116.<em>.</em>的IP应该是负载均衡机器的内网IP，同时由于我们充值服务器使用的是mochiweb的服务器，所以第一时间查看了下mochiweb获取IP的源代码：
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">get</span><span class="params">(peer, &#123;?MODULE, [Socket, _Opts, _Method, _RawPath, _Version, _Headers]&#125;=THIS)</span> -&gt;</span></span><br><span class="line">    <span class="keyword">case</span> mochiweb_socket:peername(Socket) <span class="keyword">of</span></span><br><span class="line">        &#123;ok, &#123;Addr=&#123;<span class="number">10</span>, _, _, _&#125;, _Port&#125;&#125; -&gt;</span><br><span class="line">            <span class="keyword">case</span> get_header_value(<span class="string">"x-forwarded-for"</span>, THIS) <span class="keyword">of</span></span><br><span class="line">                undefined -&gt;</span><br><span class="line">                    inet_parse:ntoa(Addr);</span><br><span class="line">                Hosts -&gt;</span><br><span class="line">                    string:strip(lists:last(string:tokens(Hosts, <span class="string">","</span>)))</span><br><span class="line">            <span class="keyword">end</span>;</span><br><span class="line">        <span class="comment">%% Copied this syntax from webmachine contributor Steve Vinoski</span></span><br><span class="line">        &#123;ok, &#123;Addr=&#123;<span class="number">172</span>, Second, _, _&#125;, _Port&#125;&#125; <span class="keyword">when</span> (Second &gt; <span class="number">15</span>) <span class="keyword">andalso</span> (Second &lt; <span class="number">32</span>) -&gt;</span><br><span class="line">            <span class="keyword">case</span> get_header_value(<span class="string">"x-forwarded-for"</span>, THIS) <span class="keyword">of</span></span><br><span class="line">                undefined -&gt;</span><br><span class="line">                    inet_parse:ntoa(Addr);</span><br><span class="line">                Hosts -&gt;</span><br><span class="line">                    string:strip(lists:last(string:tokens(Hosts, <span class="string">","</span>)))</span><br><span class="line">            <span class="keyword">end</span>;</span><br><span class="line">        &#123;ok, &#123;Addr=&#123;<span class="number">192</span>, <span class="number">168</span>, _, _&#125;, _Port&#125;&#125; -&gt;</span><br><span class="line">            <span class="keyword">case</span> get_header_value(<span class="string">"x-forwarded-for"</span>, THIS) <span class="keyword">of</span></span><br><span class="line">                undefined -&gt;</span><br><span class="line">                    inet_parse:ntoa(Addr);</span><br><span class="line">                Hosts -&gt;</span><br><span class="line">                    string:strip(lists:last(string:tokens(Hosts, <span class="string">","</span>)))</span><br><span class="line">            <span class="keyword">end</span>;</span><br><span class="line">        &#123;ok, &#123;&#123;<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>&#125;, _Port&#125;&#125; -&gt;</span><br><span class="line">            <span class="keyword">case</span> get_header_value(<span class="string">"x-forwarded-for"</span>, THIS) <span class="keyword">of</span></span><br><span class="line">                undefined -&gt;</span><br><span class="line">                    <span class="string">"127.0.0.1"</span>;</span><br><span class="line">                Hosts -&gt;</span><br><span class="line">                    string:strip(lists:last(string:tokens(Hosts, <span class="string">","</span>)))</span><br><span class="line">            <span class="keyword">end</span>;</span><br><span class="line">        &#123;ok, &#123;Addr, _Port&#125;&#125; -&gt;</span><br><span class="line">            inet_parse:ntoa(Addr);</span><br><span class="line">        &#123;error, enotconn&#125; -&gt;</span><br><span class="line">            exit(normal)</span><br><span class="line">    <span class="keyword">end</span>;</span><br></pre></td></tr></table></figure></p>
+<p>从上面的代码可以看出，如果在服务器内网里面使用了代理服务器之后，mochiweb是能够自动获取原始的访问IP。但是仅限内网代理服务器的IP是一些常见的内网IP，100.64.0.0/10段的IP地址并不包括在里面，所以这时候获取的IP就不是原始IP，而是负载均衡机器的内网IP。</p>
+<h4 id="内网IP段有哪些？"><a href="#内网IP段有哪些？" class="headerlink" title="内网IP段有哪些？"></a>内网IP段有哪些？</h4><p>10.0.0.0/8<br>10.0.0.0 - 10.255.255.255 </p>
+<p>172.16.0.0/12<br>172.16.0.0 - 172.31.255.255  </p>
+<p>192.168.0.0/16<br>192.168.0.0 - 192.168.255.255  </p>
+<p>以上三个网段分别属于A、B、C三类IP地址</p>
+<p>100.64.0.0/10<br>100.64.0.0 - 100.127.255.255<br>由运营商使用的私网IP段，随着IPv4地址池的耗光，会有更多用户被分配到这个网段。我们的线上掉单问题就是因为阿里云把内网IP切换到这个网段造成的。</p>
+<h4 id="http协议头标：x-forwarded-for"><a href="#http协议头标：x-forwarded-for" class="headerlink" title="http协议头标：x-forwarded-for"></a>http协议头标：x-forwarded-for</h4><p>X-Forwarded-For(XFF)是用来识别通过HTTP代理或负载均衡方式连接到Web服务器的客户端最原始的IP地址的HTTP请求头字段。 Squid 缓存代理服务器的开发人员最早引入了这一HTTP头字段，并由IETF在Forwarded-For HTTP头字段标准化草案中正式提出。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>这次的掉单问题算起来应该算是一个不太能够发现的坑，主要是依赖第三方库的实现，我们这边相关的同事已经把修复代码提交pull request到mochiweb的github主页了，防止有更多的人碰到这个坑。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/07/13/基于Erlang的全区服分数竞技场的设计的优化/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -2162,268 +2355,6 @@ Causes the parse transformation function Module:parse_transform/2 to be applied 
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/05/01/Erlang动态代码载入小实验/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/05/01/Erlang动态代码载入小实验/" itemprop="url">
-                  Erlang动态代码载入小实验
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-05-01 23:19:04" itemprop="dateCreated datePublished" datetime="2017-05-01T23:19:04+08:00">2017-05-01</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang入门教程/" itemprop="url" rel="index"><span itemprop="name">Erlang入门教程</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/05/01/Erlang动态代码载入小实验/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/05/01/Erlang动态代码载入小实验/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>下面的内容为《Erlang程序设计（第2版）》8.10节的内容，这个动态代码载入的小实验非常的简单生动，通过这个小实验能够充分理解Erlang代码的载入机制。</p>
-</blockquote>
-<p>动态代码载入是内建于Erlang核心的最惊人特性之一。它的美妙之处在于你无需了解后台的运作就能顺利实现它。
-它的思路很简单：每当调用 someModule:someFunction(…)时，调用的总是最新版模块里的最新版函数，哪怕当代码在模块里运行时重新编译了该模块也是如此。
-如果在a循环调用b时重新编译了b，那么下一次a调用b时就会自动调用新版的 b 。如果有许多不同进程正在运行而它们都调用了b，那么当b被重新编译后，所有这些进程就都会调用新版的b 。为了了解它的工作原理，我们将编写两个小模块：a和b。
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% b.erl</span></span><br><span class="line"><span class="keyword">-module</span><span class="params">(b)</span>.</span><br><span class="line"><span class="keyword">-export</span><span class="params">([x/<span class="number">0</span>])</span>.</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">x</span><span class="params">()</span> -&gt;</span> <span class="number">1</span>.</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% a.erl</span></span><br><span class="line"><span class="keyword">-module</span><span class="params">(a)</span>.</span><br><span class="line"><span class="keyword">-compile</span><span class="params">(export_all)</span>.</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">start</span><span class="params">(Tag)</span> -&gt;</span></span><br><span class="line">  spawn(<span class="keyword">fun</span>() -&gt; loop(Tag) <span class="keyword">end</span>).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">loop</span><span class="params">(Tag)</span> -&gt;</span></span><br><span class="line">  sleep(),</span><br><span class="line">  Val = b:x(),</span><br><span class="line">  io:format(<span class="string">"Vsn1 (~p) b:x() = ~p~n"</span>, [Tag, Val]),</span><br><span class="line">  loop(Tag).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">sleep</span><span class="params">()</span> -&gt;</span></span><br><span class="line">  <span class="keyword">receive</span></span><br><span class="line">    <span class="keyword">after</span> <span class="number">3000</span> -&gt; <span class="literal">true</span></span><br><span class="line">  <span class="keyword">end</span>.</span><br></pre></td></tr></table></figure>
-<p>现在可以编译a和b，然后启动两个a进程。</p>
-<blockquote>
-<p>1&gt; c(a).
-{ok,a}
-2&gt; c(b).
-{ok,b}
-3&gt; a:start(one).</p>
-</blockquote>
-<p>&lt;0.70.0&gt;
-Vsn1 (one) b:x() = 1
-Vsn1 (one) b:x() = 1
-4&gt; a:start(two).</p>
-<p>&lt;0.72.0&gt;
-Vsn1 (one) b:x() = 1
-Vsn1 (two) b:x() = 1</p>
-<p>这些a进程休眠3秒钟后唤醒并调用b:x()，然后打印出结果。现在进入编辑器，把模块b改
-成下面这样：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">-module</span><span class="params">(b)</span>.</span><br><span class="line"><span class="keyword">-export</span><span class="params">([x/<span class="number">0</span>])</span>.</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">x</span><span class="params">()</span> -&gt;</span> <span class="number">2</span>.</span><br></pre></td></tr></table></figure></p>
-<p>然后在shell里面重新编译b。这是现在所发生的：</p>
-<blockquote>
-<p>5&gt; c(b).
-{ok,b}
-Vsn1 (one) b:x() = 2
-Vsn1 (two) b:x() = 2</p>
-</blockquote>
-<p>两个原版的a仍然在运行，但现在它们调用了新版的b。所以在模块a里调用b:x()时，实际上是在调用“b的最新版”。我们可以随心所欲地多次修改并重新编译b，而所有调用它的模块无需特别处理就会自动调用新版的b。
-现在已经重新编译了b，那么如果我们修改并重新编译a会发生什么？来做个试验，把a改成下面这样：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">-module</span><span class="params">(a)</span>.</span><br><span class="line"><span class="keyword">-compile</span><span class="params">(export_all)</span>.</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">start</span><span class="params">(Tag)</span> -&gt;</span></span><br><span class="line">  spawn(<span class="keyword">fun</span>() -&gt; loop(Tag) <span class="keyword">end</span>).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">loop</span><span class="params">(Tag)</span> -&gt;</span></span><br><span class="line">  sleep(),</span><br><span class="line">  Val = b:x(),</span><br><span class="line">  io:format(<span class="string">"Vsn2 (~p) b:x() = ~p~n"</span>, [Tag, Val]),</span><br><span class="line">  loop(Tag).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">sleep</span><span class="params">()</span> -&gt;</span></span><br><span class="line">  <span class="keyword">receive</span></span><br><span class="line">    <span class="keyword">after</span> <span class="number">3000</span> -&gt; <span class="literal">true</span></span><br><span class="line">  <span class="keyword">end</span>.</span><br></pre></td></tr></table></figure></p>
-<p>现在编译并启动a。</p>
-<blockquote>
-<p>6&gt; c(a).
-{ok,a}
-Vsn1 (two) b:x() = 2
-Vsn1 (one) b:x() = 2
-Vsn1 (two) b:x() = 2
-7&gt; a:start(three).</p>
-</blockquote>
-<p>&lt;0.84.0&gt;
-Vsn1 (two) b:x() = 2
-Vsn1 (one) b:x() = 2
-Vsn2 (three) b:x() = 2
-Vsn1 (two) b:x() = 2</p>
-<p>有趣的事情发生了。启动新版的a后，我们看到了新版正在运行。但是，那些运行最初版a的现有进程仍然在正常地运行旧版的a。
-现在可以试着再次修改b。
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">-module</span><span class="params">(b)</span>.</span><br><span class="line"><span class="keyword">-export</span><span class="params">([x/<span class="number">0</span>])</span>.</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">x</span><span class="params">()</span> -&gt;</span> <span class="number">3</span>.</span><br></pre></td></tr></table></figure></p>
-<p>我们将在shell里重新编译b，观察会发生什么。</p>
-<blockquote>
-<p>8&gt; c(b).
-{ok,b}
-Vsn1 (one) b:x() = 3
-Vsn2 (three) b:x() = 3
-Vsn1 (two) b:x() = 3</p>
-</blockquote>
-<p>现在新旧版本的a都调用了b的最新版。
-最后，再次修改a（这是第三次修改a了）。
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">-module</span><span class="params">(a)</span>.</span><br><span class="line"><span class="keyword">-compile</span><span class="params">(export_all)</span>.</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">start</span><span class="params">(Tag)</span> -&gt;</span></span><br><span class="line">  spawn(<span class="keyword">fun</span>() -&gt; loop(Tag) <span class="keyword">end</span>).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">loop</span><span class="params">(Tag)</span> -&gt;</span></span><br><span class="line">  sleep(),</span><br><span class="line">  Val = b:x(),</span><br><span class="line">  io:format(<span class="string">"Vsn3 (~p) b:x() = ~p~n"</span>, [Tag, Val]),</span><br><span class="line">  loop(Tag).</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">sleep</span><span class="params">()</span> -&gt;</span></span><br><span class="line">  <span class="keyword">receive</span></span><br><span class="line">    <span class="keyword">after</span> <span class="number">3000</span> -&gt; <span class="literal">true</span></span><br><span class="line">  <span class="keyword">end</span>.</span><br></pre></td></tr></table></figure></p>
-<p>现在，当我们重新编译a并启动一个新版的a时，就会看到以下输出：</p>
-<blockquote>
-<p>9&gt; c(a).
-{ok,a}
-Vsn2 (three) b:x() = 3
-Vsn2 (three) b:x() = 3
-Vsn2 (three) b:x() = 3
-Vsn2 (three) b:x() = 3
-10&gt; a:start(four).</p>
-</blockquote>
-<p>&lt;0.96.0&gt;
-Vsn2 (three) b:x() = 3
-Vsn3 (four) b:x() = 3
-Vsn2 (three) b:x() = 3
-Vsn3 (four) b:x() = 3
-Vsn2 (three) b:x() = 3</p>
-<p>这段输出里的字符串是由两个最新版本的a（第2版和第3版）生成的，而那些运行第1版a代码的进程已经消失了。
-在任一时刻，Erlang允许一个模块的两个版本同时运行：当前版和旧版。重新编译某个模块时，任何运行旧版代码的进程都会被终止，当前版成为旧版，新编译的版本则成为当前版。可以把这想象成一个带有两个版本代码的移位寄存器。当添加新代码时，最老的版本就被清除了。一些进程可以运行旧版代码，与此同时，另一些则可以运行新版代码。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2473,7 +2404,7 @@ Vsn2 (three) b:x() = 3</p>
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">46</span>
+                    <span class="site-state-item-count">47</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2516,7 +2447,9 @@ Vsn2 (three) b:x() = 3</p>
                     
                       
                     
-                    <span class="site-state-item-count">15</span>
+                      
+                    
+                    <span class="site-state-item-count">16</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -2605,7 +2538,9 @@ Vsn2 (three) b:x() = 3</p>
                     
                       
                     
-                    <span class="site-state-item-count">38</span>
+                      
+                    
+                    <span class="site-state-item-count">39</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

@@ -340,6 +340,190 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2019/03/09/spark执行map-join优化/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/09/spark执行map-join优化/" itemprop="url">
+                  spark执行map-join优化
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-09 14:15:58 / 修改时间：15:15:36" itemprop="dateCreated datePublished" datetime="2019-03-09T14:15:58+08:00">2019-03-09</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/优化/" itemprop="url" rel="index"><span itemprop="name">优化</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/03/09/spark执行map-join优化/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/03/09/spark执行map-join优化/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>在使用map reduce处理数据的时候，join操作有两种选择：一种选择是在map端执行join操作，即所谓的Map-side Join（Broadcast join）；另一种选择是在reduce端执行join操作，即所谓的Reduce-side Join（shuffle join）。在map端执行join操作，适合在有一个表比较小的情况下，能把整个表放到内存，发送到各个节点进行join操作。下面的文章主要介绍在spark使用Map-side Join的时候需要注意的问题。</p>
+</blockquote>
+<h4 id="spark使用map-join的时候可能会遇到什么问题？"><a href="#spark使用map-join的时候可能会遇到什么问题？" class="headerlink" title="spark使用map-join的时候可能会遇到什么问题？"></a>spark使用map-join的时候可能会遇到什么问题？</h4><p>我在执行以下sql语句的时候遇到了执行内存不够的问题，原先我还以为是内存不够，然后加大了内存，但是还是执行失败。
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// a是一个几亿行的大表，b是一个只有几十行的小表。a和b都是由hive创建的表</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> a <span class="keyword">where</span> <span class="keyword">id</span> <span class="keyword">not</span> <span class="keyword">in</span> (<span class="keyword">select</span> <span class="keyword">id</span> <span class="keyword">from</span> b)</span><br></pre></td></tr></table></figure></p>
+<p>后面我在spark ui中看到了该sql的执行计划，该sql语句执行了Map-side Join操作，但是spark把a表当成了小表，准备把a表broadcast到其他的节点，然后就是一直卡在这步broadcast操作上。
+造成上述问题的原因就是spark认为a表是一个小表，但是在spark ui上明显可以看到a表读了很多的行。但是为什么spark还会认为a表是一个小表呢？原因是spark判断一个hive表的大小会用hive的metastore数据来判断，因为我们的a表没有执行过ANALYZE TABLE，自然a表的metastore里面的数据就不准确了。</p>
+<h4 id="解决方法？"><a href="#解决方法？" class="headerlink" title="解决方法？"></a>解决方法？</h4><p>既然知道了问题，要解决就很简单了。有如下几个解决方法：</p>
+<h5 id="设置spark-sql-statistics-fallBackToHdfs-True"><a href="#设置spark-sql-statistics-fallBackToHdfs-True" class="headerlink" title="设置spark.sql.statistics.fallBackToHdfs=True"></a>设置spark.sql.statistics.fallBackToHdfs=True</h5><p>该参数能让spark直接读取hdfs的文件大小来判断一个表达大小，从而代替从metastore里面的获取的关于表的信息。这样spark自然能正确的判断出表的大小，从而使用b表来进行broadcast。</p>
+<h5 id="使用hint"><a href="#使用hint" class="headerlink" title="使用hint"></a>使用hint</h5><p>在使用sql语句执行的时候在sql语句里面加上mapjoin的注释，也能够达到相应的效果，比如把上述的sql语句改成:
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="comment">/*+ BROADCAST (b) */</span> * <span class="keyword">from</span> a <span class="keyword">where</span> <span class="keyword">id</span> <span class="keyword">not</span> <span class="keyword">in</span> (<span class="keyword">select</span> <span class="keyword">id</span> <span class="keyword">from</span> b)</span><br></pre></td></tr></table></figure></p>
+<p>这样spark也会使用b表来进行broadcast。</p>
+<h5 id="使用spark代码的方式"><a href="#使用spark代码的方式" class="headerlink" title="使用spark代码的方式"></a>使用spark代码的方式</h5><p>使用broadcast函数就能达到此效果：
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql.functions <span class="keyword">import</span> broadcast</span><br><span class="line">broadcast(spark.table(<span class="string">"b"</span>)).join(spark.table(<span class="string">"a"</span>), <span class="string">"id"</span>).show()</span><br></pre></td></tr></table></figure></p>
+<h4 id="拓展知识"><a href="#拓展知识" class="headerlink" title="拓展知识"></a>拓展知识</h4><h5 id="什么时候spark才会使用Map-side-Join？"><a href="#什么时候spark才会使用Map-side-Join？" class="headerlink" title="什么时候spark才会使用Map-side Join？"></a>什么时候spark才会使用Map-side Join？</h5><p>只有当要进行join的表的大小小于spark.sql.autoBroadcastJoinThreshold（默认是10M）的时候，才会进行mapjoin。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>上述的优化同样也适用于其他的计算引擎，比如Impala通过hint和执行表的位置调整也能够优化join操作，通过explain也可以查看sql的执行计划，然后再进行优化。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2019/02/14/Hadoop系统Parquet文件的Timestamp类型的时区问题/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1952,166 +2136,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/06/23/python标准开发环境/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/06/23/python标准开发环境/" itemprop="url">
-                  python标准开发环境
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-06-23 13:44:23 / 修改时间：14:32:47" itemprop="dateCreated datePublished" datetime="2018-06-23T13:44:23+08:00">2018-06-23</time>
-            
-
-            
-              
-
-              
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/06/23/python标准开发环境/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/06/23/python标准开发环境/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>很多初学python的同学可能都知道pip，通过pip可以安装自己的需要的python第三方库。但是有很多同学可能不知道pipenv，在这篇文章我将介绍如何用pipenv来构建自己的开发环境，以及用pipenv快速部署生产环境</p>
-</blockquote>
-<h4 id="什么是pipenv？"><a href="#什么是pipenv？" class="headerlink" title="什么是pipenv？"></a>什么是pipenv？</h4><p>pipenv是一个把包管理工具和虚拟环境结合的工具，使用pipenv install和使用pip install一样，可以安装任何你想安装的第三方库，不同的是pipenv会记录你安装的库和使用的python版本，在部署生产环境的时候直接使用pipenv install就可以安装所有的依赖、甚至特定的python版本。<a href="https://github.com/pypa/pipenv" target="_blank" rel="noopener">pipenv项目地址</a></p>
-<h4 id="如何使用pipenv？"><a href="#如何使用pipenv？" class="headerlink" title="如何使用pipenv？"></a>如何使用pipenv？</h4><ol>
-<li>开发环境使用<br>项目开发的时候使用pip install在项目的目录下面安装所需要的库，pipenv会自动在项目的根目录下面产生Pipfile，Pipfile.lock这两个文件，这两个文件记录了当前项目的使用第三方库和python版本的信息，同时pipenv会为这个项目构建一个虚拟环境(pipenv –venv可以查看虚拟环境的位置)。pipenv shell可以把当前的命令行环境切换到当前项目的虚拟环境下执行。要用虚拟环境运行一个python文件的话，则使用pipenv run python a.py。</li>
-<li>生产环境使用<br>当项目开发完成以后，把项目上传到需要部署该项目的服务器。然后在项目的根目录下运行pipenv install，这时候pipenv会自动为该项目创建所依赖的python的版本的虚拟环境，同时在该虚拟环境下安装所有需要的第三方库。有一个问题需要注意的是：如果机器上没有安装项目所需要的python版本的话，这时候虚拟环境就会创建失败。要解决这个失败的话有两个办法：1.安装项目所依赖的python版本。2.安装pyenv，让pipenv在创建虚拟环境的时候使用pyenv自动安装所需要的python版本。</li>
-</ol>
-<h4 id="使用pyenv"><a href="#使用pyenv" class="headerlink" title="使用pyenv"></a>使用pyenv</h4><p>pyenv是一个python包管理工具，可以在一台机器上面安装多个python版本。我推荐至少在生产环境上面安装pyenv，这样在项目代码部署到生产环境的时候根据项目的实际需要安装不同的python版本。<a href="https://github.com/pyenv/pyenv" target="_blank" rel="noopener">pyenv项目地址</a></p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>python程序员在开发项目的时候推荐使用pipenv，这样在项目分享给别人或者部署的时候都可以无比的轻松。同时推荐使用pyenv，pipenv和pyenv配合使用不要太爽了。这篇文章只是简单的介绍pipenv和pyenv，具体的使用方法请查阅他们的官方文档。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2161,7 +2185,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">46</span>
+                    <span class="site-state-item-count">47</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2204,7 +2228,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">15</span>
+                      
+                    
+                    <span class="site-state-item-count">16</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -2293,7 +2319,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">38</span>
+                      
+                    
+                    <span class="site-state-item-count">39</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://lintingbin2009.github.io/"/>
-  <updated>2019-02-14T12:13:33.286Z</updated>
+  <updated>2019-03-09T07:15:36.135Z</updated>
   <id>https://lintingbin2009.github.io/</id>
   
   <author>
@@ -15,6 +15,32 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>spark执行map-join优化</title>
+    <link href="https://lintingbin2009.github.io/2019/03/09/spark%E6%89%A7%E8%A1%8Cmap-join%E4%BC%98%E5%8C%96/"/>
+    <id>https://lintingbin2009.github.io/2019/03/09/spark执行map-join优化/</id>
+    <published>2019-03-09T06:15:58.000Z</published>
+    <updated>2019-03-09T07:15:36.135Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>在使用map reduce处理数据的时候，join操作有两种选择：一种选择是在map端执行join操作，即所谓的Map-side Join（Broadcast join）；另一种选择是在reduce端执行join操作，即所谓的Reduce-side Join（shuffle join）。在map端执行join操作，适合在有一个表比较小的情况下，能把整个表放到内存，发送到各个节点进行join操作。下面的文章主要介绍在spark使用Map-side Join的时候需要注意的问题。</p></blockquote><h4 id="spark使用map-join的时候可能会遇到什么问题？"><a href="#spark使用map-join的时候可能会遇到什么问题？" class="headerlink" title="spark使用map-join的时候可能会遇到什么问题？"></a>spark使用map-join的时候可能会遇到什么问题？</h4><p>我在执行以下sql语句的时候遇到了执行内存不够的问题，原先我还以为是内存不够，然后加大了内存，但是还是执行失败。<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// a是一个几亿行的大表，b是一个只有几十行的小表。a和b都是由hive创建的表</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> a <span class="keyword">where</span> <span class="keyword">id</span> <span class="keyword">not</span> <span class="keyword">in</span> (<span class="keyword">select</span> <span class="keyword">id</span> <span class="keyword">from</span> b)</span><br></pre></td></tr></table></figure></p><p>后面我在spark ui中看到了该sql的执行计划，该sql语句执行了Map-side Join操作，但是spark把a表当成了小表，准备把a表broadcast到其他的节点，然后就是一直卡在这步broadcast操作上。造成上述问题的原因就是spark认为a表是一个小表，但是在spark ui上明显可以看到a表读了很多的行。但是为什么spark还会认为a表是一个小表呢？原因是spark判断一个hive表的大小会用hive的metastore数据来判断，因为我们的a表没有执行过ANALYZE TABLE，自然a表的metastore里面的数据就不准确了。</p><h4 id="解决方法？"><a href="#解决方法？" class="headerlink" title="解决方法？"></a>解决方法？</h4><p>既然知道了问题，要解决就很简单了。有如下几个解决方法：</p><h5 id="设置spark-sql-statistics-fallBackToHdfs-True"><a href="#设置spark-sql-statistics-fallBackToHdfs-True" class="headerlink" title="设置spark.sql.statistics.fallBackToHdfs=True"></a>设置spark.sql.statistics.fallBackToHdfs=True</h5><p>该参数能让spark直接读取hdfs的文件大小来判断一个表达大小，从而代替从metastore里面的获取的关于表的信息。这样spark自然能正确的判断出表的大小，从而使用b表来进行broadcast。</p><h5 id="使用hint"><a href="#使用hint" class="headerlink" title="使用hint"></a>使用hint</h5><p>在使用sql语句执行的时候在sql语句里面加上mapjoin的注释，也能够达到相应的效果，比如把上述的sql语句改成:<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="comment">/*+ BROADCAST (b) */</span> * <span class="keyword">from</span> a <span class="keyword">where</span> <span class="keyword">id</span> <span class="keyword">not</span> <span class="keyword">in</span> (<span class="keyword">select</span> <span class="keyword">id</span> <span class="keyword">from</span> b)</span><br></pre></td></tr></table></figure></p><p>这样spark也会使用b表来进行broadcast。</p><h5 id="使用spark代码的方式"><a href="#使用spark代码的方式" class="headerlink" title="使用spark代码的方式"></a>使用spark代码的方式</h5><p>使用broadcast函数就能达到此效果：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql.functions <span class="keyword">import</span> broadcast</span><br><span class="line">broadcast(spark.table(<span class="string">"b"</span>)).join(spark.table(<span class="string">"a"</span>), <span class="string">"id"</span>).show()</span><br></pre></td></tr></table></figure></p><h4 id="拓展知识"><a href="#拓展知识" class="headerlink" title="拓展知识"></a>拓展知识</h4><h5 id="什么时候spark才会使用Map-side-Join？"><a href="#什么时候spark才会使用Map-side-Join？" class="headerlink" title="什么时候spark才会使用Map-side Join？"></a>什么时候spark才会使用Map-side Join？</h5><p>只有当要进行join的表的大小小于spark.sql.autoBroadcastJoinThreshold（默认是10M）的时候，才会进行mapjoin。</p><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>上述的优化同样也适用于其他的计算引擎，比如Impala通过hint和执行表的位置调整也能够优化join操作，通过explain也可以查看sql的执行计划，然后再进行优化。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;blockquote&gt;
+&lt;p&gt;在使用map reduce处理数据的时候，join操作有两种选择：一种选择是在map端执行join操作，即所谓的Map-side Join（Broadcast join）；另一种选择是在reduce端执行join操作，即所谓的Reduce-side
+      
+    
+    </summary>
+    
+      <category term="优化" scheme="https://lintingbin2009.github.io/categories/%E4%BC%98%E5%8C%96/"/>
+    
+    
+      <category term="spark, map-join" scheme="https://lintingbin2009.github.io/tags/spark-map-join/"/>
+    
+  </entry>
   
   <entry>
     <title>Hadoop系统Parquet文件的Timestamp类型的时区问题</title>
@@ -527,34 +553,6 @@
     
     
       <category term="Git" scheme="https://lintingbin2009.github.io/tags/Git/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>关于erlang-mysql-driver timeout的bug分析</title>
-    <link href="https://lintingbin2009.github.io/2018/03/10/timeout%E7%9A%84bug%E5%88%86%E6%9E%90/"/>
-    <id>https://lintingbin2009.github.io/2018/03/10/timeout的bug分析/</id>
-    <published>2018-03-10T14:08:17.000Z</published>
-    <updated>2018-05-04T15:15:55.986Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote><p>我们游戏之前使用的是erlang-mysql-driver来连接数据库，经常会碰到一些timeout和一条纪录被重复插入多次的bug，后面把erlang-mysql-driver替换成emysql就没有问题了。研究了下erlang-mysql-driver的源代码才知道具体的问题出在哪里，下面就简单的介绍下这个问题，同时介绍下emysql是如何避免这个问题的</p></blockquote><h4 id="erlang-mysql-driver-用法"><a href="#erlang-mysql-driver-用法" class="headerlink" title="erlang-mysql-driver 用法"></a>erlang-mysql-driver 用法</h4><figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql:start_link(DB, Pool, Server, Port, User, Passwd, DBName, <span class="keyword">fun</span> mysql_log/<span class="number">4</span>, utf8),</span><br><span class="line">[mysql:connect(DB, Pool, Server, Port, User, Passwd, DBName, utf8, <span class="literal">true</span>, <span class="literal">true</span>) </span><br><span class="line">|| _ &lt;- lists:seq(<span class="number">1</span>, PoolCount)]</span><br></pre></td></tr></table></figure><p>使用erlang-mysql-driver的时候首先要用mysql:start_link来建立一个连接池，然后再自己调用mysql:connect来建立多个连接。对应的erlang-mysql-driver库里面会创建一个名为DB的连接池gen_server，然后再建立多个mysql数据库的连接，每个连接会有一个进程来接管，并把这些进程和连接信息放入连接池gen_server中。按道理我们建立了多个数据库的连接，在进行数据库操作的时候应该能够并发访问数据库的，确实erlang-mysql-driver实现也是多进程访问数据库的，但是由于连接池gen_server的单点瓶颈，会导致一些事实上成功的操作被认为是失败的。</p><h4 id="erlang-mysql-driver-的sql执行过程"><a href="#erlang-mysql-driver-的sql执行过程" class="headerlink" title="erlang-mysql-driver 的sql执行过程"></a>erlang-mysql-driver 的sql执行过程</h4><p>在我们执行一个mysql:execute的函数的时候，具体的执行过程如下：<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% mysql.erl 文件中的代码</span></span><br><span class="line"><span class="function"><span class="title">execute</span><span class="params">(SvrName, PoolId, Name, Params, Timeout)</span> -&gt;</span></span><br><span class="line">  <span class="keyword">case</span> get(?STATE_VAR) <span class="keyword">of</span></span><br><span class="line">    undefined -&gt;</span><br><span class="line">      call_server(SvrName, &#123;execute, SvrName, PoolId, Name, Params&#125;, Timeout);</span><br><span class="line">    State -&gt;</span><br><span class="line">      <span class="keyword">case</span> mysql_conn:execute_local(SvrName, State, Name, Params) <span class="keyword">of</span></span><br><span class="line">        &#123;ok, Res, NewState&#125; -&gt;</span><br><span class="line">          put(?STATE_VAR, NewState),</span><br><span class="line">          Res;</span><br><span class="line">        Err -&gt;</span><br><span class="line">          Err</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span>.</span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="title">handle_call</span><span class="params">(&#123;execute, SvrName, PoolId, Name, Params&#125;, From, State)</span> -&gt;</span></span><br><span class="line">  with_next_conn(PoolId, State,</span><br><span class="line">    <span class="keyword">fun</span>(Conn, State1) -&gt;</span><br><span class="line">      <span class="keyword">case</span> gb_trees:lookup(Name, State1#state.prepares) <span class="keyword">of</span></span><br><span class="line">        none -&gt;</span><br><span class="line">          &#123;reply, &#123;error, &#123;no_such_statement, Name&#125;&#125;, State1&#125;;</span><br><span class="line">        &#123;value, &#123;_Stmt, Version&#125;&#125; -&gt;</span><br><span class="line">          mysql_conn:execute(SvrName, Conn#conn.pid, Name,</span><br><span class="line">            Version, Params, From),</span><br><span class="line">          &#123;noreply, State1&#125;</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span>);</span><br></pre></td></tr></table></figure></p><figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% mysql_conn的代码</span></span><br><span class="line"><span class="function"><span class="title">execute</span><span class="params">(SvrName, Pid, Name, Version, Params, From, Timeout)</span> -&gt;</span></span><br><span class="line">    send_msg(Pid, &#123;execute, SvrName, Name, Version, Params, From&#125;, From, Timeout).</span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="title">loop</span><span class="params">(State)</span> -&gt;</span></span><br><span class="line">    RecvPid = State#state.recv_pid,</span><br><span class="line">    LogFun = State#state.log_fun,</span><br><span class="line">    <span class="keyword">receive</span></span><br><span class="line">    ....</span><br><span class="line">    &#123;execute, SvrName, Name, Version, Params, From&#125; -&gt;</span><br><span class="line">        State1 =</span><br><span class="line">        <span class="keyword">case</span> do_execute(State, SvrName, Name, Params, Version) <span class="keyword">of</span></span><br><span class="line">            &#123;error, _&#125; = Err -&gt;</span><br><span class="line">            send_reply(From, Err),</span><br><span class="line">            State;</span><br><span class="line">            &#123;ok, Result, NewState&#125; -&gt;</span><br><span class="line">            send_reply(From, Result),</span><br><span class="line">            NewState</span><br><span class="line">        <span class="keyword">end</span>,</span><br><span class="line">        loop(State1);</span><br><span class="line">        </span><br><span class="line"><span class="function"><span class="title">send_reply</span><span class="params">(GenSrvFrom, Res)</span> -&gt;</span></span><br><span class="line">    gen_server:reply(GenSrvFrom, Res).</span><br></pre></td></tr></table></figure><p>mysql:execute在执行的过程中首先调用名为DB的连接池gen_server，该gen_server会执行with_next_conn选择一个持有数据库连接的进程（进程x），然后通过mysql_conn中的send_msg函数向进程x发送需要执行的sql语句，sql语句发送成功后gen_server会返回noreply，这时调用mysql:execute的进程会一直阻塞，直到进程x执行gen_server:reply来返回结果。</p><p>通过上面的执行过程我们可以知道以下两点：</p><ol><li>mysql:execute的timeout为gen_server:call调用的timeout时间</li><li>连接池gen_server只要把sql语句发送给进程x，进程x就会去执行（可能执行的比较慢，但是已经加入进程x的信箱）</li></ol><p>现在我们可以知道mysql:execute返回timeout的情况有两种：</p><ol><li>连接池gen_server太过繁忙，mysql:execute的请求还没执行，mysql:execute就已经timeout</li><li>连接池gen_server已经成功执行请求，返回noreply，mysql:execute的执行进程一直在等待进程x的返回，而进程x一直不返回，这时mysql:execute触发timeout</li></ol><p>不管是上述那种timeout情况，只要是mysql数据库没有问题，sql语句都能够执行成功（可能会执行的慢点）。mysql:execute的调用者在发现mysql:execute返回timeout的情况下，肯定会认为sql语句没有执行成功，这时候会重新调用mysql:execute，导致一条相同的记录被多次插入。</p><h4 id="emysql-的sql执行过程"><a href="#emysql-的sql执行过程" class="headerlink" title="emysql 的sql执行过程"></a>emysql 的sql执行过程</h4><p>emysql的连接池也会有一个gen_server进行管理，emysql:execute在执行的过程中是去向该gen_server申请一个可用的连接，然后再spawn一个进程来执行sql语句，而不是委托该gen_server来执行sql语句，从而避免了这个timeout的bug。</p><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>通过上面的分析，我觉得erlang-mysql-driver会写出这个bug的原因主要是对gen_server noreply的误用。所以以后如果有需要用noreply的话，要注意避免该问题。</p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;blockquote&gt;
-&lt;p&gt;我们游戏之前使用的是erlang-mysql-driver来连接数据库，经常会碰到一些timeout和一条纪录被重复插入多次的bug，后面把erlang-mysql-driver替换成emysql就没有问题了。研究了下erlang-mysql-dr
-      
-    
-    </summary>
-    
-      <category term="Erlang" scheme="https://lintingbin2009.github.io/categories/Erlang/"/>
-    
-    
-      <category term="erlang-mysql-driver" scheme="https://lintingbin2009.github.io/tags/erlang-mysql-driver/"/>
-    
-      <category term="emysql" scheme="https://lintingbin2009.github.io/tags/emysql/"/>
     
   </entry>
   

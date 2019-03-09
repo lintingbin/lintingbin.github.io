@@ -340,6 +340,166 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/06/23/python标准开发环境/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/06/23/python标准开发环境/" itemprop="url">
+                  python标准开发环境
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-06-23 13:44:23 / 修改时间：14:32:47" itemprop="dateCreated datePublished" datetime="2018-06-23T13:44:23+08:00">2018-06-23</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/06/23/python标准开发环境/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/06/23/python标准开发环境/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>很多初学python的同学可能都知道pip，通过pip可以安装自己的需要的python第三方库。但是有很多同学可能不知道pipenv，在这篇文章我将介绍如何用pipenv来构建自己的开发环境，以及用pipenv快速部署生产环境</p>
+</blockquote>
+<h4 id="什么是pipenv？"><a href="#什么是pipenv？" class="headerlink" title="什么是pipenv？"></a>什么是pipenv？</h4><p>pipenv是一个把包管理工具和虚拟环境结合的工具，使用pipenv install和使用pip install一样，可以安装任何你想安装的第三方库，不同的是pipenv会记录你安装的库和使用的python版本，在部署生产环境的时候直接使用pipenv install就可以安装所有的依赖、甚至特定的python版本。<a href="https://github.com/pypa/pipenv" target="_blank" rel="noopener">pipenv项目地址</a></p>
+<h4 id="如何使用pipenv？"><a href="#如何使用pipenv？" class="headerlink" title="如何使用pipenv？"></a>如何使用pipenv？</h4><ol>
+<li>开发环境使用<br>项目开发的时候使用pip install在项目的目录下面安装所需要的库，pipenv会自动在项目的根目录下面产生Pipfile，Pipfile.lock这两个文件，这两个文件记录了当前项目的使用第三方库和python版本的信息，同时pipenv会为这个项目构建一个虚拟环境(pipenv –venv可以查看虚拟环境的位置)。pipenv shell可以把当前的命令行环境切换到当前项目的虚拟环境下执行。要用虚拟环境运行一个python文件的话，则使用pipenv run python a.py。</li>
+<li>生产环境使用<br>当项目开发完成以后，把项目上传到需要部署该项目的服务器。然后在项目的根目录下运行pipenv install，这时候pipenv会自动为该项目创建所依赖的python的版本的虚拟环境，同时在该虚拟环境下安装所有需要的第三方库。有一个问题需要注意的是：如果机器上没有安装项目所需要的python版本的话，这时候虚拟环境就会创建失败。要解决这个失败的话有两个办法：1.安装项目所依赖的python版本。2.安装pyenv，让pipenv在创建虚拟环境的时候使用pyenv自动安装所需要的python版本。</li>
+</ol>
+<h4 id="使用pyenv"><a href="#使用pyenv" class="headerlink" title="使用pyenv"></a>使用pyenv</h4><p>pyenv是一个python包管理工具，可以在一台机器上面安装多个python版本。我推荐至少在生产环境上面安装pyenv，这样在项目代码部署到生产环境的时候根据项目的实际需要安装不同的python版本。<a href="https://github.com/pyenv/pyenv" target="_blank" rel="noopener">pyenv项目地址</a></p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>python程序员在开发项目的时候推荐使用pipenv，这样在项目分享给别人或者部署的时候都可以无比的轻松。同时推荐使用pyenv，pipenv和pyenv配合使用不要太爽了。这篇文章只是简单的介绍pipenv和pyenv，具体的使用方法请查阅他们的官方文档。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/05/20/在Spark中使用Python单例的技巧/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -2092,208 +2252,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/03/10/timeout的bug分析/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/10/timeout的bug分析/" itemprop="url">
-                  关于erlang-mysql-driver timeout的bug分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-03-10 22:08:17" itemprop="dateCreated datePublished" datetime="2018-03-10T22:08:17+08:00">2018-03-10</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang/" itemprop="url" rel="index"><span itemprop="name">Erlang</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/03/10/timeout的bug分析/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/03/10/timeout的bug分析/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>我们游戏之前使用的是erlang-mysql-driver来连接数据库，经常会碰到一些timeout和一条纪录被重复插入多次的bug，后面把erlang-mysql-driver替换成emysql就没有问题了。研究了下erlang-mysql-driver的源代码才知道具体的问题出在哪里，下面就简单的介绍下这个问题，同时介绍下emysql是如何避免这个问题的</p>
-</blockquote>
-<h4 id="erlang-mysql-driver-用法"><a href="#erlang-mysql-driver-用法" class="headerlink" title="erlang-mysql-driver 用法"></a>erlang-mysql-driver 用法</h4><figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql:start_link(DB, Pool, Server, Port, User, Passwd, DBName, <span class="keyword">fun</span> mysql_log/<span class="number">4</span>, utf8),</span><br><span class="line">[mysql:connect(DB, Pool, Server, Port, User, Passwd, DBName, utf8, <span class="literal">true</span>, <span class="literal">true</span>) </span><br><span class="line">|| _ &lt;- lists:seq(<span class="number">1</span>, PoolCount)]</span><br></pre></td></tr></table></figure>
-<p>使用erlang-mysql-driver的时候首先要用mysql:start_link来建立一个连接池，然后再自己调用mysql:connect来建立多个连接。对应的erlang-mysql-driver库里面会创建一个名为DB的连接池gen_server，然后再建立多个mysql数据库的连接，每个连接会有一个进程来接管，并把这些进程和连接信息放入连接池gen_server中。按道理我们建立了多个数据库的连接，在进行数据库操作的时候应该能够并发访问数据库的，确实erlang-mysql-driver实现也是多进程访问数据库的，但是由于连接池gen_server的单点瓶颈，会导致一些事实上成功的操作被认为是失败的。</p>
-<h4 id="erlang-mysql-driver-的sql执行过程"><a href="#erlang-mysql-driver-的sql执行过程" class="headerlink" title="erlang-mysql-driver 的sql执行过程"></a>erlang-mysql-driver 的sql执行过程</h4><p>在我们执行一个mysql:execute的函数的时候，具体的执行过程如下：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% mysql.erl 文件中的代码</span></span><br><span class="line"><span class="function"><span class="title">execute</span><span class="params">(SvrName, PoolId, Name, Params, Timeout)</span> -&gt;</span></span><br><span class="line">  <span class="keyword">case</span> get(?STATE_VAR) <span class="keyword">of</span></span><br><span class="line">    undefined -&gt;</span><br><span class="line">      call_server(SvrName, &#123;execute, SvrName, PoolId, Name, Params&#125;, Timeout);</span><br><span class="line">    State -&gt;</span><br><span class="line">      <span class="keyword">case</span> mysql_conn:execute_local(SvrName, State, Name, Params) <span class="keyword">of</span></span><br><span class="line">        &#123;ok, Res, NewState&#125; -&gt;</span><br><span class="line">          put(?STATE_VAR, NewState),</span><br><span class="line">          Res;</span><br><span class="line">        Err -&gt;</span><br><span class="line">          Err</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span>.</span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="title">handle_call</span><span class="params">(&#123;execute, SvrName, PoolId, Name, Params&#125;, From, State)</span> -&gt;</span></span><br><span class="line">  with_next_conn(PoolId, State,</span><br><span class="line">    <span class="keyword">fun</span>(Conn, State1) -&gt;</span><br><span class="line">      <span class="keyword">case</span> gb_trees:lookup(Name, State1#state.prepares) <span class="keyword">of</span></span><br><span class="line">        none -&gt;</span><br><span class="line">          &#123;reply, &#123;error, &#123;no_such_statement, Name&#125;&#125;, State1&#125;;</span><br><span class="line">        &#123;value, &#123;_Stmt, Version&#125;&#125; -&gt;</span><br><span class="line">          mysql_conn:execute(SvrName, Conn#conn.pid, Name,</span><br><span class="line">            Version, Params, From),</span><br><span class="line">          &#123;noreply, State1&#125;</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span>);</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% mysql_conn的代码</span></span><br><span class="line"><span class="function"><span class="title">execute</span><span class="params">(SvrName, Pid, Name, Version, Params, From, Timeout)</span> -&gt;</span></span><br><span class="line">    send_msg(Pid, &#123;execute, SvrName, Name, Version, Params, From&#125;, From, Timeout).</span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="title">loop</span><span class="params">(State)</span> -&gt;</span></span><br><span class="line">    RecvPid = State#state.recv_pid,</span><br><span class="line">    LogFun = State#state.log_fun,</span><br><span class="line">    <span class="keyword">receive</span></span><br><span class="line">    ....</span><br><span class="line">    &#123;execute, SvrName, Name, Version, Params, From&#125; -&gt;</span><br><span class="line">        State1 =</span><br><span class="line">        <span class="keyword">case</span> do_execute(State, SvrName, Name, Params, Version) <span class="keyword">of</span></span><br><span class="line">            &#123;error, _&#125; = Err -&gt;</span><br><span class="line">            send_reply(From, Err),</span><br><span class="line">            State;</span><br><span class="line">            &#123;ok, Result, NewState&#125; -&gt;</span><br><span class="line">            send_reply(From, Result),</span><br><span class="line">            NewState</span><br><span class="line">        <span class="keyword">end</span>,</span><br><span class="line">        loop(State1);</span><br><span class="line">        </span><br><span class="line"><span class="function"><span class="title">send_reply</span><span class="params">(GenSrvFrom, Res)</span> -&gt;</span></span><br><span class="line">    gen_server:reply(GenSrvFrom, Res).</span><br></pre></td></tr></table></figure>
-<p>mysql:execute在执行的过程中首先调用名为DB的连接池gen_server，该gen_server会执行with_next_conn选择一个持有数据库连接的进程（进程x），然后通过mysql_conn中的send_msg函数向进程x发送需要执行的sql语句，sql语句发送成功后gen_server会返回noreply，这时调用mysql:execute的进程会一直阻塞，直到进程x执行gen_server:reply来返回结果。</p>
-<p>通过上面的执行过程我们可以知道以下两点：</p>
-<ol>
-<li>mysql:execute的timeout为gen_server:call调用的timeout时间</li>
-<li>连接池gen_server只要把sql语句发送给进程x，进程x就会去执行（可能执行的比较慢，但是已经加入进程x的信箱）</li>
-</ol>
-<p>现在我们可以知道mysql:execute返回timeout的情况有两种：</p>
-<ol>
-<li>连接池gen_server太过繁忙，mysql:execute的请求还没执行，mysql:execute就已经timeout</li>
-<li>连接池gen_server已经成功执行请求，返回noreply，mysql:execute的执行进程一直在等待进程x的返回，而进程x一直不返回，这时mysql:execute触发timeout</li>
-</ol>
-<p>不管是上述那种timeout情况，只要是mysql数据库没有问题，sql语句都能够执行成功（可能会执行的慢点）。mysql:execute的调用者在发现mysql:execute返回timeout的情况下，肯定会认为sql语句没有执行成功，这时候会重新调用mysql:execute，导致一条相同的记录被多次插入。</p>
-<h4 id="emysql-的sql执行过程"><a href="#emysql-的sql执行过程" class="headerlink" title="emysql 的sql执行过程"></a>emysql 的sql执行过程</h4><p>emysql的连接池也会有一个gen_server进行管理，emysql:execute在执行的过程中是去向该gen_server申请一个可用的连接，然后再spawn一个进程来执行sql语句，而不是委托该gen_server来执行sql语句，从而避免了这个timeout的bug。</p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>通过上面的分析，我觉得erlang-mysql-driver会写出这个bug的原因主要是对gen_server noreply的误用。所以以后如果有需要用noreply的话，要注意避免该问题。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2343,7 +2301,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">46</span>
+                    <span class="site-state-item-count">47</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2386,7 +2344,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">15</span>
+                      
+                    
+                    <span class="site-state-item-count">16</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -2475,7 +2435,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">38</span>
+                      
+                    
+                    <span class="site-state-item-count">39</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
