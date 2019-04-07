@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://lintingbin2009.github.io/"/>
-  <updated>2019-03-09T07:15:36.135Z</updated>
+  <updated>2019-04-07T05:41:06.587Z</updated>
   <id>https://lintingbin2009.github.io/</id>
   
   <author>
@@ -15,6 +15,34 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>使用k8s部署fluentd日志收集系统</title>
+    <link href="https://lintingbin2009.github.io/2019/04/07/%E4%BD%BF%E7%94%A8k8s%E9%83%A8%E7%BD%B2fluentd%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86%E7%B3%BB%E7%BB%9F/"/>
+    <id>https://lintingbin2009.github.io/2019/04/07/使用k8s部署fluentd日志收集系统/</id>
+    <published>2019-04-07T04:04:44.000Z</published>
+    <updated>2019-04-07T05:41:06.587Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>在前一篇文章<a href="/2018/10/04/Fluentd性能优化实践/" title="Fluentd性能优化实践">Fluentd性能优化实践</a>中，我们的fluentd日志收集系统已经改成了多进程的方式。但是由于日志的不断增加，普通的单机部署方式也不能满足我们的需求，所以我们就打算把fluentd部署到k8s上，以满足不断增加的日志需求。</p></blockquote><h4 id="为什么需要部署到k8s上？"><a href="#为什么需要部署到k8s上？" class="headerlink" title="为什么需要部署到k8s上？"></a>为什么需要部署到k8s上？</h4><p>如下图所示，在多进程架构中，我们所有的out进程都是部署在同一台机器上，当日志量不断增多的时候，out进程数量就要不断增加，当增加到一定程度的时候，就会把out进程所在的这台机器的所有资源都用完，这时候我们就需要升级该机器，因此该架构的问题就暴露出来了。<img src="/images/fluentd_multi_simple.png" alt="Fluentd多进程架构">该架构的主要问题是：</p><ul><li>升级的过程需要手动操作，升级过程比较繁琐</li><li>单台机器的性能不可能无限的增长</li><li>资源不能动态的调整，如果机器升级只是为了应付某个波峰的话，会造成性能浪费</li></ul><h4 id="怎么部署到k8s上？"><a href="#怎么部署到k8s上？" class="headerlink" title="怎么部署到k8s上？"></a>怎么部署到k8s上？</h4><p>由于我们每个fluentd进程的buffer都会使用file的方式，所以我们的fluentd进程是有状态的，因此我们在k8s上部署的时候采用statefulset的部署方式。新的日志收集架构图如下所示：<img src="/images/fluentd_multi_k8s.png" alt="Fluentd部署到k8s后的架构">使用该架构后以上的单机问题就没有了，当日志量不断增加的时候，在k8s集群上面我们可以一直增加out进程的数量而不会受到单机性能的限制，甚至我们还可以让fluentd的out进程的数量根据实际的资源使用情况来自动的伸缩。</p><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>这篇文章的内容比较简单，但是实实在在为我们解决了一个大问题，让我们在每次日志内容增多的时候都能从容应对。同时应用容器化是一件非常值得做的事情，build once run everywhere，可以避免很多不必要的问题，同时在替换一些基础依赖的时候也非常方便。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;blockquote&gt;
+&lt;p&gt;在前一篇文章&lt;a href=&quot;/2018/10/04/Fluentd性能优化实践/&quot; title=&quot;Fluentd性能优化实践&quot;&gt;Fluentd性能优化实践&lt;/a&gt;中，我们的fluentd日志收集系统已经改成了多进程的方式。但是由于日志的不断增加，
+      
+    
+    </summary>
+    
+      <category term="日志收集" scheme="https://lintingbin2009.github.io/categories/%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86/"/>
+    
+    
+      <category term="Fluentd" scheme="https://lintingbin2009.github.io/tags/Fluentd/"/>
+    
+      <category term="k8s" scheme="https://lintingbin2009.github.io/tags/k8s/"/>
+    
+  </entry>
   
   <entry>
     <title>spark执行map-join优化</title>
@@ -343,9 +371,9 @@
       <category term="python" scheme="https://lintingbin2009.github.io/categories/python/"/>
     
     
-      <category term="spark" scheme="https://lintingbin2009.github.io/tags/spark/"/>
-    
       <category term="python" scheme="https://lintingbin2009.github.io/tags/python/"/>
+    
+      <category term="spark" scheme="https://lintingbin2009.github.io/tags/spark/"/>
     
       <category term="单例" scheme="https://lintingbin2009.github.io/tags/%E5%8D%95%E4%BE%8B/"/>
     
@@ -524,28 +552,6 @@
     <summary type="html">
     
       &lt;p&gt;在本地上传Git项目到远程时，本地需要对应的Git账户信息和允许连接的SSH key信息，远程才会允许上传。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="教程" scheme="https://lintingbin2009.github.io/categories/%E6%95%99%E7%A8%8B/"/>
-    
-    
-      <category term="Git" scheme="https://lintingbin2009.github.io/tags/Git/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Windows下配置SSH连接Github</title>
-    <link href="https://lintingbin2009.github.io/2018/03/11/Windows%E4%B8%8B%E9%85%8D%E7%BD%AESSH%E8%BF%9E%E6%8E%A5Github/"/>
-    <id>https://lintingbin2009.github.io/2018/03/11/Windows下配置SSH连接Github/</id>
-    <published>2018-03-11T08:55:55.000Z</published>
-    <updated>2018-05-04T15:15:55.982Z</updated>
-    
-    <content type="html"><![CDATA[<p>当使用git协议推送本地代码到远程时，需要配置ssh连接到GitHub。</p><a id="more"></a><h2 id="设置账户"><a href="#设置账户" class="headerlink" title="设置账户"></a>设置账户</h2><p>打开系统cmd。设置Git的user name和email。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; git config --global user.name &quot;username&quot;</span><br><span class="line">&gt; git config --global user.email &quot;username@domain.com&quot;</span><br></pre></td></tr></table></figure><h2 id="生成ssh-key"><a href="#生成ssh-key" class="headerlink" title="生成ssh key"></a>生成ssh key</h2><ul><li>查看ssh密钥</li></ul><p>查看是否已经有了ssh密钥。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; C:</span><br><span class="line">&gt; cd %USERPROFILE%/.ssh</span><br></pre></td></tr></table></figure><p>默认.ssh文件夹会在用户文件夹中生成。可以前往该路径查看。如果没有该文件夹，终端会提示<code>系统找不到指定的路径</code>,有的话可以备份删除。</p><blockquote><p>%USERPROFILE%是环境变量，表示当前用户文件夹路径。</p></blockquote><blockquote><p>因为%USERPROFILE%一般在C盘，从其他盘无法直接cd到该路径，所以需要先切换到c盘。</p></blockquote><ul><li>生成密钥</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; ssh-keygen -t rsa -C &quot;username@domain.com&quot;</span><br></pre></td></tr></table></figure><p>或者</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa -C &quot;username@domain.com&quot; -f %USERPROFILE%/.ssh/githug_blog_keys #生成ssh key的名称为githug_blog_keys，慎用容易出现其它异常。</span><br></pre></td></tr></table></figure><p>产生如下交互提示:</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">Generating public/private rsa key pair.</span><br><span class="line">Enter file in which to save the key (/c/Users/username/.ssh/id_rsa):</span><br><span class="line">Created directory &apos;/c/Users/username/.ssh&apos;.</span><br><span class="line">Enter passphrase (empty for no passphrase):</span><br><span class="line">Enter same passphrase again:</span><br><span class="line">Your identification has been saved in /c/Users/username/.ssh/id_rsa.</span><br><span class="line">Your public key has been saved in /c/Users/username/.ssh/id_rsa.pub.</span><br><span class="line">The key fingerprint is:</span><br><span class="line">SHA256:ggjGi2UqwYTJR9TP6fdpqsY+COeMdeTPL+IW0mo4eUI username@domain.com</span><br><span class="line">The key&apos;s randomart image is:</span><br><span class="line">+---[RSA 2048]----+</span><br><span class="line">|oooo.            |</span><br><span class="line">|*. . .           |</span><br><span class="line">|o++   o .        |</span><br><span class="line">|o*.. . =         |</span><br><span class="line">|+.. . * S        |</span><br><span class="line">|.  E + B .       |</span><br><span class="line">|  . X * = . .    |</span><br><span class="line">|   * B * + +     |</span><br><span class="line">|    = =++.=.     |</span><br><span class="line">+----[SHA256]-----+</span><br></pre></td></tr></table></figure><p>命令生成两个文件，默认名称是id_rsa和id_rsa.pub。复制id_rsa.pub中的内容到远程GitHub账号中就行了。</p><blockquote><p>默认下，cmd无法识别ssh-keygen命令。可以打开git bash 执行上述命令。</p></blockquote><blockquote><p>如何找到<a href="http://github.com上的ssh设置：右上角图标（view" target="_blank" rel="noopener">http://github.com上的ssh设置：右上角图标（view</a> profile and more）=》Settings =》 SSH and GPG keys，在Key输入框中输入公钥。公钥内容形如：</p></blockquote><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD2cauWf8lNjbED9RvLBWoEXB3Lq5NRLWqVYSaFcTmZ1Qsak2LdR/9bkdTVMsTyqVxnB+bDMlVJlvPP6Zv5dDwEdcdytALUGCSdOXAmRtgxHZPEnKl8Hyl5wZdSNi0mwXYbjpUZ7HEw3vU8K/5whVVCbIzkqnlLAs9nXdORNkidOZRnyt+ETQzU/F1KVUb9HoMbB1Cw0zLvWTRIOHRXa2mKjNHS7W9HJiPEWQaeEXwh1CoredCxs0K7+KBfMkdgNYnDudtz2/AmH7qHnaVsdYNkg1V4XvWJ8Yn7Pkw1SpvTkaXXCiyA5wsPGgLFWSB+dgNroGwqw4X96/ZUfFHDtD/t yanyinhong@baidu.com</span><br></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;当使用git协议推送本地代码到远程时，需要配置ssh连接到GitHub。&lt;/p&gt;
     
     </summary>
     

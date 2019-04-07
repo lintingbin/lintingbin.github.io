@@ -340,6 +340,164 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/07/28/fabric远程执行后台进程卡住问题处理/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/28/fabric远程执行后台进程卡住问题处理/" itemprop="url">
+                  fabric远程执行后台脚本卡住的问题
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-07-28 13:24:38 / 修改时间：14:11:00" itemprop="dateCreated datePublished" datetime="2018-07-28T13:24:38+08:00">2018-07-28</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/07/28/fabric远程执行后台进程卡住问题处理/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/07/28/fabric远程执行后台进程卡住问题处理/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>最近用fabric开发了一个简单的运维系统，该系统可以在远程机器上执行一些命令，在批量执行后台脚本的启动的时候，发现fabric会卡住，不能正常的返回。在fabric官方有给出一些解决方案<a href="http://www.fabfile.org/faq.html#why-can-t-i-run-programs-in-the-background-with-it-makes-fabric-hang" target="_blank" rel="noopener">Why can’t I run programs in the background with &amp;? It makes Fabric hang</a>，但是这些方案都要额外的工具，有些麻烦。接下来简单的介绍下fabric的机制和我的解决方案。</p>
+</blockquote>
+<h4 id="fabric是怎么在远程机器上执行命令的？"><a href="#fabric是怎么在远程机器上执行命令的？" class="headerlink" title="fabric是怎么在远程机器上执行命令的？"></a>fabric是怎么在远程机器上执行命令的？</h4><p>fabric是先用ssh连接到远程机器上，然后再执行相关的命令。</p>
+<h4 id="fabric为什么会卡住不返回？"><a href="#fabric为什么会卡住不返回？" class="headerlink" title="fabric为什么会卡住不返回？"></a>fabric为什么会卡住不返回？</h4><p>ssh连接到远程机器上的时候会起一个session，fabric卡住不返回是因为这个session一直结束不掉，这个session之所以结束不掉是因为我们起的后台进程有输出是定向到这个session的。</p>
+<h4 id="怎么解决？"><a href="#怎么解决？" class="headerlink" title="怎么解决？"></a>怎么解决？</h4><p>只要把后台进程的输出重定向到其他地方，fabric就可以正常返回。比如把后台脚本的启动方式改成<code>yourcommand &gt; /dev/null 2&gt;&amp;1 &amp;</code>，这样就会把yourcommand脚本的所有输出重定向到/dev/null，因此fabric就可以正常返回了。</p>
+<h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><p>我之前后台脚本的启动方式是<code>yourcommand 2&gt;&amp;1 1&gt; /dev/null</code>，按照我本来的理解，应该是把stderr和stdout都重定向到/dev/null了，但是这个命令只是把stdout重定向到/dev/null，stderr还是没有被重定向。 </p>
+<p>使用<code>yourcommand &amp;&gt; /dev/null</code>这种方式也可以把所有的输出重定向到/dev/null，这种方式的命令也更短一些。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/06/23/python标准开发环境/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -2067,191 +2225,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/03/11/Windows下配置SSH连接Github/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/11/Windows下配置SSH连接Github/" itemprop="url">
-                  Windows下配置SSH连接Github
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-03-11 16:55:55" itemprop="dateCreated datePublished" datetime="2018-03-11T16:55:55+08:00">2018-03-11</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/教程/" itemprop="url" rel="index"><span itemprop="name">教程</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/03/11/Windows下配置SSH连接Github/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/03/11/Windows下配置SSH连接Github/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>当使用git协议推送本地代码到远程时，需要配置ssh连接到GitHub。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/03/11/Windows下配置SSH连接Github/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2301,7 +2274,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">47</span>
+                    <span class="site-state-item-count">48</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

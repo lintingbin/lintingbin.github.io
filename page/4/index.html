@@ -340,6 +340,192 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/09/03/怎么实现一个Sublime的自动补全插件/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/09/03/怎么实现一个Sublime的自动补全插件/" itemprop="url">
+                  怎么实现一个Sublime的自动补全插件
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-09-03 13:45:49" itemprop="dateCreated datePublished" datetime="2017-09-03T13:45:49+08:00">2017-09-03</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/教程/" itemprop="url" rel="index"><span itemprop="name">教程</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/09/03/怎么实现一个Sublime的自动补全插件/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/09/03/怎么实现一个Sublime的自动补全插件/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>使用Erlang开发了快三年的游戏了，一直使用的是Sublime编辑器，也就这样没有自动补全的情况下使用了三年，本来打算切换到有Erlang自动补全的Ide的，但是在Sublime上面开发了那么久，切换到其他的编辑器觉得很不习惯，所以就自己写了一个Erlang的自动补全的插件，<a href="https://github.com/lintingbin2009/Erl-AutoCompletion" target="_blank" rel="noopener">点这里可以看到我的插件</a></p>
+</blockquote>
+<p>Sublime插件是用Python写的，所以打算开发Sublime插件的话要稍微去学习下Python，不用学的很深入，懂得基本的语法就可以愉快的开始开发插件了。我之前的入门教程看的是<a href="https://cnpagency.com/blog/creating-sublime-text-3-plugins-part-1/" target="_blank" rel="noopener">creating-sublime-text-3-plugins-part-1</a>，如果打算开发Sublime插件的话，看这篇文章就可以写一个简单的Sublime插件的Demo。这个网址<a href="http://www.sublimetext.com/docs/3/api_reference.html" target="_blank" rel="noopener">api_reference</a>可以查看开发Sublime插件所提供的各种API。</p>
+<p>我写Erlang自动补全代码和自动跳转的原理是在打开Sublime的时候，扫描所有Erlang的源代码和Sublime中已经打开的所有的Erlang代码，然后利用正则表达式匹配来找出所有函数和模块所在的文件和位置，把这些信息都写入到Sqlite数据库中，然后在用户在编写Erlang源代码的时候提供补全的函数和模块。当用户把鼠标指向某个函数的时候，在Sqlite数据库中查询相应的函数所在的文件和位置，当用户选中的时候打开该文件并且定位到文件的相应的位置。具体的代码可以在<a href="https://github.com/lintingbin2009/Erl-AutoCompletion" target="_blank" rel="noopener">点这里可以看到我的插件</a>这里查看。当写好一个插件后我们最好能把插件放到Package Control中，这样用户安装和升级插件就会非常的方便，通过这个<a href="https://packagecontrol.io/docs/submitting_a_package" target="_blank" rel="noopener">submitting_a_package</a>教程能够顺利的提交自己的插件到Package Control中。</p>
+<p>自己写一个小插件有时候还是可以学到一点东西的，通过这次编写自动补全的插件，让我对正则表达式稍微熟悉了一点。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/08/18/mochiweb的x-forwarded-for实现引发的线上掉单/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -2163,198 +2349,6 @@ Causes the parse transformation function Module:parse_transform/2 to be applied 
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2017/05/04/Erlang代码热更新/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/05/04/Erlang代码热更新/" itemprop="url">
-                  Erlang代码热更新
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-05-04 23:30:18" itemprop="dateCreated datePublished" datetime="2017-05-04T23:30:18+08:00">2017-05-04</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-05-04 23:15:55" itemprop="dateModified" datetime="2018-05-04T23:15:55+08:00">2018-05-04</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Erlang入门教程/" itemprop="url" rel="index"><span itemprop="name">Erlang入门教程</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/05/04/Erlang代码热更新/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/05/04/Erlang代码热更新/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>通过上一篇的文章<a href="/2017/05/01/Erlang动态代码载入小实验/" title="Erlang动态代码载入小实验">Erlang动态代码载入小实验</a>，我们可以了解到Erlang的热更机制，在Erlang里面会维护两个版本的代码。在新版本载入的时候如果有进程在老版本运行的话，运行那些内部调用的函数（只通过函数名调用的）代码将不会被更新，只有那些通过M:F格式调用的内部函数才能热更。举个例子：
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% 如果代码在loop上执行的话，有两种情况</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">loop</span><span class="params">()</span> -&gt;</span></span><br><span class="line">  io:format(<span class="string">"v1 ~n"</span>),  <span class="comment">%% 这条语句这种情况不能热更</span></span><br><span class="line">  loop().</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">loop</span><span class="params">()</span> -&gt;</span></span><br><span class="line">  io:format(<span class="string">"v1 ~n"</span>),  <span class="comment">%% 这条语句这种情况可以热更</span></span><br><span class="line">  ?MODULE:loop().</span><br></pre></td></tr></table></figure></p>
-<p>在Erlang里面有分本地调用（local calls）和外部调用（external calls），本地调用的函数名是不需要被导出的。本地调用的格式是Fun(Args)，外部调用的格式是M:F(Args)。</p>
-<p>Erlang运行时会保存一份代码的两个版本，所有本地调用的函数地址都会指向程序运行时最初的那个版本（如上面例子的情况一），而所有外部调用的函数地址都会指向最新的版本（如上面例子的情况二）。所以如果想要让代码能够热更新的话，需要使用外部调用的格式。</p>
-<p>在我们项目中一般热更的流程是先：code:soft_purge(ModName)或者code:purge(ModName)然后再code:load_file(ModName)进行热更，针对这一热更流程我之前一直存在两个问题，最近仔细研究下才找到了答案，分别是以下这两个问题：</p>
-<ul>
-<li>为什么load_file之前要先soft_purge或者purge一下呢？
-这个是load_file函数的问题，如果在load_file执行的时候，本身要热更的模块就有一个老的版本的代码存在的话，load_file就会返回一个not_purged的错误代码，导致新版本不能正常的载入。如果load_file执行自动删除最老版本的话，就不需要purge了（像在Erlang Shell里面执行c(ModName)一样）。当然如果一个模块从来都没有热更过的话（在系统里面只有一个版本），直接使用load_file是没有问题的，不过之后就要先purge再load_file了。</li>
-<li>soft_purge和purge有什么不同吗？
-函数的功能上是有所不同的，但是在我们项目的使用中几乎是没有什么不同的。soft_purge和purge的函数的功能区别是如果清理的模块的老的版本中有进程在上面运行的话，purge就会杀掉进程，然后把老的版本给清理掉，soft_purge则会清理失败。热更的时候是先执行purge然后再loadfile，由于进程一般都是在当前的版本上面执行，这时候老的版本上面不会有进程在运行，所以执行purge和soft_purge是一样的，如果真的想要热更的时候把进程杀掉的话应该执行purge/soft_purge-&gt;loadfile-&gt;purge。</li>
-</ul>
-<p>以上就是我对Erlang代码热更的总结～</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2404,7 +2398,7 @@ Causes the parse transformation function Module:parse_transform/2 to be applied 
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">47</span>
+                    <span class="site-state-item-count">48</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

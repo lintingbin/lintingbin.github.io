@@ -340,6 +340,189 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2019/04/07/使用k8s部署fluentd日志收集系统/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/04/07/使用k8s部署fluentd日志收集系统/" itemprop="url">
+                  使用k8s部署fluentd日志收集系统
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-04-07 12:04:44 / 修改时间：13:41:06" itemprop="dateCreated datePublished" datetime="2019-04-07T12:04:44+08:00">2019-04-07</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/日志收集/" itemprop="url" rel="index"><span itemprop="name">日志收集</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/04/07/使用k8s部署fluentd日志收集系统/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/04/07/使用k8s部署fluentd日志收集系统/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>在前一篇文章<a href="/2018/10/04/Fluentd性能优化实践/" title="Fluentd性能优化实践">Fluentd性能优化实践</a>中，我们的fluentd日志收集系统已经改成了多进程的方式。但是由于日志的不断增加，普通的单机部署方式也不能满足我们的需求，所以我们就打算把fluentd部署到k8s上，以满足不断增加的日志需求。</p>
+</blockquote>
+<h4 id="为什么需要部署到k8s上？"><a href="#为什么需要部署到k8s上？" class="headerlink" title="为什么需要部署到k8s上？"></a>为什么需要部署到k8s上？</h4><p>如下图所示，在多进程架构中，我们所有的out进程都是部署在同一台机器上，当日志量不断增多的时候，out进程数量就要不断增加，当增加到一定程度的时候，就会把out进程所在的这台机器的所有资源都用完，这时候我们就需要升级该机器，因此该架构的问题就暴露出来了。
+<img src="/images/fluentd_multi_simple.png" alt="Fluentd多进程架构">
+该架构的主要问题是：</p>
+<ul>
+<li>升级的过程需要手动操作，升级过程比较繁琐</li>
+<li>单台机器的性能不可能无限的增长</li>
+<li>资源不能动态的调整，如果机器升级只是为了应付某个波峰的话，会造成性能浪费</li>
+</ul>
+<h4 id="怎么部署到k8s上？"><a href="#怎么部署到k8s上？" class="headerlink" title="怎么部署到k8s上？"></a>怎么部署到k8s上？</h4><p>由于我们每个fluentd进程的buffer都会使用file的方式，所以我们的fluentd进程是有状态的，因此我们在k8s上部署的时候采用statefulset的部署方式。新的日志收集架构图如下所示：
+<img src="/images/fluentd_multi_k8s.png" alt="Fluentd部署到k8s后的架构">
+使用该架构后以上的单机问题就没有了，当日志量不断增加的时候，在k8s集群上面我们可以一直增加out进程的数量而不会受到单机性能的限制，甚至我们还可以让fluentd的out进程的数量根据实际的资源使用情况来自动的伸缩。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>这篇文章的内容比较简单，但是实实在在为我们解决了一个大问题，让我们在每次日志内容增多的时候都能从容应对。同时应用容器化是一件非常值得做的事情，build once run everywhere，可以避免很多不必要的问题，同时在替换一些基础依赖的时候也非常方便。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2019/03/09/spark执行map-join优化/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1978,164 +2161,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2018/07/28/fabric远程执行后台进程卡住问题处理/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Darcy">
-      <meta itemprop="description" content="欢迎来到我的个人站">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Darcy's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/07/28/fabric远程执行后台进程卡住问题处理/" itemprop="url">
-                  fabric远程执行后台脚本卡住的问题
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-07-28 13:24:38 / 修改时间：14:11:00" itemprop="dateCreated datePublished" datetime="2018-07-28T13:24:38+08:00">2018-07-28</time>
-            
-
-            
-              
-
-              
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/07/28/fabric远程执行后台进程卡住问题处理/#comments" itemprop="discussionUrl">
-                
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/07/28/fabric远程执行后台进程卡住问题处理/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>最近用fabric开发了一个简单的运维系统，该系统可以在远程机器上执行一些命令，在批量执行后台脚本的启动的时候，发现fabric会卡住，不能正常的返回。在fabric官方有给出一些解决方案<a href="http://www.fabfile.org/faq.html#why-can-t-i-run-programs-in-the-background-with-it-makes-fabric-hang" target="_blank" rel="noopener">Why can’t I run programs in the background with &amp;? It makes Fabric hang</a>，但是这些方案都要额外的工具，有些麻烦。接下来简单的介绍下fabric的机制和我的解决方案。</p>
-</blockquote>
-<h4 id="fabric是怎么在远程机器上执行命令的？"><a href="#fabric是怎么在远程机器上执行命令的？" class="headerlink" title="fabric是怎么在远程机器上执行命令的？"></a>fabric是怎么在远程机器上执行命令的？</h4><p>fabric是先用ssh连接到远程机器上，然后再执行相关的命令。</p>
-<h4 id="fabric为什么会卡住不返回？"><a href="#fabric为什么会卡住不返回？" class="headerlink" title="fabric为什么会卡住不返回？"></a>fabric为什么会卡住不返回？</h4><p>ssh连接到远程机器上的时候会起一个session，fabric卡住不返回是因为这个session一直结束不掉，这个session之所以结束不掉是因为我们起的后台进程有输出是定向到这个session的。</p>
-<h4 id="怎么解决？"><a href="#怎么解决？" class="headerlink" title="怎么解决？"></a>怎么解决？</h4><p>只要把后台进程的输出重定向到其他地方，fabric就可以正常返回。比如把后台脚本的启动方式改成<code>yourcommand &gt; /dev/null 2&gt;&amp;1 &amp;</code>，这样就会把yourcommand脚本的所有输出重定向到/dev/null，因此fabric就可以正常返回了。</p>
-<h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><p>我之前后台脚本的启动方式是<code>yourcommand 2&gt;&amp;1 1&gt; /dev/null</code>，按照我本来的理解，应该是把stderr和stdout都重定向到/dev/null了，但是这个命令只是把stdout重定向到/dev/null，stderr还是没有被重定向。 </p>
-<p>使用<code>yourcommand &amp;&gt; /dev/null</code>这种方式也可以把所有的输出重定向到/dev/null，这种方式的命令也更短一些。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2185,7 +2210,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">47</span>
+                    <span class="site-state-item-count">48</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
