@@ -7,7 +7,7 @@
       <link href="/2019/04/07/%E4%BD%BF%E7%94%A8k8s%E9%83%A8%E7%BD%B2fluentd%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86%E7%B3%BB%E7%BB%9F/"/>
       <url>/2019/04/07/%E4%BD%BF%E7%94%A8k8s%E9%83%A8%E7%BD%B2fluentd%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86%E7%B3%BB%E7%BB%9F/</url>
       
-        <content type="html"><![CDATA[<blockquote><p>在前一篇文章<a href="/2018/10/04/Fluentd性能优化实践/" title="Fluentd性能优化实践">Fluentd性能优化实践</a>中，我们的fluentd日志收集系统已经改成了多进程的方式。但是由于日志的不断增加，普通的单机部署方式也不能满足我们的需求，所以我们就打算把fluentd部署到k8s上，以满足不断增加的日志需求。</p></blockquote><h4 id="为什么需要部署到k8s上？"><a href="#为什么需要部署到k8s上？" class="headerlink" title="为什么需要部署到k8s上？"></a>为什么需要部署到k8s上？</h4><p>如下图所示，在多进程架构中，我们所有的out进程都是部署在同一台机器上，当日志量不断增多的时候，out进程数量就要不断增加，当增加到一定程度的时候，就会把out进程所在的这台机器的所有资源都用完，这时候我们就需要升级该机器，因此该架构的问题就暴露出来了。<img src="/images/fluentd_multi_simple.png" alt="Fluentd多进程架构">该架构的主要问题是：</p><ul><li>升级的过程需要手动操作，升级过程比较繁琐</li><li>单台机器的性能不可能无限的增长</li><li>资源不能动态的调整，如果机器升级只是为了应付某个波峰的话，会造成性能浪费</li></ul><h4 id="怎么部署到k8s上？"><a href="#怎么部署到k8s上？" class="headerlink" title="怎么部署到k8s上？"></a>怎么部署到k8s上？</h4><p>由于我们每个fluentd进程的buffer都会使用file的方式，所以我们的fluentd进程是有状态的，因此我们在k8s上部署的时候采用statefulset的部署方式。新的日志收集架构图如下所示：<img src="/images/fluentd_multi_k8s.png" alt="Fluentd部署到k8s后的架构">使用该架构后以上的单机问题就没有了，当日志量不断增加的时候，在k8s集群上面我们可以一直增加out进程的数量而不会受到单机性能的限制，甚至我们还可以让fluentd的out进程的数量根据实际的资源使用情况来自动的伸缩。</p><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>这篇文章的内容比较简单，但是实实在在为我们解决了一个大问题，让我们在每次日志内容增多的时候都能从容应对。同时应用容器化是一件非常值得做的事情，build once run everywhere，可以避免很多不必要的问题，同时在替换一些基础依赖的时候也非常方便。</p>]]></content>
+        <content type="html"><![CDATA[<blockquote><p>在前一篇文章<a href="/2018/10/04/Fluentd性能优化实践/" title="Fluentd性能优化实践">Fluentd性能优化实践</a>中，我们的fluentd日志收集系统已经改成了多进程的方式。但是由于日志的不断增加，普通的单机部署方式也不能满足我们的需求，所以我们就打算把fluentd部署到k8s上，以满足不断增加的日志需求。</p></blockquote><h4 id="为什么需要部署到k8s上？"><a href="#为什么需要部署到k8s上？" class="headerlink" title="为什么需要部署到k8s上？"></a>为什么需要部署到k8s上？</h4><p>如下图所示，在多进程架构中，我们所有的out进程都是部署在同一台机器上，当日志量不断增多的时候，out进程数量就要不断增加，当增加到一定程度的时候，就会把out进程所在的这台机器的所有资源都用完，这时候我们就需要升级该机器，因此该架构的问题就暴露出来了。<img src="/images/fluentd_mutli_simple.png" alt="Fluentd多进程架构">该架构的主要问题是：</p><ul><li>升级的过程需要手动操作，升级过程比较繁琐</li><li>单台机器的性能不可能无限的增长</li><li>资源不能动态的调整，如果机器升级只是为了应付某个波峰的话，会造成性能浪费</li></ul><h4 id="怎么部署到k8s上？"><a href="#怎么部署到k8s上？" class="headerlink" title="怎么部署到k8s上？"></a>怎么部署到k8s上？</h4><p>由于我们每个fluentd进程的buffer都会使用file的方式，所以我们的fluentd进程是有状态的，因此我们在k8s上部署的时候采用statefulset的部署方式。新的日志收集架构图如下所示：<img src="/images/fluentd_multi_k8s.png" alt="Fluentd部署到k8s后的架构">使用该架构后以上的单机问题就没有了，当日志量不断增加的时候，在k8s集群上面我们可以一直增加out进程的数量而不会受到单机性能的限制，甚至我们还可以让fluentd的out进程的数量根据实际的资源使用情况来自动的伸缩。</p><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>这篇文章的内容比较简单，但是实实在在为我们解决了一个大问题，让我们在每次日志内容增多的时候都能从容应对。同时应用容器化是一件非常值得做的事情，build once run everywhere，可以避免很多不必要的问题，同时在替换一些基础依赖的时候也非常方便。</p>]]></content>
       
       
       <categories>
@@ -19,9 +19,9 @@
       
         <tags>
             
-            <tag> Fluentd </tag>
-            
             <tag> k8s </tag>
+            
+            <tag> Fluentd </tag>
             
         </tags>
       
@@ -98,11 +98,11 @@
       
         <tags>
             
-            <tag> django </tag>
-            
             <tag> k8s </tag>
             
             <tag> docker </tag>
+            
+            <tag> django </tag>
             
         </tags>
       

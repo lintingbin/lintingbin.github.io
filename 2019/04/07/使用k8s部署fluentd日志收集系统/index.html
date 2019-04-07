@@ -109,20 +109,20 @@
 
 
   <meta name="description" content="在前一篇文章Fluentd性能优化实践中，我们的fluentd日志收集系统已经改成了多进程的方式。但是由于日志的不断增加，普通的单机部署方式也不能满足我们的需求，所以我们就打算把fluentd部署到k8s上，以满足不断增加的日志需求。  为什么需要部署到k8s上？如下图所示，在多进程架构中，我们所有的out进程都是部署在同一台机器上，当日志量不断增多的时候，out进程数量就要不断增加，当增加到一">
-<meta name="keywords" content="Fluentd,k8s">
+<meta name="keywords" content="k8s,Fluentd">
 <meta property="og:type" content="article">
 <meta property="og:title" content="使用k8s部署fluentd日志收集系统">
 <meta property="og:url" content="https://lintingbin2009.github.io/2019/04/07/使用k8s部署fluentd日志收集系统/index.html">
 <meta property="og:site_name" content="Darcy&#39;s Blog">
 <meta property="og:description" content="在前一篇文章Fluentd性能优化实践中，我们的fluentd日志收集系统已经改成了多进程的方式。但是由于日志的不断增加，普通的单机部署方式也不能满足我们的需求，所以我们就打算把fluentd部署到k8s上，以满足不断增加的日志需求。  为什么需要部署到k8s上？如下图所示，在多进程架构中，我们所有的out进程都是部署在同一台机器上，当日志量不断增多的时候，out进程数量就要不断增加，当增加到一">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://lintingbin2009.github.io/images/fluentd_multi_simple.png">
+<meta property="og:image" content="https://lintingbin2009.github.io/images/fluentd_mutli_simple.png">
 <meta property="og:image" content="https://lintingbin2009.github.io/images/fluentd_multi_k8s.png">
-<meta property="og:updated_time" content="2019-04-07T05:41:06.587Z">
+<meta property="og:updated_time" content="2019-04-07T05:50:44.713Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用k8s部署fluentd日志收集系统">
 <meta name="twitter:description" content="在前一篇文章Fluentd性能优化实践中，我们的fluentd日志收集系统已经改成了多进程的方式。但是由于日志的不断增加，普通的单机部署方式也不能满足我们的需求，所以我们就打算把fluentd部署到k8s上，以满足不断增加的日志需求。  为什么需要部署到k8s上？如下图所示，在多进程架构中，我们所有的out进程都是部署在同一台机器上，当日志量不断增多的时候，out进程数量就要不断增加，当增加到一">
-<meta name="twitter:image" content="https://lintingbin2009.github.io/images/fluentd_multi_simple.png">
+<meta name="twitter:image" content="https://lintingbin2009.github.io/images/fluentd_mutli_simple.png">
 
 
 
@@ -386,7 +386,7 @@
                 
               
 
-              <time title="创建时间：2019-04-07 12:04:44 / 修改时间：13:41:06" itemprop="dateCreated datePublished" datetime="2019-04-07T12:04:44+08:00">2019-04-07</time>
+              <time title="创建时间：2019-04-07 12:04:44 / 修改时间：13:50:44" itemprop="dateCreated datePublished" datetime="2019-04-07T12:04:44+08:00">2019-04-07</time>
             
 
             
@@ -457,7 +457,7 @@
 <p>在前一篇文章<a href="/2018/10/04/Fluentd性能优化实践/" title="Fluentd性能优化实践">Fluentd性能优化实践</a>中，我们的fluentd日志收集系统已经改成了多进程的方式。但是由于日志的不断增加，普通的单机部署方式也不能满足我们的需求，所以我们就打算把fluentd部署到k8s上，以满足不断增加的日志需求。</p>
 </blockquote>
 <h4 id="为什么需要部署到k8s上？"><a href="#为什么需要部署到k8s上？" class="headerlink" title="为什么需要部署到k8s上？"></a>为什么需要部署到k8s上？</h4><p>如下图所示，在多进程架构中，我们所有的out进程都是部署在同一台机器上，当日志量不断增多的时候，out进程数量就要不断增加，当增加到一定程度的时候，就会把out进程所在的这台机器的所有资源都用完，这时候我们就需要升级该机器，因此该架构的问题就暴露出来了。
-<img src="/images/fluentd_multi_simple.png" alt="Fluentd多进程架构">
+<img src="/images/fluentd_mutli_simple.png" alt="Fluentd多进程架构">
 该架构的主要问题是：</p>
 <ul>
 <li>升级的过程需要手动操作，升级过程比较繁琐</li>
@@ -517,9 +517,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Fluentd/" rel="tag"># Fluentd</a>
-          
             <a href="/tags/k8s/" rel="tag"># k8s</a>
+          
+            <a href="/tags/Fluentd/" rel="tag"># Fluentd</a>
           
         </div>
       
