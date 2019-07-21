@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://lintingbin2009.github.io/"/>
-  <updated>2019-04-07T05:50:44.713Z</updated>
+  <updated>2019-07-20T11:36:23.181Z</updated>
   <id>https://lintingbin2009.github.io/</id>
   
   <author>
@@ -15,6 +15,34 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>airflow使用总结</title>
+    <link href="https://lintingbin2009.github.io/2019/07/20/airflow%E4%BD%BF%E7%94%A8%E6%80%BB%E7%BB%93/"/>
+    <id>https://lintingbin2009.github.io/2019/07/20/airflow使用总结/</id>
+    <published>2019-07-20T10:48:29.000Z</published>
+    <updated>2019-07-20T11:36:23.181Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>etl定时任务通常会使用一些任务调度的工具，我们之前使用的是azkaban，现在已经切换到airflow了。总的来说airflow的功能强大不少，但是坑也不少，以下是对airflow的一些总结。</p></blockquote><h4 id="对比azkaban，airflow有哪些优势？"><a href="#对比azkaban，airflow有哪些优势？" class="headerlink" title="对比azkaban，airflow有哪些优势？"></a>对比azkaban，airflow有哪些优势？</h4><ul><li>airflow使用python编写，源代码比较容易理解，而且方便进行二次开发。比如可以很方便的定制自己的Operator。</li><li>dag(也就是任务流)使用python代码实现，可以根据复杂的条件生成相应的dag，非常的灵活。</li><li>提供连接管理的功能，可以事先在airflow的web页面上配置各种连接，而使用者只要指定连接的名字就可以了。该功能方便让配置和实现进行解耦，以后修改连接也只需要在web页面上操作，不需要修改代码。</li><li>提供资源池的功能，能够让不同的任务使用同一资源池，从而通过资源池来控制任务的并发度，方便进行资源限制。</li><li>任务重跑也非常方便，在web页面上只要clear相应的任务，airflow的调度器就会自动重跑该任务。</li></ul><p>当然，airflow的优势不仅仅如此，只有自己真正使用了，才能体会airflow的强大之处。不过功能越强大，也意味着使用起来也越复杂，下面是我总结的一些airflow的使用的注意事项。</p><h4 id="airflow使用注意事项"><a href="#airflow使用注意事项" class="headerlink" title="airflow使用注意事项"></a>airflow使用注意事项</h4><ul><li>airflow默认使用sqlite数据库，使用sqlite的时候airflow的调度器使用的是SequentialExecutor，该Executor只能顺序运行任务，同一时间只能有一个任务执行。</li><li>如果想让一个dag同一时间只能运行一个dag实例的话，需要在配置文件里面把max_active_runs_per_dag配置成1.</li><li>airflow默认会载入example的那些dag，如果不想载入的话，设置load_examples = False.</li><li>airflow的api接口默认没有要求权限验证，需要配置权限验证的话，需要在[api]配置块下配置auth_backend，比如可以配置成auth_backend = airflow.contrib.auth.backends.password_auth。</li><li>airflow的web页面如果想启用用户权限验证的话，可以配置rbac=True。注意：这边的权限和api的权限是分开配置的。</li><li>airflow的dag需要配置一个start_date，dag执行的时候默认会从start_date开始一次次执行，直到当前时间。如果不想要这个功能的话，可以配置catchup_by_default = False，把该功能关掉。</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;blockquote&gt;
+&lt;p&gt;etl定时任务通常会使用一些任务调度的工具，我们之前使用的是azkaban，现在已经切换到airflow了。总的来说airflow的功能强大不少，但是坑也不少，以下是对airflow的一些总结。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4 id=&quot;
+      
+    
+    </summary>
+    
+      <category term="任务调度" scheme="https://lintingbin2009.github.io/categories/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/"/>
+    
+    
+      <category term="airflow" scheme="https://lintingbin2009.github.io/tags/airflow/"/>
+    
+  </entry>
   
   <entry>
     <title>使用k8s部署fluentd日志收集系统</title>
@@ -126,11 +154,11 @@
       <category term="python" scheme="https://lintingbin2009.github.io/categories/python/"/>
     
     
+      <category term="django" scheme="https://lintingbin2009.github.io/tags/django/"/>
+    
       <category term="k8s" scheme="https://lintingbin2009.github.io/tags/k8s/"/>
     
       <category term="docker" scheme="https://lintingbin2009.github.io/tags/docker/"/>
-    
-      <category term="django" scheme="https://lintingbin2009.github.io/tags/django/"/>
     
   </entry>
   
@@ -530,28 +558,6 @@
     <summary type="html">
     
       &lt;p&gt;当使用HTTPS协议推送代码到Git仓库时，发现每次都需要输入密码，操作起来非常麻烦。下面介绍几种免去输入密码的方法。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="教程" scheme="https://lintingbin2009.github.io/categories/%E6%95%99%E7%A8%8B/"/>
-    
-    
-      <category term="Git" scheme="https://lintingbin2009.github.io/tags/Git/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>git如何在本地生成多个ssh key</title>
-    <link href="https://lintingbin2009.github.io/2018/03/11/Git%E5%A6%82%E4%BD%95%E5%9C%A8%E6%9C%AC%E5%9C%B0%E7%94%9F%E6%88%90%E5%A4%9A%E4%B8%AASSH-key/"/>
-    <id>https://lintingbin2009.github.io/2018/03/11/Git如何在本地生成多个SSH-key/</id>
-    <published>2018-03-11T09:03:15.000Z</published>
-    <updated>2018-05-20T06:58:55.762Z</updated>
-    
-    <content type="html"><![CDATA[<p>在本地上传Git项目到远程时，本地需要对应的Git账户信息和允许连接的SSH key信息，远程才会允许上传。</p><a id="more"></a><p><a href="">Windows下配置SSH连接Github</a>介绍了如何生成SSH key。但当遇到需要有多个Git账户信息时怎么办呢，如果删除密钥重新创建，那每次切换账户时都要重复这样的操作，太过繁琐。</p><p>这个问题我们可以通过在<code>~/.ssh</code>目录下增加<code>config</code>文件来解决。</p><h3 id="生成SSH-key"><a href="#生成SSH-key" class="headerlink" title="生成SSH key"></a>生成SSH key</h3><p>生成SSH key，并指定文件名，避免覆盖原有的默认<code>id_rsa</code>文件。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-keygen -t rsa -f ~/.ssh/id_rsa.another -C &lt;Git注册邮箱&gt;</span><br></pre></td></tr></table></figure><blockquote><p>windows用户打开Git Bash来执行ssh-keygen命令。</p></blockquote><h3 id="配置config文件"><a href="#配置config文件" class="headerlink" title="配置config文件"></a>配置config文件</h3><p>在<code>~/.ssh</code>下添加config文件，如果已经存在，就直接打开修改。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ touch ~/.ssh/config   // 创建</span><br></pre></td></tr></table></figure><p>在config文件中添加如下信息。其中Host后面添加远程Git仓库域名，IdentityFile填写对应的id_rsa文件，User添加Git用户名。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Host github.com</span><br><span class="line">    IdentityFile ~/.ssh/id_rsa.another</span><br><span class="line">    User anotherUser</span><br></pre></td></tr></table></figure><h3 id="上传SSH-key"><a href="#上传SSH-key" class="headerlink" title="上传SSH key"></a>上传SSH key</h3><p>在远程Git账号中添加SSH key，将id_rsa.another.pub中的内容全部粘贴进去。</p><blockquote><p>pub信息一般以ssh-rsa开头</p></blockquote><h3 id="测试SSH-key"><a href="#测试SSH-key" class="headerlink" title="测试SSH key"></a>测试SSH key</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -T git@git.com  // 或者其他域名地址</span><br></pre></td></tr></table></figure><p>弹出成功信息，则表示SSH key添加成功，接下来就可以推送代码到远程了。</p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;在本地上传Git项目到远程时，本地需要对应的Git账户信息和允许连接的SSH key信息，远程才会允许上传。&lt;/p&gt;
     
     </summary>
     
