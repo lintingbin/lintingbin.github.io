@@ -108,16 +108,18 @@
 
 
 
-  <meta name="description" content="欢迎来到我的个人站">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Darcy&#39;s Blog">
-<meta property="og:url" content="https://lintingbin2009.github.io/archives/2019/07/index.html">
+  <meta name="description" content="Impala在执行的过程中经常遇到OOM的问题，导致我们的有些ETL失败，经常要重跑任务。后面研究发现是我们的配置出现问题了，修改完配置后OOM就再也没有出现过了。  问题我们的Impala在使用的时候经常会遇到OOM的问题，之前是把Impala和yarn等工具都部署在同一集群中，而且所有工具的内存使用量加起来是大于集群所拥有的实际物理内存的量。所以每次Impala OOM发生的时候，我们都以为">
+<meta name="keywords" content="Impala">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Impala内存配置">
+<meta property="og:url" content="https://lintingbin2009.github.io/2019/10/30/Impala内存配置/index.html">
 <meta property="og:site_name" content="Darcy&#39;s Blog">
-<meta property="og:description" content="欢迎来到我的个人站">
+<meta property="og:description" content="Impala在执行的过程中经常遇到OOM的问题，导致我们的有些ETL失败，经常要重跑任务。后面研究发现是我们的配置出现问题了，修改完配置后OOM就再也没有出现过了。  问题我们的Impala在使用的时候经常会遇到OOM的问题，之前是把Impala和yarn等工具都部署在同一集群中，而且所有工具的内存使用量加起来是大于集群所拥有的实际物理内存的量。所以每次Impala OOM发生的时候，我们都以为">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-10-30T05:24:53.011Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Darcy&#39;s Blog">
-<meta name="twitter:description" content="欢迎来到我的个人站">
+<meta name="twitter:title" content="Impala内存配置">
+<meta name="twitter:description" content="Impala在执行的过程中经常遇到OOM的问题，导致我们的有些ETL失败，经常要重跑任务。后面研究发现是我们的配置出现问题了，修改完配置后OOM就再也没有出现过了。  问题我们的Impala在使用的时候经常会遇到OOM的问题，之前是把Impala和yarn等工具都部署在同一集群中，而且所有工具的内存使用量加起来是大于集群所拥有的实际物理内存的量。所以每次Impala OOM发生的时候，我们都以为">
 
 
 
@@ -126,7 +128,7 @@
 
 
 
-  <link rel="canonical" href="https://lintingbin2009.github.io/archives/2019/07/">
+  <link rel="canonical" href="https://lintingbin2009.github.io/2019/10/30/Impala内存配置/">
 
 
 
@@ -136,7 +138,7 @@
   };
 </script>
 
-  <title>归档 | Darcy's Blog</title>
+  <title>Impala内存配置 | Darcy's Blog</title>
   
 
 
@@ -192,7 +194,7 @@
     
   
 
-  <div class="container sidebar-position-left page-archive">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
@@ -257,7 +259,7 @@
         
         
           
-          <li class="menu-item menu-item-archives menu-item-active">
+          <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
       <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
   </li>
@@ -277,25 +279,6 @@
 
   
     
-
-    
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
 
   
 
@@ -342,77 +325,253 @@
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+    
+
+  
+
   
   
   
-  <div class="post-block archive">
-    <div id="posts" class="posts-collapse">
-      <span class="archive-move-on"></span>
 
-      
-      <span class="archive-page-counter">
-        
-        
-         
-        
-        还行! 目前共计 50 篇日志。 继续努力。
-      </span>
-      
-
-      
-
-        
-        
-        
-
-        
-          
-          <div class="collection-title">
-            <h1 class="archive-year" id="archive-year-2019">2019</h1>
-          </div>
-        
-        
-
-        
+  
 
   <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://lintingbin2009.github.io/2019/10/30/Impala内存配置/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Darcy">
+      <meta itemprop="description" content="欢迎来到我的个人站">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Darcy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/2019/07/20/airflow使用总结/" itemprop="url">
-              
-                <span itemprop="name">airflow使用总结</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">Impala内存配置
+              
+            
+          </h1>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-07-20T18:48:29+08:00" content="2019-07-20">
-          07-20
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
 
-    </header>
-  </article>
+            
+            
+            
 
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
 
+              
+                
+              
+
+              <time title="创建时间：2019-10-30 12:48:39 / 修改时间：13:24:53" itemprop="dateCreated datePublished" datetime="2019-10-30T12:48:39+08:00">2019-10-30</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/优化/" itemprop="url" rel="index"><span itemprop="name">优化</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/10/30/Impala内存配置/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/30/Impala内存配置/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
+      
 
+      
+        <blockquote>
+<p>Impala在执行的过程中经常遇到OOM的问题，导致我们的有些ETL失败，经常要重跑任务。后面研究发现是我们的配置出现问题了，修改完配置后OOM就再也没有出现过了。</p>
+</blockquote>
+<h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><p>我们的Impala在使用的时候经常会遇到OOM的问题，之前是把Impala和yarn等工具都部署在同一集群中，而且所有工具的内存使用量加起来是大于集群所拥有的实际物理内存的量。所以每次Impala OOM发生的时候，我们都以为是我们的内存不够造成的。但是后面我们把Impala部署到一个单独集群后（有充足的内存），偶尔还是会出OOM的情况。</p>
+<h4 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h4><p>我们之前的Impala内存配置是这样的：</p>
+<blockquote>
+<p>mem_limit: 70G<br>  Impala Daemon JVM Heap: 60G</p>
+</blockquote>
+<p>我们本来以为这样的配置就相当于，Impala总共使用的内存量是70G，但是实际上Impala可以使用的内存量是130G，如果我们的机器的内存小于130G（我们的内存实际上大概是80G）就会发生OOM。</p>
+<h4 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4><p>Impala Daemon进程其实是由两个不同的进程组成的。一个进程是用C++写的，它主要用来执行查询语句；另外一个进程是用Java写的，它主要是用来编译执行语句和存储metadata信息。Java的进程被嵌入到C++的进程中，因此他们两个进程共享一个进程号。上述的两个内存参数：mem_limit是用来控制C++进程的内存使用量，而Impala Daemon JVM Heap是用来控制Java进程的内存使用量的。</p>
+<p>我们都知道Impala的内存使用量主要都是花费在执行查询的阶段，而存储的metadata的内存量不用太多，所以我们把配置改成如下的方案，就再也没有发生过OOM了。</p>
+<blockquote>
+<p>mem_limit: 70G<br>  Impala Daemon JVM Heap: 10G</p>
+</blockquote>
+<h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><ol>
+<li><a href="https://www.ericlin.me/2018/06/how-to-control-impala-daemons-memory-limit/" target="_blank" rel="noopener">HOW TO CONTROL IMPALA DAEMON’S MEMORY LIMIT</a></li>
+</ol>
+
+      
     </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>感谢支持，我会继续努力！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.png" alt="Darcy 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Darcy 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Impala/" rel="tag"># Impala</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/20/airflow使用总结/" rel="next" title="airflow使用总结">
+                <i class="fa fa-chevron-left"></i> airflow使用总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+  </div>
 
 
           </div>
           
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
 
         </div>
         
@@ -433,8 +592,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
             
@@ -639,6 +807,22 @@
       </section>
 
       
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#问题"><span class="nav-number">1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#原因"><span class="nav-number">2.</span> <span class="nav-text">原因</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解决方案"><span class="nav-number">3.</span> <span class="nav-text">解决方案</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
 
       
 
@@ -768,6 +952,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.4.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.4.2"></script>
+
+
 
   
 
@@ -782,6 +970,23 @@
     <script id="dsq-count-scr" src="https://lintingbin2009.disqus.com/count.js" async></script>
   
 
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://lintingbin2009.github.io/2019/10/30/Impala内存配置/';
+        this.page.identifier = '2019/10/30/Impala内存配置/';
+        this.page.title = 'Impala内存配置';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://lintingbin2009.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        loadComments();
+      
+    </script>
   
 
 
